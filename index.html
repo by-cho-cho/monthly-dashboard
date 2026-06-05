@@ -228,7 +228,7 @@
   <div style="text-align:center; max-width:900px; padding:40px;">
     <h1 style="font-size:64px; font-weight:800; line-height:1.15;
                color:#EDF2FB; letter-spacing:-0.02em; margin:0;">
-      2026년 <span style="color:#C9A961;">5월</span> 생산부 보고
+      생산부 <span style="color:#C9A961;">5월</span> 월간보고자료
     </h1>
 
     <!-- 구분선 -->
@@ -303,7 +303,7 @@ function enterMainDashboard() {
         <div>
           <div style="font-size:10px;color:#6B7693;letter-spacing:0.35em;margin-bottom:6px;">MONTHLY REPORT · 생산부</div>
           <h1 style="font-size:32px;font-weight:800;color:#EDF2FB;margin:0;letter-spacing:-0.02em;">
-            2026년 <span style="color:#C9A961;">5월</span> 보고
+            생산부 <span style="color:#C9A961;">5월</span> 월간보고자료
             <span style="font-size:14px;font-weight:400;color:#6B7693;margin-left:12px;">/ 6월 계획 포함</span>
           </h1>
         </div>
@@ -314,134 +314,129 @@ function enterMainDashboard() {
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!-- 생산팀                                    -->
-    <!-- ══════════════════════════════════════════ -->
-    <div style="margin-bottom:20px;">
-      <!-- 팀 헤더 -->
+    <!-- ■■■ 팀별 보고 (NEW) ■■■ -->
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- 생산팀                                           -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div style="margin-bottom:22px;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <div style="width:3px;height:28px;background:#C9A961;border-radius:2px;"></div>
-        <span style="font-size:13px;font-weight:800;color:#C9A961;letter-spacing:0.12em;">생산팀</span>
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(201,169,97,0.3),transparent);"></div>
+        <div style="width:3px;height:26px;background:linear-gradient(180deg,#C9A961,#FFB547);border-radius:2px;flex-shrink:0;"></div>
+        <span style="font-size:12px;font-weight:800;color:#C9A961;letter-spacing:0.15em;text-transform:uppercase;">생산팀</span>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(201,169,97,0.4),transparent);"></div>
+        <span style="font-size:10px;color:#6B7693;letter-spacing:0.1em;">PRODUCTION TEAM</span>
       </div>
 
-      <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(201,169,97,0.2);border-radius:14px;padding:22px;border-left:3px solid #C9A961;">
-        <!-- 실적 테이블 -->
-        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;">
+      <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(201,169,97,0.18);border-radius:14px;padding:20px;border-left:3px solid #C9A961;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;">
           <thead>
             <tr>
-              <th rowspan="2" style="padding:10px 14px;text-align:left;background:rgba(255,255,255,0.04);color:#6B7693;border:1px solid #243049;width:90px;">품목군</th>
-              <th colspan="5" style="text-align:center;padding:7px;background:rgba(201,169,97,0.08);color:#C9A961;border:1px solid #243049;font-size:10px;letter-spacing:0.1em;">5월 계획 및 실적</th>
-              <th style="text-align:center;padding:7px;background:rgba(79,195,247,0.10);color:#4FC3F7;border:1px solid #243049;font-size:10px;letter-spacing:0.1em;">6월 계획</th>
+              <th rowspan="2" style="padding:9px 14px;text-align:left;background:rgba(255,255,255,0.03);color:#6B7693;border:1px solid #1E2A40;font-size:11px;width:80px;">품목군</th>
+              <th colspan="5" style="text-align:center;padding:7px;background:rgba(201,169,97,0.08);color:#C9A961;border:1px solid #1E2A40;font-size:10px;letter-spacing:0.12em;">5월 계획 및 실적</th>
+              <th style="text-align:center;padding:7px;background:rgba(79,195,247,0.10);color:#4FC3F7;border:1px solid #1E2A40;font-size:10px;letter-spacing:0.1em;">6월 안전재고 확보</th>
             </tr>
             <tr style="background:rgba(255,255,255,0.02);">
-              <th style="padding:8px 12px;text-align:right;color:#6B7693;border:1px solid #243049;font-weight:600;font-size:11px;">수주량</th>
-              <th style="padding:8px 12px;text-align:right;color:#6B7693;border:1px solid #243049;font-weight:600;font-size:11px;">생산계획</th>
-              <th style="padding:8px 12px;text-align:right;color:#6B7693;border:1px solid #243049;font-weight:600;font-size:11px;">생산량</th>
-              <th style="padding:8px 12px;text-align:right;color:#6B7693;border:1px solid #243049;font-weight:600;font-size:11px;">출고량</th>
-              <th style="padding:8px 12px;text-align:right;color:#6B7693;border:1px solid #243049;font-weight:600;font-size:11px;">달성률</th>
-              <th style="padding:8px 12px;text-align:right;color:#4FC3F7;border:1px solid #243049;font-weight:600;font-size:11px;">생산계획</th>
+              <th style="padding:7px 11px;text-align:right;color:#6B7693;border:1px solid #1E2A40;font-weight:600;font-size:10px;">수주량</th>
+              <th style="padding:7px 11px;text-align:right;color:#6B7693;border:1px solid #1E2A40;font-weight:600;font-size:10px;">생산계획</th>
+              <th style="padding:7px 11px;text-align:right;color:#6B7693;border:1px solid #1E2A40;font-weight:600;font-size:10px;">생산량</th>
+              <th style="padding:7px 11px;text-align:right;color:#6B7693;border:1px solid #1E2A40;font-weight:600;font-size:10px;">출고량</th>
+              <th style="padding:7px 11px;text-align:right;color:#6B7693;border:1px solid #1E2A40;font-weight:600;font-size:10px;">달성률</th>
+              <th style="padding:7px 11px;text-align:right;color:#4FC3F7;border:1px solid #1E2A40;font-weight:600;font-size:10px;">계획</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td style="padding:12px 14px;border:1px solid #243049;font-weight:700;color:#EDF2FB;">BL / BE</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">38,520</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">38,330</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#EDF2FB;font-weight:600;" class="num">33,310</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">20,860</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;font-weight:700;" class="num">
-                <span style="background:rgba(255,183,71,0.15);color:#FFB547;padding:3px 10px;border-radius:20px;">86.9%</span>
-              </td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;font-weight:700;color:#4FC3F7;" class="num">42,160</td>
+              <td style="padding:11px 14px;border:1px solid #1E2A40;font-weight:700;color:#EDF2FB;">BL / BE</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">38,520</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">38,330</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#EDF2FB;font-weight:600;" class="num">33,310</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">20,860</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;" class="num"><span style="background:rgba(255,183,71,0.15);color:#FFB547;padding:3px 10px;border-radius:20px;font-weight:700;">86.9%</span></td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;font-weight:700;color:#4FC3F7;" class="num">42,160</td>
             </tr>
             <tr>
-              <td style="padding:12px 14px;border:1px solid #243049;font-weight:700;color:#EDF2FB;">C / F</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">5,000</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">22,000</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#EDF2FB;font-weight:600;" class="num">25,000</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">23,198</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;font-weight:700;" class="num">
-                <span style="background:rgba(0,229,160,0.15);color:#00E5A0;padding:3px 10px;border-radius:20px;">113.6%</span>
-              </td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;font-weight:700;color:#4FC3F7;" class="num">17,000</td>
+              <td style="padding:11px 14px;border:1px solid #1E2A40;font-weight:700;color:#EDF2FB;">C / F</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">5,000</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">22,000</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#EDF2FB;font-weight:600;" class="num">25,000</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">23,198</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;" class="num"><span style="background:rgba(0,229,160,0.15);color:#00E5A0;padding:3px 10px;border-radius:20px;font-weight:700;">113.6%</span></td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;font-weight:700;color:#4FC3F7;" class="num">17,000</td>
             </tr>
             <tr>
-              <td style="padding:12px 14px;border:1px solid #243049;font-weight:700;color:#EDF2FB;">Catheter</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">381</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">980</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#EDF2FB;font-weight:600;" class="num">1,025</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;color:#B8C2D9;" class="num">465</td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;font-weight:700;" class="num">
-                <span style="background:rgba(0,229,160,0.15);color:#00E5A0;padding:3px 10px;border-radius:20px;">104.6%</span>
+              <td style="padding:11px 14px;border:1px solid #1E2A40;font-weight:700;color:#EDF2FB;">Catheter</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">381</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">980</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#EDF2FB;font-weight:600;" class="num">1,025</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;color:#B8C2D9;" class="num">465</td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;" class="num"><span style="background:rgba(0,229,160,0.15);color:#00E5A0;padding:3px 10px;border-radius:20px;font-weight:700;">104.6%</span></td>
+              <td style="padding:11px 14px;text-align:right;border:1px solid #1E2A40;border-radius:0;font-size:11px;" class="num">
+                <div style="font-weight:700;color:#4FC3F7;">720</div>
+                <div style="font-size:10px;color:#6B7693;margin-top:2px;">DUO DECA 200개</div>
               </td>
-              <td style="padding:12px 14px;text-align:right;border:1px solid #243049;font-weight:700;color:#4FC3F7;" class="num">720</td>
             </tr>
           </tbody>
         </table>
 
-        <!-- 특이사항 -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-
-          <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,183,71,0.2);">
-            <div style="padding:10px 14px;background:linear-gradient(135deg,rgba(255,183,71,0.18),rgba(255,183,71,0.06));display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:12px;font-weight:700;color:#FFB547;letter-spacing:0.05em;">BL / BE</span>
-              <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 8px;border-radius:20px;background:rgba(255,183,71,0.2);color:#FFB547;border:1px solid rgba(255,183,71,0.4);">SCHEDULE REVISED</span>
+        <!-- 특이사항 카드 -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,183,71,0.2);">
+            <div style="padding:8px 12px;background:linear-gradient(135deg,rgba(255,183,71,0.18),rgba(255,183,71,0.05));display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11px;font-weight:700;color:#FFB547;">BL / BE</span>
+              <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;padding:2px 7px;border-radius:20px;background:rgba(255,183,71,0.2);color:#FFB547;border:1px solid rgba(255,183,71,0.4);">SCHEDULE REVISED</span>
             </div>
-            <div style="padding:14px;background:rgba(255,183,71,0.03);">
-              <div style="font-size:12px;font-weight:600;color:#EDF2FB;margin-bottom:8px;">생산 스케줄 리파이닝</div>
-              <div style="font-size:11px;color:#6B7693;line-height:1.8;">C/F Safety Buffer Stock 확보 우선화에 따라 6월 이후 수주 파이프라인 재편 및 생산 캘린더 조정 적용</div>
-            </div>
-          </div>
-
-          <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(0,229,160,0.2);">
-            <div style="padding:10px 14px;background:linear-gradient(135deg,rgba(0,229,160,0.18),rgba(0,229,160,0.06));display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:12px;font-weight:700;color:#00E5A0;letter-spacing:0.05em;">C / F</span>
-              <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 8px;border-radius:20px;background:rgba(0,229,160,0.2);color:#00E5A0;border:1px solid rgba(0,229,160,0.4);">OUTPERFORMING</span>
-            </div>
-            <div style="padding:14px;background:rgba(0,229,160,0.03);">
-              <div style="font-size:12px;font-weight:600;color:#EDF2FB;margin-bottom:8px;">Buffer Stock 확보 · Pre-production 초과달성</div>
-              <div style="font-size:11px;color:#6B7693;line-height:1.8;">제이시스(국내) Safety Stock 3K 확보 완료 및 텐텍 Pre-production 물량 계획 대비 상향 집행</div>
+            <div style="padding:12px;background:rgba(255,183,71,0.03);">
+              <div style="font-size:11px;font-weight:600;color:#EDF2FB;margin-bottom:6px;">생산 스케줄 리파이닝</div>
+              <div style="font-size:11px;color:#6B7693;line-height:1.7;">C/F Safety Buffer Stock 확보 우선화에 따라 6월 이후 수주 파이프라인 재편 및 생산 캘린더 조정</div>
             </div>
           </div>
-
-          <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(230,57,70,0.2);">
-            <div style="padding:10px 14px;background:linear-gradient(135deg,rgba(230,57,70,0.18),rgba(230,57,70,0.06));display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:12px;font-weight:700;color:#E63946;letter-spacing:0.05em;">Catheter</span>
-              <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 8px;border-radius:20px;background:rgba(230,57,70,0.2);color:#E63946;border:1px solid rgba(230,57,70,0.4);">RISK IDENTIFIED</span>
+          <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(0,229,160,0.2);">
+            <div style="padding:8px 12px;background:linear-gradient(135deg,rgba(0,229,160,0.18),rgba(0,229,160,0.05));display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11px;font-weight:700;color:#00E5A0;">C / F</span>
+              <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;padding:2px 7px;border-radius:20px;background:rgba(0,229,160,0.2);color:#00E5A0;border:1px solid rgba(0,229,160,0.4);">OUTPERFORMING</span>
             </div>
-            <div style="padding:14px;background:rgba(230,57,70,0.03);">
-              <div style="font-size:12px;font-weight:600;color:#EDF2FB;margin-bottom:8px;">DUO DECA Critical Path 지연</div>
-              <div style="font-size:11px;color:#6B7693;line-height:1.8;">용접링 SCM 조달 Failure 및 EPO Probe Expedited Delivery 대응으로 생산 리소스 전용 발생 → <span style="color:#E63946;font-weight:600;">–45EA 미달</span></div>
+            <div style="padding:12px;background:rgba(0,229,160,0.03);">
+              <div style="font-size:11px;font-weight:600;color:#EDF2FB;margin-bottom:6px;">Pre-production 초과달성</div>
+              <div style="font-size:11px;color:#6B7693;line-height:1.7;">제이시스(국내) Safety Stock 3K 확보 완료 및 텐텍 Pre-production 물량 계획 대비 상향 집행</div>
             </div>
           </div>
-
+          <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(230,57,70,0.2);">
+            <div style="padding:8px 12px;background:linear-gradient(135deg,rgba(230,57,70,0.18),rgba(230,57,70,0.05));display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11px;font-weight:700;color:#E63946;">Catheter</span>
+              <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;padding:2px 7px;border-radius:20px;background:rgba(230,57,70,0.2);color:#E63946;border:1px solid rgba(230,57,70,0.4);">RISK IDENTIFIED</span>
+            </div>
+            <div style="padding:12px;background:rgba(230,57,70,0.03);">
+              <div style="font-size:11px;font-weight:600;color:#EDF2FB;margin-bottom:6px;">DUO DECA Critical Path 지연</div>
+              <div style="font-size:11px;color:#6B7693;line-height:1.7;">웰딩 숙련인력 부재 및 EPO Probe Expedited Delivery 대응으로 리소스 전용 → <span style="color:#E63946;font-weight:600;">–45EA 미달</span></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!-- 구매팀                                    -->
-    <!-- ══════════════════════════════════════════ -->
-    <div style="margin-bottom:20px;">
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- 구매팀                                           -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div style="margin-bottom:22px;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <div style="width:3px;height:28px;background:#FFB547;border-radius:2px;"></div>
-        <span style="font-size:13px;font-weight:800;color:#FFB547;letter-spacing:0.12em;">구매팀</span>
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,183,71,0.3),transparent);"></div>
+        <div style="width:3px;height:26px;background:linear-gradient(180deg,#FFB547,#C9A961);border-radius:2px;flex-shrink:0;"></div>
+        <span style="font-size:12px;font-weight:800;color:#FFB547;letter-spacing:0.15em;text-transform:uppercase;">구매팀</span>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,183,71,0.4),transparent);"></div>
+        <span style="font-size:10px;color:#6B7693;letter-spacing:0.1em;">PROCUREMENT TEAM</span>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <!-- 원가절감 -->
-        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(255,183,71,0.2);border-radius:14px;padding:22px;border-left:3px solid #FFB547;">
-          <div style="font-size:11px;font-weight:700;color:#FFB547;letter-spacing:0.1em;margin-bottom:16px;">원가절감 현황</div>
-          <div style="display:flex;gap:14px;margin-bottom:14px;">
-            <div style="flex:1;text-align:center;padding:14px;background:rgba(255,183,71,0.07);border-radius:10px;">
-              <div style="font-size:10px;color:#6B7693;margin-bottom:5px;">누적 절감액</div>
-              <div style="font-size:20px;font-weight:700;color:#FFB547;font-family:'IBM Plex Sans',sans-serif;">1억 2,400만원</div>
+      <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(255,183,71,0.18);border-radius:14px;padding:20px;border-left:3px solid #FFB547;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <!-- 5월 현황 -->
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#FFB547;letter-spacing:0.12em;margin-bottom:14px;">5월 현황</div>
+          <div style="display:flex;gap:12px;margin-bottom:12px;">
+            <div style="flex:1;text-align:center;padding:14px 10px;background:rgba(255,183,71,0.07);border-radius:10px;border:1px solid rgba(255,183,71,0.12);">
+              <div style="font-size:10px;color:#6B7693;margin-bottom:5px;">누적 원가절감</div>
+              <div style="font-size:18px;font-weight:700;color:#FFB547;font-family:'IBM Plex Sans',sans-serif;line-height:1.2;">1억<br>2,400만원</div>
             </div>
-            <div style="flex:1;text-align:center;padding:14px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid #243049;">
-              <div style="font-size:10px;color:#6B7693;margin-bottom:5px;">목표 달성</div>
-              <div style="font-size:28px;font-weight:700;color:#FFB547;font-family:'IBM Plex Sans',sans-serif;">62%</div>
+            <div style="flex:1;text-align:center;padding:14px 10px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid #1E2A40;">
+              <div style="font-size:10px;color:#6B7693;margin-bottom:5px;">목표 달성률</div>
+              <div style="font-size:30px;font-weight:700;color:#FFB547;font-family:'IBM Plex Sans',sans-serif;">62%</div>
               <div style="font-size:10px;color:#6B7693;">목표 2억 대비</div>
             </div>
           </div>
@@ -449,84 +444,137 @@ function enterMainDashboard() {
             26년 1~5월 총 매입비용 <span style="color:#B8C2D9;font-weight:600;">9억 3,600만원</span>
           </div>
         </div>
+        <!-- 6월 계획 -->
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#4FC3F7;letter-spacing:0.12em;margin-bottom:14px;">6월 계획 — 업체 변경 추진</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(79,195,247,0.05);border-radius:8px;border:1px solid rgba(79,195,247,0.12);">
+              <div style="width:6px;height:6px;border-radius:50%;background:#4FC3F7;flex-shrink:0;"></div>
+              <span style="font-size:11px;color:#B8C2D9;">EP커넥터 공급업체 변경</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(79,195,247,0.05);border-radius:8px;border:1px solid rgba(79,195,247,0.12);">
+              <div style="width:6px;height:6px;border-radius:50%;background:#4FC3F7;flex-shrink:0;"></div>
+              <span style="font-size:11px;color:#B8C2D9;">팁캡 공급업체 변경</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(79,195,247,0.05);border-radius:8px;border:1px solid rgba(79,195,247,0.12);">
+              <div style="width:6px;height:6px;border-radius:50%;background:#4FC3F7;flex-shrink:0;"></div>
+              <span style="font-size:11px;color:#B8C2D9;">블루블랙 타이백 포장지 변경</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(79,195,247,0.05);border-radius:8px;border:1px solid rgba(79,195,247,0.12);">
+              <div style="width:6px;height:6px;border-radius:50%;background:#4FC3F7;flex-shrink:0;"></div>
+              <span style="font-size:11px;color:#B8C2D9;">ENBD용 드레인튜브 업체 변경</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <!-- RFA -->
-        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(255,183,71,0.2);border-radius:14px;padding:22px;border-left:3px solid #FFB547;">
-          <div style="font-size:11px;font-weight:700;color:#FFB547;letter-spacing:0.1em;margin-bottom:16px;">RFA 개발</div>
-          <div style="font-size:12px;color:#B8C2D9;line-height:1.9;margin-bottom:14px;">
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- 생산기술팀                                        -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div style="width:3px;height:26px;background:linear-gradient(180deg,#4FC3F7,#00E5A0);border-radius:2px;flex-shrink:0;"></div>
+        <span style="font-size:12px;font-weight:800;color:#4FC3F7;letter-spacing:0.15em;text-transform:uppercase;">생산기술팀</span>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(79,195,247,0.4),transparent);"></div>
+        <span style="font-size:10px;color:#6B7693;letter-spacing:0.1em;">PRODUCTION TECHNOLOGY TEAM</span>
+      </div>
+
+      <!-- 상단 2열: Steerable sheath + RFA -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+
+        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(79,195,247,0.18);border-radius:14px;padding:18px;border-left:3px solid #4FC3F7;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:11px;font-weight:700;color:#4FC3F7;letter-spacing:0.06em;">Steerable Sheath</span>
+            <span style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(255,183,71,0.15);color:#FFB547;border:1px solid rgba(255,183,71,0.3);font-weight:600;">IN PROGRESS</span>
+          </div>
+          <div style="font-size:11px;color:#B8C2D9;line-height:1.8;margin-bottom:12px;">
+            APT 계약 진행 중<br>
+            7월 내 인증용 샘플 <span style="color:#EDF2FB;font-weight:600;">100개</span> 수급 요청<br>
+            국내 GMP 품목 추가 필요<br>
+            <span style="font-size:10px;color:#6B7693;">측정 및 유도용기구(II)</span>
+          </div>
+          <div style="padding:9px 12px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.15);border-radius:8px;">
+            <span style="font-size:10px;color:#00E5A0;font-weight:700;">6월 계획 ›</span>
+            <span style="font-size:11px;color:#B8C2D9;margin-left:6px;">계약 완료 및 인증용 샘플 진행</span>
+          </div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(79,195,247,0.18);border-radius:14px;padding:18px;border-left:3px solid #4FC3F7;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:11px;font-weight:700;color:#4FC3F7;letter-spacing:0.06em;">RFA 개발</span>
+            <span style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(79,195,247,0.15);color:#4FC3F7;border:1px solid rgba(79,195,247,0.3);font-weight:600;">DIRECTION CHANGE</span>
+          </div>
+          <div style="font-size:11px;color:#B8C2D9;line-height:1.8;margin-bottom:12px;">
             Pjt drop → <span style="color:#4FC3F7;font-weight:600;">RFA/PFA Hybrid</span> 개발 방향 변경<br>
             Accupath · 생기원 <span style="color:#EDF2FB;font-weight:600;">투트랙 전략</span> 진행<br>
             <span style="font-size:10px;color:#6B7693;">Target Mode : Abotte DUO Flex</span>
           </div>
-          <div style="padding:10px 14px;background:rgba(79,195,247,0.06);border:1px solid rgba(79,195,247,0.15);border-radius:8px;display:flex;align-items:center;gap:10px;">
-            <span style="font-size:10px;font-weight:700;color:#4FC3F7;white-space:nowrap;">6월 계획</span>
-            <span style="font-size:11px;color:#B8C2D9;">에보트 RFA Flexability 역설계 시작</span>
+          <div style="padding:9px 12px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.15);border-radius:8px;">
+            <span style="font-size:10px;color:#00E5A0;font-weight:700;">6월 계획 ›</span>
+            <span style="font-size:11px;color:#B8C2D9;margin-left:6px;">에보트 RFA Flexability 역설계 시작</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!-- 생산기술팀                                 -->
-    <!-- ══════════════════════════════════════════ -->
-    <div style="margin-bottom:32px;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <div style="width:3px;height:28px;background:#4FC3F7;border-radius:2px;"></div>
-        <span style="font-size:13px;font-weight:800;color:#4FC3F7;letter-spacing:0.12em;">생산기술팀</span>
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(79,195,247,0.3),transparent);"></div>
-      </div>
+      <!-- 하단 3열: 6Fr Deca + Sustaining + UZ -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-        <!-- 6Fr Deca -->
-        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(79,195,247,0.2);border-radius:14px;padding:22px;border-left:3px solid #4FC3F7;">
-          <div style="font-size:11px;font-weight:700;color:#4FC3F7;letter-spacing:0.08em;margin-bottom:14px;">6Fr 스티어러블 Deca</div>
-          <div style="font-size:11px;color:#B8C2D9;line-height:1.9;margin-bottom:14px;">
+        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(79,195,247,0.18);border-radius:14px;padding:18px;border-left:3px solid #4FC3F7;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:11px;font-weight:700;color:#4FC3F7;">6Fr 스티어러블 Deca</span>
+            <span style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(255,183,71,0.15);color:#FFB547;border:1px solid rgba(255,183,71,0.3);font-weight:600;">SAMPLING</span>
+          </div>
+          <div style="font-size:11px;color:#B8C2D9;line-height:1.8;margin-bottom:12px;">
             커브 등 형상 <span style="color:#00E5A0;font-weight:600;">모두 만족</span><br>
             Distal 쿠션감 확보 필요<br>
-            Non Braide 샤프트 W/T 축소<br>
-            <span style="font-size:10px;color:#6B7693;">(= Boston 방식)</span><br>
-            레진 구매 후 샘플 제작<br>
-            <span style="color:#FFB547;font-weight:600;">7/15 이내 입고</span> 예정
+            <span style="color:#FFB547;font-size:10px;">대안 ›</span> Non Braide 샤프트<br>
+            W/T 감소·레진 구매 후 샘플<br>
+            <span style="color:#FFB547;font-weight:600;">7/15 이내</span> 입고 예정
           </div>
-          <div style="padding:10px 12px;background:rgba(79,195,247,0.06);border:1px solid rgba(79,195,247,0.15);border-radius:8px;">
-            <div style="font-size:10px;color:#4FC3F7;font-weight:700;margin-bottom:4px;">6월 계획</div>
-            <div style="font-size:11px;color:#B8C2D9;line-height:1.7;">샤프트 내경 확대 가능 여부 검토<br>중국 업체 수급 논의 시작</div>
+          <div style="padding:9px 12px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.15);border-radius:8px;">
+            <div style="font-size:10px;color:#00E5A0;font-weight:700;margin-bottom:3px;">6월 계획</div>
+            <div style="font-size:11px;color:#B8C2D9;line-height:1.6;">샤프트 내경 확대 가능여부 검토<br>중국 제작업체 수급 논의 시작</div>
           </div>
         </div>
 
-        <!-- Sustaining -->
-        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(79,195,247,0.2);border-radius:14px;padding:22px;border-left:3px solid #4FC3F7;">
-          <div style="font-size:11px;font-weight:700;color:#4FC3F7;letter-spacing:0.08em;margin-bottom:14px;">Sustaining</div>
-          <div style="font-size:11px;color:#B8C2D9;line-height:1.9;margin-bottom:14px;">
+        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(79,195,247,0.18);border-radius:14px;padding:18px;border-left:3px solid #4FC3F7;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:11px;font-weight:700;color:#4FC3F7;">Sustaining</span>
+            <span style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(0,229,160,0.15);color:#00E5A0;border:1px solid rgba(0,229,160,0.3);font-weight:600;">1ST VERIFIED</span>
+          </div>
+          <div style="font-size:11px;color:#B8C2D9;line-height:1.8;margin-bottom:12px;">
             용접방법 개선<br>
-            헬딩(2회) → <span style="color:#4FC3F7;font-weight:600;">에폭시 도포</span><br><br>
-            기존 6개월↑ 숙달 기간 대비<br>
-            <span style="color:#00E5A0;font-weight:600;">1~2일</span> 작업 가능<br>
-            생산성 <span style="color:#00E5A0;font-weight:600;">약 2배</span> 향상
+            웰딩(2회) → <span style="color:#4FC3F7;font-weight:600;">에폭시 도포</span><br>
+            1차 검증 <span style="color:#00E5A0;font-weight:600;">완료</span><br>
+            기존 대비 생산성 <span style="color:#00E5A0;font-weight:600;">약 2배</span> 향상
           </div>
-          <div style="padding:10px 12px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.15);border-radius:8px;">
-            <div style="font-size:10px;color:#00E5A0;font-weight:700;margin-bottom:4px;">6월 계획</div>
-            <div style="font-size:11px;color:#B8C2D9;">검증 완료</div>
+          <div style="padding:9px 12px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.15);border-radius:8px;">
+            <span style="font-size:10px;color:#00E5A0;font-weight:700;">6월 계획 ›</span>
+            <span style="font-size:11px;color:#B8C2D9;margin-left:6px;">최종 검증 완료</span>
           </div>
         </div>
 
-        <!-- UZ -->
-        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(79,195,247,0.2);border-radius:14px;padding:22px;border-left:3px solid #4FC3F7;">
-          <div style="font-size:11px;font-weight:700;color:#4FC3F7;letter-spacing:0.08em;margin-bottom:14px;">생산기술 UZ</div>
-          <div style="font-size:11px;color:#B8C2D9;line-height:1.9;margin-bottom:14px;">
+        <div style="background:linear-gradient(135deg,#131826,#1A2032);border:1px solid rgba(79,195,247,0.18);border-radius:14px;padding:18px;border-left:3px solid #4FC3F7;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:11px;font-weight:700;color:#4FC3F7;">생산기술 UZ</span>
+            <span style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(79,195,247,0.15);color:#4FC3F7;border:1px solid rgba(79,195,247,0.3);font-weight:600;">SCHEDULED</span>
+          </div>
+          <div style="font-size:11px;color:#B8C2D9;line-height:1.8;margin-bottom:12px;">
             6/7 입국<br>
             <span style="color:#4FC3F7;font-weight:600;">15일 체류</span> 예정
           </div>
-          <div style="padding:10px 12px;background:rgba(79,195,247,0.06);border:1px solid rgba(79,195,247,0.15);border-radius:8px;">
-            <div style="font-size:10px;color:#4FC3F7;font-weight:700;margin-bottom:4px;">6월 계획</div>
+          <div style="padding:9px 12px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.15);border-radius:8px;">
+            <div style="font-size:10px;color:#00E5A0;font-weight:700;margin-bottom:3px;">6월 계획</div>
             <div style="font-size:11px;color:#B8C2D9;">법인장 OJT 및 UZ 준비사항 F/U</div>
           </div>
         </div>
+
       </div>
     </div>
 
     <!-- 대시보드 진입 버튼 -->
-    <div style="text-align:center;">
+    <div style="text-align:center;margin-top:36px;">
       <button onclick="enterMainDashboard()" style="
         padding:14px 52px;
         background:linear-gradient(135deg,rgba(201,169,97,0.20),rgba(201,169,97,0.08));
