@@ -920,7 +920,30 @@ document.addEventListener('fullscreenchange', () => {
         </span>
       </div>
     </div>
-    <div id="chartTrend" style="height: 300px;"></div>
+    <div style="position:relative;">
+      <div id="chartTrend" style="height: 300px;"></div>
+      <!-- 차트 우상단 미니 KPI 오버레이 -->
+      <div id="miniKpi" style="
+        position:absolute; top:12px; right:12px;
+        display:flex; gap:10px; pointer-events:none;">
+        <div style="
+          background:rgba(10,14,24,0.82);
+          backdrop-filter:blur(8px);
+          border:1px solid rgba(201,169,97,0.25);
+          border-radius:10px; padding:8px 14px; text-align:center;">
+          <div style="font-size:9px;color:#6B7693;letter-spacing:0.1em;margin-bottom:3px;">수주</div>
+          <div id="miniKpiOrder" style="font-size:16px;font-weight:700;color:#C9A961;font-family:'IBM Plex Sans',sans-serif;">—</div>
+        </div>
+        <div style="
+          background:rgba(10,14,24,0.82);
+          backdrop-filter:blur(8px);
+          border:1px solid rgba(79,195,247,0.25);
+          border-radius:10px; padding:8px 14px; text-align:center;">
+          <div style="font-size:9px;color:#6B7693;letter-spacing:0.1em;margin-bottom:3px;">생산</div>
+          <div id="miniKpiProd" style="font-size:16px;font-weight:700;color:#4FC3F7;font-family:'IBM Plex Sans',sans-serif;">—</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1317,6 +1340,11 @@ function renderKPI() {
   document.getElementById('kpiOrdersSub').innerHTML = arrowSub(oG, o25);
   document.getElementById('kpiProduction').textContent = fmtN(p26);
   document.getElementById('kpiProductionSub').innerHTML = arrowSub(pG, p25);
+  // 차트 오버레이 미니 KPI 업데이트
+  const mo = document.getElementById('miniKpiOrder');
+  const mp = document.getElementById('miniKpiProd');
+  if (mo) mo.textContent = fmtN(o26);
+  if (mp) mp.textContent = fmtN(p26);
   document.getElementById('kpiShipped').textContent = fmtN(s26);
   document.getElementById('kpiShippedSub').innerHTML = arrowSub(sG, s25);
 
