@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>생산부 월간보고</title>
+<title>대표이사 보고 — 생산 종합 현황</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -927,20 +927,22 @@ document.addEventListener('fullscreenchange', () => {
         position:absolute; top:12px; right:12px;
         display:flex; gap:10px; pointer-events:none;">
         <div style="
-          background:rgba(10,14,24,0.82);
-          backdrop-filter:blur(8px);
-          border:1px solid rgba(201,169,97,0.25);
-          border-radius:10px; padding:8px 14px; text-align:center;">
-          <div style="font-size:9px;color:#6B7693;letter-spacing:0.1em;margin-bottom:3px;">수주</div>
-          <div id="miniKpiOrder" style="font-size:16px;font-weight:700;color:#C9A961;font-family:'IBM Plex Sans',sans-serif;">—</div>
+          background:rgba(10,14,24,0.85);
+          backdrop-filter:blur(10px);
+          border:1px solid rgba(201,169,97,0.3);
+          border-radius:12px; padding:10px 16px;">
+          <div style="font-size:9px;color:#6B7693;letter-spacing:0.1em;margin-bottom:4px;">총 수주</div>
+          <div id="miniKpiOrder" style="font-size:20px;font-weight:700;color:#C9A961;font-family:'IBM Plex Sans',sans-serif;line-height:1;">—</div>
+          <div id="miniKpiOrderSub" style="font-size:10px;color:#6B7693;margin-top:4px;">—</div>
         </div>
         <div style="
-          background:rgba(10,14,24,0.82);
-          backdrop-filter:blur(8px);
-          border:1px solid rgba(79,195,247,0.25);
-          border-radius:10px; padding:8px 14px; text-align:center;">
-          <div style="font-size:9px;color:#6B7693;letter-spacing:0.1em;margin-bottom:3px;">생산</div>
-          <div id="miniKpiProd" style="font-size:16px;font-weight:700;color:#4FC3F7;font-family:'IBM Plex Sans',sans-serif;">—</div>
+          background:rgba(10,14,24,0.85);
+          backdrop-filter:blur(10px);
+          border:1px solid rgba(79,195,247,0.3);
+          border-radius:12px; padding:10px 16px;">
+          <div style="font-size:9px;color:#6B7693;letter-spacing:0.1em;margin-bottom:4px;">총 생산</div>
+          <div id="miniKpiProd" style="font-size:20px;font-weight:700;color:#4FC3F7;font-family:'IBM Plex Sans',sans-serif;line-height:1;">—</div>
+          <div id="miniKpiProdSub" style="font-size:10px;color:#6B7693;margin-top:4px;">—</div>
         </div>
       </div>
     </div>
@@ -1343,8 +1345,18 @@ function renderKPI() {
   // 차트 오버레이 미니 KPI 업데이트
   const mo = document.getElementById('miniKpiOrder');
   const mp = document.getElementById('miniKpiProd');
+  const mos = document.getElementById('miniKpiOrderSub');
+  const mps = document.getElementById('miniKpiProdSub');
   if (mo) mo.textContent = fmtN(o26);
   if (mp) mp.textContent = fmtN(p26);
+  const miniArrow = (g, prev) => {
+    if (prev == null || prev === 0) return '—';
+    const arrow = g >= 0 ? '▲' : '▼';
+    const col = g >= 0 ? '#00E5A0' : '#E63946';
+    return `<span style="color:${col};">${arrow} ${Math.abs(g).toFixed(1)}%</span> · 전년 동기 ${fmtN(prev)}`;
+  };
+  if (mos) mos.innerHTML = miniArrow(oG, o25);
+  if (mps) mps.innerHTML = miniArrow(pG, p25);
   document.getElementById('kpiShipped').textContent = fmtN(s26);
   document.getElementById('kpiShippedSub').innerHTML = arrowSub(sG, s25);
 
