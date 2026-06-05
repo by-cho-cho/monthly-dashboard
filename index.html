@@ -1645,7 +1645,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       fetchGviz(SHEET_ID_2025, GIDS['2BAN']).catch(() => null),
     ]);
 
-    const now = new Date().toLocaleString('ko-KR');
+    const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
     if (csv1ban)  { window._CSV_1BAN  = { '2145094968': csv1ban  }; window._CSV_1BAN_DATE  = now; }
     if (csv2ban)  { window._CSV_2BAN  = { '680125344':  csv2ban  }; window._CSV_2BAN_DATE  = now; }
     if (csv1ban25) window.DATA_1BAN_2025 = parse2025_1ban(csv1ban25);
@@ -1653,6 +1653,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     showLoadingOverlay(false);
     init();
+    // 차트 컨테이너가 보인 후 크기 재계산
+    setTimeout(() => { Object.values(APP.charts).forEach(c => c && c.resize()); renderTrendChart(); }, 100);
   } catch(err) {
     document.getElementById('loadingOverlay').innerHTML = `
       <div style="text-align:center;padding:40px;">
