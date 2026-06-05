@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>생산부 5월간보고대표이사</title>
+<title>대표이사 보고 — 생산 종합 현황</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -381,19 +381,41 @@ function enterMainDashboard() {
         </table>
 
         <!-- 특이사항 -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-          <div style="padding:11px 14px;background:rgba(255,183,71,0.05);border:1px solid rgba(255,183,71,0.15);border-radius:10px;">
-            <div style="font-size:10px;font-weight:700;color:#FFB547;margin-bottom:5px;letter-spacing:0.05em;">BL/BE 특이사항</div>
-            <div style="font-size:11px;color:#6B7693;line-height:1.7;">C/F 안전재고 확보 위해 6월 이후 수주분 차원로 생산계획 변경</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+
+          <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,183,71,0.2);">
+            <div style="padding:10px 14px;background:linear-gradient(135deg,rgba(255,183,71,0.18),rgba(255,183,71,0.06));display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:12px;font-weight:700;color:#FFB547;letter-spacing:0.05em;">BL / BE</span>
+              <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 8px;border-radius:20px;background:rgba(255,183,71,0.2);color:#FFB547;border:1px solid rgba(255,183,71,0.4);">SCHEDULE REVISED</span>
+            </div>
+            <div style="padding:14px;background:rgba(255,183,71,0.03);">
+              <div style="font-size:12px;font-weight:600;color:#EDF2FB;margin-bottom:8px;">생산 스케줄 리파이닝</div>
+              <div style="font-size:11px;color:#6B7693;line-height:1.8;">C/F Safety Buffer Stock 확보 우선화에 따라 6월 이후 수주 파이프라인 재편 및 생산 캘린더 조정 적용</div>
+            </div>
           </div>
-          <div style="padding:11px 14px;background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.15);border-radius:10px;">
-            <div style="font-size:10px;font-weight:700;color:#00E5A0;margin-bottom:5px;letter-spacing:0.05em;">C/F 특이사항</div>
-            <div style="font-size:11px;color:#6B7693;line-height:1.7;">제이시스(국내) 안전재고 3k 확보 및 텐텍 선생산 계획 대비 증량</div>
+
+          <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(0,229,160,0.2);">
+            <div style="padding:10px 14px;background:linear-gradient(135deg,rgba(0,229,160,0.18),rgba(0,229,160,0.06));display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:12px;font-weight:700;color:#00E5A0;letter-spacing:0.05em;">C / F</span>
+              <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 8px;border-radius:20px;background:rgba(0,229,160,0.2);color:#00E5A0;border:1px solid rgba(0,229,160,0.4);">OUTPERFORMING</span>
+            </div>
+            <div style="padding:14px;background:rgba(0,229,160,0.03);">
+              <div style="font-size:12px;font-weight:600;color:#EDF2FB;margin-bottom:8px;">Buffer Stock 확보 · Pre-production 초과달성</div>
+              <div style="font-size:11px;color:#6B7693;line-height:1.8;">제이시스(국내) Safety Stock 3K 확보 완료 및 텐텍 Pre-production 물량 계획 대비 상향 집행</div>
+            </div>
           </div>
-          <div style="padding:11px 14px;background:rgba(230,57,70,0.05);border:1px solid rgba(230,57,70,0.15);border-radius:10px;">
-            <div style="font-size:10px;font-weight:700;color:#E63946;margin-bottom:5px;letter-spacing:0.05em;">Catheter 특이사항</div>
-            <div style="font-size:11px;color:#6B7693;line-height:1.7;">DUO DECA 75% — 듀오데카 180개 계획중 135개 75%달성-웰딩 숙련자 육성 실패와 EPO프로브 긴급납기로 인한 인력 분산</div>
+
+          <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(230,57,70,0.2);">
+            <div style="padding:10px 14px;background:linear-gradient(135deg,rgba(230,57,70,0.18),rgba(230,57,70,0.06));display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:12px;font-weight:700;color:#E63946;letter-spacing:0.05em;">Catheter</span>
+              <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 8px;border-radius:20px;background:rgba(230,57,70,0.2);color:#E63946;border:1px solid rgba(230,57,70,0.4);">RISK IDENTIFIED</span>
+            </div>
+            <div style="padding:14px;background:rgba(230,57,70,0.03);">
+              <div style="font-size:12px;font-weight:600;color:#EDF2FB;margin-bottom:8px;">DUO DECA Critical Path 지연</div>
+              <div style="font-size:11px;color:#6B7693;line-height:1.8;">용접링 SCM 조달 Failure 및 EPO Probe Expedited Delivery 대응으로 생산 리소스 전용 발생 → <span style="color:#E63946;font-weight:600;">–45EA 미달</span></div>
+            </div>
           </div>
+
         </div>
       </div>
     </div>
