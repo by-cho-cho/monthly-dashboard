@@ -632,6 +632,7 @@ function parse2Ban() {
   const EXCLUDE = new Set(['Cable']);
 
   const items = [];
+  const catStocks = {};   // 카테고리별 재고 데이터 (EP·ENBD 등)
   let currentCategory = null;
   for (let r=1; r<rows.length; r++) {
     const row = rows[r]; if (!row || !row[0]) continue;
@@ -644,7 +645,13 @@ function parse2Ban() {
                  : /enbd/i.test(model) ? 'ENBD'
                  : /^ep$/i.test(model) ? 'EP'
                  : model;
-      currentCategory = norm; continue;
+      currentCategory = norm;
+      // 카테고리 행의 재고 데이터 저장
+      const catSS = colMap.safetyStock >= 0 ? parseNum(row[colMap.safetyStock]) : 0;
+      const catCS = colMap.currentStock >= 0 ? parseNum(row[colMap.currentStock]) : 0;
+      const catUS = colMap.unshipped  >= 0 ? parseNum(row[colMap.unshipped])  : 0;
+      if (catSS > 0) catStocks[norm] = { model: norm, spec: '(품목군 합계)', category: norm, safetyStock: catSS, currentStock: catCS, unshipped: catUS };
+      continue;
     }
     if (!currentCategory) continue;
     if (EXCLUDE.has(currentCategory)) continue;
@@ -682,7 +689,7 @@ function parse2Ban() {
       }
     }
   }
-  return { items, has2025: !!window.DATA_2BAN_2025 };
+  return { items, has2025: !!window.DATA_2BAN_2025, catStocks };
 }
 
 /* ============================================================
@@ -1127,7 +1134,10 @@ function setStockFilter(key) {
 function renderStockAlerts() {
   const data = getCurrentData(); if (!data) return;
   const items = filterItems(data.items);
-  const shortItems = items.filter(it => {
+  // 2반: 개별 품목 재고 없으면 카테고리 재고 사용
+  const catItems = data.catStocks ? Object.values(data.catStocks) : [];
+  const allItems = items.some(it => it.safetyStock > 0) ? items : [...items, ...catItems];
+  const shortItems = allItems.filter(it => {
     if (!it.safetyStock) return false;
     const eff = it.currentStock - (it.unshipped || 0);
     return eff < it.safetyStock;
