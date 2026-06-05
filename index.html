@@ -762,8 +762,65 @@ function enterMainDashboard() {
         style="margin-left: 8px; padding: 8px 14px; font-size: 11px;">
         🖨 인쇄
       </button>
+      <button id="presentBtn" class="toggle-btn no-print" onclick="togglePresentMode()"
+        style="margin-left: 4px; padding: 8px 14px; font-size: 11px;">
+        🖥 발표 모드
+      </button>
+      <!-- 배율 조절 -->
+      <div id="zoomBar" class="no-print" style="display:none;align-items:center;gap:4px;margin-left:4px;">
+        <button onclick="setZoom(-5)" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);cursor:pointer;font-size:12px;">−</button>
+        <span id="zoomLabel" style="font-size:11px;color:var(--text-muted);min-width:36px;text-align:center;">80%</span>
+        <button onclick="setZoom(+5)" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);cursor:pointer;font-size:12px;">+</button>
+      </div>
     </div>
   </div>
+
+<script>
+let _presentMode = false;
+let _zoom = 80;
+
+function togglePresentMode() {
+  _presentMode = !_presentMode;
+  const btn = document.getElementById('presentBtn');
+  const zoomBar = document.getElementById('zoomBar');
+  if (_presentMode) {
+    _zoom = Math.round(Math.min(window.innerWidth / 1600, window.innerHeight / 900) * 100);
+    _zoom = Math.max(60, Math.min(_zoom, 95));
+    applyZoom();
+    btn.classList.add('active');
+    btn.textContent = '✕ 발표 모드';
+    zoomBar.style.display = 'flex';
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  } else {
+    document.documentElement.style.zoom = '100%';
+    btn.classList.remove('active');
+    btn.textContent = '🖥 발표 모드';
+    zoomBar.style.display = 'none';
+    if (document.fullscreenElement) document.exitFullscreen?.();
+  }
+}
+
+function setZoom(delta) {
+  _zoom = Math.max(50, Math.min(_zoom + delta, 100));
+  applyZoom();
+}
+
+function applyZoom() {
+  document.documentElement.style.zoom = _zoom + '%';
+  document.getElementById('zoomLabel').textContent = _zoom + '%';
+}
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && _presentMode) {
+    _presentMode = false;
+    document.documentElement.style.zoom = '100%';
+    const btn = document.getElementById('presentBtn');
+    if (btn) { btn.classList.remove('active'); btn.textContent = '🖥 발표 모드'; }
+    const zoomBar = document.getElementById('zoomBar');
+    if (zoomBar) zoomBar.style.display = 'none';
+  }
+});
+</script>
 
   <!-- 필터 패널 -->
   <div class="mt-3 pt-3 no-print" style="border-top: 1px dashed rgba(255,255,255,0.08);">
