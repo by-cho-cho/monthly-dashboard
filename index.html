@@ -866,11 +866,9 @@ document.addEventListener('fullscreenchange', () => {
 </header>
 
 <!-- ────────────────────────────────────────────────────── -->
-<!-- TOP KPI 스트립 (5개 대형 카드) — 틀고정 -->
+<!-- TOP KPI 스트립 (5개 대형 카드) — 일반 스크롤 -->
 <!-- ────────────────────────────────────────────────────── -->
-<section style="position:sticky; top:var(--header-h,72px); z-index:40;
-                background:rgba(10,14,24,0.96); backdrop-filter:blur(10px);
-                -webkit-backdrop-filter:blur(10px);
+<section style="background:var(--bg-deep);
                 border-bottom:1px solid var(--border);
                 padding: 14px 40px 12px;">
   <div class="grid grid-cols-1 md:grid-cols-5 gap-3" id="megaKpiStrip">
