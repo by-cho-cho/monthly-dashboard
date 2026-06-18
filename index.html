@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>대표이사 보고 — 생산 종합 현황</title>
+<title>월간 — 생산 종합 현황</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -822,10 +822,11 @@ document.addEventListener('fullscreenchange', () => {
     if (zoomBar) zoomBar.style.display = 'none';
   }
 });
+
 </script>
 
-  <!-- 필터 패널 -->
-  <div class="mt-3 pt-3 no-print" style="border-top: 1px dashed rgba(255,255,255,0.08);">
+  <!-- 필터 패널 (항상 펼침) -->
+  <div id="filterPanel" class="mt-3 pt-3 no-print" style="border-top: 1px dashed rgba(255,255,255,0.08);">
     <div class="filter-row">
       <span class="filter-label">연도</span>
       <div class="filter-grid" id="filterYears"></div>
@@ -866,40 +867,15 @@ document.addEventListener('fullscreenchange', () => {
 </header>
 
 <!-- ────────────────────────────────────────────────────── -->
-<!-- TOP KPI 스트립 (5개 대형 카드) — 일반 스크롤 -->
+<!-- KPI + 월별 추이 차트 (통합 카드) -->
 <!-- ────────────────────────────────────────────────────── -->
-<section style="background:var(--bg-deep);
-                border-bottom:1px solid var(--border);
-                padding: 14px 40px 12px;">
-  <div class="grid grid-cols-1 md:grid-cols-5 gap-3" id="megaKpiStrip">
-    <div class="card"><div class="kpi-label">총 수주</div><div class="kpi-mega mt-2" style="color: var(--accent-gold);" id="kpiOrders">—</div><div class="kpi-sub" id="kpiOrdersSub">—</div></div>
-    <div class="card"><div class="kpi-label">총 생산</div><div class="kpi-mega mt-2" style="color: var(--accent-cyan);" id="kpiProduction">—</div><div class="kpi-sub" id="kpiProductionSub">—</div></div>
-    <div class="card"><div class="kpi-label">총 출고</div><div class="kpi-mega mt-2" style="color: var(--accent-mint);" id="kpiShipped">—</div><div class="kpi-sub" id="kpiShippedSub">—</div></div>
-    <div class="card"><div class="kpi-label">달성률 (생산/수주)</div><div class="kpi-mega mt-2" id="kpiAchieve">—</div><div class="kpi-sub" id="kpiAchieveSub">—</div></div>
-    <div class="card"><div class="kpi-label">불량율 (불량/생산)</div><div class="kpi-mega mt-2" id="kpiDefect">—</div><div class="kpi-sub" id="kpiDefectSub">—</div></div>
-  </div>
-
-  <!-- 종합 판정 -->
-  <div class="mt-4 flex items-center justify-between flex-wrap gap-2">
-    <div class="text-[11px]" style="color: var(--text-muted);">
-      ※ 2026년 1월 1일~기준일까지 누적 · 전년 동기 = 2025년 실측 월별 데이터 기반
-    </div>
-    <span id="overallVerdict" class="verdict-pill">— 분석 중 —</span>
-  </div>
-</section>
-
-<!-- ────────────────────────────────────────────────────── -->
-<!-- 2. 임원 요약 (결론 먼저) -->
-<!-- 종합 요약 섹션 삭제 -->
-
-<!-- ────────────────────────────────────────────────────── -->
-<!-- 3. 월별 추이 차트 -->
-<!-- ────────────────────────────────────────────────────── -->
-<section class="grid grid-cols-1 xl:grid-cols-12 gap-4" style="padding: 24px 40px 0;">
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-4" style="padding: 14px 40px 0;">
   <div class="card xl:col-span-12">
+
+    <!-- 차트 제목 + 컨트롤 -->
     <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
       <div>
-        <div class="kpi-label">월별 생산·수주·출고 추이</div>
+        <div class="kpi-label">월별 생산·수주·출고 추이 (KPI 통합)</div>
         <div class="text-[11px] mt-0.5" style="color: var(--text-muted);" id="trendSubtitle">2026년 월별 실적</div>
       </div>
       <div class="flex items-center gap-2 flex-wrap no-print">
@@ -920,31 +896,54 @@ document.addEventListener('fullscreenchange', () => {
         </span>
       </div>
     </div>
+
+    <!-- 차트 + KPI 오버레이 통합 컨테이너 -->
     <div style="position:relative;">
-      <div id="chartTrend" style="height: 300px;"></div>
-      <!-- 차트 우상단 미니 KPI 오버레이 -->
-      <div id="miniKpi" style="
-        position:absolute; top:12px; right:12px;
-        display:flex; gap:10px; pointer-events:none;">
-        <div style="
-          background:rgba(10,14,24,0.85);
-          backdrop-filter:blur(10px);
-          border:1px solid rgba(201,169,97,0.3);
-          border-radius:12px; padding:10px 16px;">
-          <div style="font-size:9px;color:#6B7693;letter-spacing:0.1em;margin-bottom:4px;">총 수주</div>
-          <div id="miniKpiOrder" style="font-size:20px;font-weight:700;color:#C9A961;font-family:'IBM Plex Sans',sans-serif;line-height:1;">—</div>
-          <div id="miniKpiOrderSub" style="font-size:10px;color:#6B7693;margin-top:4px;">—</div>
+      <!-- 차트 -->
+      <div id="chartTrend" style="height: 380px;"></div>
+
+      <!-- KPI 5개 오버레이 (차트 안 상단 빈공간) -->
+      <div id="megaKpiStrip"
+           style="position:absolute; top:6px; left:55px; right:20px; z-index:5;
+                  display:grid; grid-template-columns:repeat(5,1fr); gap:0;
+                  pointer-events:none;
+                  background:linear-gradient(180deg, rgba(10,14,24,0.55), rgba(10,14,24,0.0));
+                  border-radius:10px; padding:6px 2px;">
+        <div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,0.06);">
+          <div class="kpi-label" style="font-size:10px;">총 수주</div>
+          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-gold);margin-top:2px;" id="kpiOrders">—</div>
+          <div class="kpi-sub" style="margin-top:2px;" id="kpiOrdersSub">—</div>
         </div>
-        <div style="
-          background:rgba(10,14,24,0.85);
-          backdrop-filter:blur(10px);
-          border:1px solid rgba(79,195,247,0.3);
-          border-radius:12px; padding:10px 16px;">
-          <div style="font-size:9px;color:#6B7693;letter-spacing:0.1em;margin-bottom:4px;">총 생산</div>
-          <div id="miniKpiProd" style="font-size:20px;font-weight:700;color:#4FC3F7;font-family:'IBM Plex Sans',sans-serif;line-height:1;">—</div>
-          <div id="miniKpiProdSub" style="font-size:10px;color:#6B7693;margin-top:4px;">—</div>
+        <div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,0.06);">
+          <div class="kpi-label" style="font-size:10px;">총 생산</div>
+          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-cyan);margin-top:2px;" id="kpiProduction">—</div>
+          <div class="kpi-sub" style="margin-top:2px;" id="kpiProductionSub">—</div>
+        </div>
+        <div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,0.06);">
+          <div class="kpi-label" style="font-size:10px;">총 출고</div>
+          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-mint);margin-top:2px;" id="kpiShipped">—</div>
+          <div class="kpi-sub" style="margin-top:2px;" id="kpiShippedSub">—</div>
+        </div>
+        <div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,0.06);">
+          <div class="kpi-label" style="font-size:10px;">달성률</div>
+          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;margin-top:2px;" id="kpiAchieve">—</div>
+          <div class="kpi-sub" style="margin-top:2px;" id="kpiAchieveSub">—</div>
+        </div>
+        <div style="padding:4px 10px;">
+          <div class="kpi-label" style="font-size:10px;">불량율</div>
+          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;margin-top:2px;" id="kpiDefect">—</div>
+          <div class="kpi-sub" style="margin-top:2px;" id="kpiDefectSub">—</div>
         </div>
       </div>
+    </div>
+
+    <!-- 푸터 (누적 설명 + 종합 판정) -->
+    <div class="flex items-center justify-between flex-wrap gap-2 mt-3 pt-2"
+         style="border-top:1px dashed var(--border);">
+      <div class="text-[11px]" style="color: var(--text-muted);">
+        ※ 2026년 1월 1일~기준일까지 누적 · 전년 동기 = 2025년 실측 월별 데이터 기반
+      </div>
+      <span id="overallVerdict" class="verdict-pill">— 분석 중 —</span>
     </div>
   </div>
 </section>
@@ -1012,7 +1011,7 @@ function makeDefaultFilter(items) {
   const cats = [...new Set(items.map(it => it.category))];
   return {
     years: new Set([2026]),
-    months: new Set(MONTH_OPTIONS.filter(m => m <= new Date().getMonth())), // 말일 지난 달까지만 기본 선택
+    months: new Set(MONTH_OPTIONS), // 마감 여부 무관 — 전체 월 기본 선택
     categories: new Set(cats),
     items: new Set(),  // empty = 전체 (필터 해제와 같음)
   };
@@ -1060,7 +1059,50 @@ function parse1Bu() {
   const csv = window._CSV_1BAN?.['2145094968'];
   if (!csv) return null;
   const rows = parseCSV(csv);
-  const monthly2026 = {1:77,2:84,3:91,4:98,5:105,6:112,7:119,8:126,9:133,10:140,11:147,12:154};
+
+  // ── 동적 월별 컬럼 감지 ──
+  // 헤더 영역(상위 5행)에서 "N월" 라벨 위치를 찾아 컬럼 매핑을 자동 생성
+  // 메트릭 라벨(생산/출고/물량·불량/수주)은 월 라벨 행 또는 그 다음 행에서 탐색
+  function detectMonthlyMap() {
+    let monthRowIdx = -1;
+    const monthHits = [];
+    for (let r = 0; r < Math.min(6, rows.length); r++) {
+      const row = rows[r] || [];
+      const hits = [];
+      for (let c = 0; c < row.length; c++) {
+        const cell = (row[c] || '').toString().trim();
+        const m = cell.match(/^(\d{1,2})월$/);
+        if (m) hits.push({ month: +m[1], col: c });
+      }
+      if (hits.length >= 3) { monthRowIdx = r; monthHits.push(...hits); break; }
+    }
+    if (monthRowIdx < 0) return null;
+    // 각 월 블록의 끝 컬럼 계산
+    for (let i = 0; i < monthHits.length; i++) {
+      monthHits[i].endCol = i+1 < monthHits.length
+        ? monthHits[i+1].col - 1
+        : (rows[monthRowIdx]?.length || 0) - 1;
+    }
+    // 메트릭 라벨 행: 월 라벨 행 + 1
+    const labelRow = rows[monthRowIdx + 1] || [];
+    const map = {};
+    for (const { month, col, endCol } of monthHits) {
+      const slot = {};
+      for (let c = col; c <= endCol; c++) {
+        const lbl = (labelRow[c] || '').toString().trim();
+        if (lbl === '생산') slot.생산 = c;
+        else if (lbl === '출고') slot.출고 = c;
+        else if (lbl === '불량' || lbl === '물량') slot.불량 = c;
+        else if (lbl === '수주') slot.수주 = c;
+      }
+      map[month] = slot;
+    }
+    return map;
+  }
+
+  const FALLBACK_MONTHLY = {1:77,2:84,3:91,4:98,5:105,6:112,7:119,8:126,9:133,10:140,11:147,12:154};
+  const detectedMap = detectMonthlyMap();
+  const monthly2026 = detectedMap;  // null이면 폴백으로 동작
   const yearCols = {
     2022:{생산:32,출고:33,불량:35,수주:37},
     2023:{생산:39,출고:40,불량:42,수주:44},
@@ -1080,12 +1122,26 @@ function parse1Bu() {
   function readRow(sr){
     const row = rows[sr-1]||[];
     const monthData = {};
-    for (const mo of Object.keys(monthly2026)){
-      const c = monthly2026[mo];
-      monthData[+mo] = {
-        생산: parseNum(row[c]), 출고: parseNum(row[c+1]),
-        불량: parseNum(row[c+3]), 수주: parseNum(row[c+5]),
-      };
+    if (monthly2026) {
+      // 동적 감지된 컬럼 사용
+      for (const mo of Object.keys(monthly2026)){
+        const slot = monthly2026[mo] || {};
+        monthData[+mo] = {
+          생산: slot.생산 != null ? parseNum(row[slot.생산]) : 0,
+          출고: slot.출고 != null ? parseNum(row[slot.출고]) : 0,
+          불량: slot.불량 != null ? parseNum(row[slot.불량]) : 0,
+          수주: slot.수주 != null ? parseNum(row[slot.수주]) : 0,
+        };
+      }
+    } else {
+      // 폴백: 하드코딩 오프셋 (생산=c, 출고=c+1, 불량=c+3, 수주=c+5)
+      for (const mo of Object.keys(FALLBACK_MONTHLY)){
+        const c = FALLBACK_MONTHLY[mo];
+        monthData[+mo] = {
+          생산: parseNum(row[c]), 출고: parseNum(row[c+1]),
+          불량: parseNum(row[c+3]), 수주: parseNum(row[c+5]),
+        };
+      }
     }
     const yearData = {};
     for (const yr of [2022,2023,2024,2025]){
@@ -1496,10 +1552,8 @@ function renderTrendChart() {
   const f = getCurFilters();
   const curM = getCurrentMonth();
   const showYoY = APP.trendYoY && data.has2025;
-  // 마감 완료된 월만 표시 (현재 진행 중인 월 제외)
-  const latestYr = [...f.years].sort((a,b)=>b-a)[0] || 2026;
-  const curYearCutoff = latestYr === 2026 ? curM - 1 : 12;
-  const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= curYearCutoff);
+  // 마감 여부 무관 — 필터에 선택된 모든 월 표시
+  const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m));
 
   // 선택된 품목군 목록 — 헤더 필터(품목군 + 품목 선택) 기준
   const filteredItems = filterItems(data.items);
@@ -1599,8 +1653,8 @@ function renderTrendChart() {
       trigger:'axis', backgroundColor:'#0F1520', borderColor:'#243049', textStyle:{color:'#EDF2FB'},
       confine: true,
       position: function(point, params, dom, rect, size){
-        // 차트 왼쪽 빈공간에 고정 표시 (KPI/포인트와 겹치지 않게)
-        return [10, 10];
+        // 차트 좌측 plot 영역(legend 아래)에 고정 표시 — KPI 오버레이와 겹치지 않게
+        return [10, 130];
       },
       formatter(params){
         let h = `<div style="font-weight:700;margin-bottom:4px;">${params[0].axisValue}</div>`;
@@ -1614,9 +1668,9 @@ function renderTrendChart() {
         return h;
       }
     },
-    legend: { data:legendData, textStyle:{color:'#8A9BBF'}, top:0, left:'center',
+    legend: { data:legendData, textStyle:{color:'#8A9BBF'}, top:90, left:'center',
               type:'scroll', pageTextStyle:{color:'#8A9BBF'} },
-    grid: { left:55, right:20, top:40, bottom:30 },
+    grid: { left:55, right:20, top:120, bottom:30 },
     xAxis: { type:'category', data:xData, axisLine:{lineStyle:{color:'#243049'}}, axisLabel:{color:'#8A9BBF'} },
     yAxis: { type:'value', splitLine:{lineStyle:{color:'#1A2236'}},
              axisLabel:{color:'#8A9BBF', formatter:v=>v>=1000?Math.round(v/1000)+'k':v} },
@@ -1830,6 +1884,7 @@ function renderExecSummary() {
   const items = filterItems(data.items);
   const f = getCurFilters();
   const months = [...f.months];
+  const curM = getCurrentMonth();
   const yrs = [...f.years].sort();
   const cur = yrs[yrs.length-1] || 2026;
   const prev = cur - 1;
