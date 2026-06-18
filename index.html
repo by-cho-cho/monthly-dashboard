@@ -1061,59 +1061,64 @@ function parse1Bu() {
   const rows = parseCSV(csv);
 
   // ── 동적 월별 컬럼 감지 ──
-  // 1) 메트릭 라벨 행(생산이 여러 번 등장) 탐색
-  // 2) 각 "생산" 컬럼 위치에서 위쪽 행을 스캔하여 월 숫자 찾기 ("1월" / "1" 모두 허용)
-  // 3) "N년 TOTAL" 같은 연도 토탈 블록은 제외
+  // row 0 의 월 마커("1"~"12" 또는 "N월")만 기준으로 인식.
+  // 같은 월 마커가 두 번 나오는 경우(월간 요약 / 주간 상세) 첫 번째만 사용.
+  // 메트릭 라벨 행이 있으면 활용, 없으면 마커 col 기준 기본 오프셋(+1 생산, +2 출고, +4 불량, +6 수주).
   function detectMonthlyMap() {
-    let metricRowIdx = -1;
-    for (let r = 0; r < Math.min(10, rows.length); r++) {
-      const row = rows[r] || [];
-      const cnt = row.filter(c => (c||'').toString().trim() === '생산').length;
-      if (cnt >= 3) { metricRowIdx = r; break; }
+    const headerRow = rows[0] || [];
+    const monthCols = {};  // month → first col where marker appears
+    for (let c = 0; c < headerRow.length; c++) {
+      const cell = (headerRow[c]||'').toString().trim();
+      const mm = cell.match(/^(\d{1,2})월?$/);
+      if (!mm) continue;
+      const num = +mm[1];
+      if (num < 1 || num > 12) continue;
+      if (monthCols[num] == null) monthCols[num] = c;  // 첫 번째만 채택
     }
-    if (metricRowIdx < 0) return null;
-    const metricRow = rows[metricRowIdx];
+    const months = Object.keys(monthCols).map(Number).sort((a,b)=>a-b);
+    if (months.length < 3) return null;
 
-    // "생산" 컬럼 인덱스 목록
-    const prodCols = [];
-    for (let c = 0; c < metricRow.length; c++) {
-      if ((metricRow[c]||'').toString().trim() === '생산') prodCols.push(c);
+    // 다음 월 마커까지의 폭(stride) — 마지막 월은 평균값
+    const colsArr = months.map(m => monthCols[m]);
+    const strides = [];
+    for (let i=0; i<colsArr.length-1; i++) strides.push(colsArr[i+1]-colsArr[i]);
+    const avgStride = strides.length ? Math.round(strides.reduce((a,b)=>a+b,0)/strides.length) : 7;
+
+    // 메트릭 라벨 행(있으면 — 첫 월 블록 내 "생산" 1회 이상) 탐색
+    let metricRowIdx = -1;
+    for (let r = 1; r < Math.min(10, rows.length); r++) {
+      const row = rows[r] || [];
+      const firstStart = colsArr[0];
+      const firstEnd = firstStart + avgStride;
+      let has = false;
+      for (let c = firstStart; c < firstEnd && c < row.length; c++) {
+        if ((row[c]||'').toString().trim() === '생산') { has = true; break; }
+      }
+      if (has) { metricRowIdx = r; break; }
     }
+    const metricRow = metricRowIdx >= 0 ? rows[metricRowIdx] : null;
 
     const map = {};
-    for (let pi = 0; pi < prodCols.length; pi++) {
-      const startCol = prodCols[pi];
-      const nextStart = prodCols[pi+1] != null ? prodCols[pi+1] : metricRow.length;
-
-      // 위쪽 행에서 월 번호 찾기 (병합 셀: 같은 또는 그 이전 컬럼)
-      let month = null, isYearTotal = false;
-      for (let r = metricRowIdx - 1; r >= 0 && month === null && !isYearTotal; r--) {
-        const upRow = rows[r] || [];
-        for (let cc = startCol; cc >= Math.max(0, startCol - 6); cc--) {
-          const cell = (upRow[cc]||'').toString().trim();
-          if (!cell) continue;
-          // 연도 TOTAL 패턴 → 이 블록은 월이 아니라 연도
-          if (/\d{4}년/.test(cell) || /TOTAL/i.test(cell)) { isYearTotal = true; break; }
-          const mm = cell.match(/^(\d{1,2})월?$/);
-          if (mm) {
-            const num = +mm[1];
-            if (num >= 1 && num <= 12) { month = num; break; }
-          }
-          break; // 셀이 있지만 매치 안 됨 → 다른 의미 → 중단
+    for (let i=0; i<months.length; i++) {
+      const m = months[i];
+      const startCol = colsArr[i];
+      const endCol = i+1 < colsArr.length ? colsArr[i+1] : startCol + avgStride;
+      const slot = {};
+      if (metricRow) {
+        for (let c = startCol; c < endCol; c++) {
+          const lbl = (metricRow[c]||'').toString().trim();
+          if (lbl === '생산') slot.생산 = c;
+          else if (lbl === '출고') slot.출고 = c;
+          else if (lbl === '불량' || lbl === '물량') slot.불량 = c;
+          else if (lbl === '수주') slot.수주 = c;
         }
       }
-      if (isYearTotal || month === null) continue;
-
-      // 메트릭 컬럼 매핑 (다음 "생산" 블록 전까지)
-      const slot = {};
-      for (let c = startCol; c < nextStart; c++) {
-        const lbl = (metricRow[c]||'').toString().trim();
-        if (lbl === '생산') slot.생산 = c;
-        else if (lbl === '출고') slot.출고 = c;
-        else if (lbl === '불량' || lbl === '물량') slot.불량 = c;
-        else if (lbl === '수주') slot.수주 = c;
-      }
-      map[month] = slot;
+      // 메트릭 라벨이 비어있으면 마커 col 기준 기본 오프셋
+      if (slot.생산 == null) slot.생산 = startCol + 1;
+      if (slot.출고 == null) slot.출고 = startCol + 2;
+      if (slot.불량 == null) slot.불량 = startCol + 4;
+      if (slot.수주 == null) slot.수주 = startCol + 6;
+      map[m] = slot;
     }
     return Object.keys(map).length > 0 ? map : null;
   }
