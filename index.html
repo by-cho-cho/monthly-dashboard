@@ -1061,35 +1061,53 @@ function parse1Bu() {
   const rows = parseCSV(csv);
 
   // ── 동적 월별 컬럼 감지 ──
-  // 헤더 영역(상위 5행)에서 "N월" 라벨 위치를 찾아 컬럼 매핑을 자동 생성
-  // 메트릭 라벨(생산/출고/물량·불량/수주)은 월 라벨 행 또는 그 다음 행에서 탐색
+  // 1) 메트릭 라벨 행(생산이 여러 번 등장) 탐색
+  // 2) 각 "생산" 컬럼 위치에서 위쪽 행을 스캔하여 월 숫자 찾기 ("1월" / "1" 모두 허용)
+  // 3) "N년 TOTAL" 같은 연도 토탈 블록은 제외
   function detectMonthlyMap() {
-    let monthRowIdx = -1;
-    const monthHits = [];
-    for (let r = 0; r < Math.min(6, rows.length); r++) {
+    let metricRowIdx = -1;
+    for (let r = 0; r < Math.min(10, rows.length); r++) {
       const row = rows[r] || [];
-      const hits = [];
-      for (let c = 0; c < row.length; c++) {
-        const cell = (row[c] || '').toString().trim();
-        const m = cell.match(/^(\d{1,2})월$/);
-        if (m) hits.push({ month: +m[1], col: c });
-      }
-      if (hits.length >= 3) { monthRowIdx = r; monthHits.push(...hits); break; }
+      const cnt = row.filter(c => (c||'').toString().trim() === '생산').length;
+      if (cnt >= 3) { metricRowIdx = r; break; }
     }
-    if (monthRowIdx < 0) return null;
-    // 각 월 블록의 끝 컬럼 계산
-    for (let i = 0; i < monthHits.length; i++) {
-      monthHits[i].endCol = i+1 < monthHits.length
-        ? monthHits[i+1].col - 1
-        : (rows[monthRowIdx]?.length || 0) - 1;
+    if (metricRowIdx < 0) return null;
+    const metricRow = rows[metricRowIdx];
+
+    // "생산" 컬럼 인덱스 목록
+    const prodCols = [];
+    for (let c = 0; c < metricRow.length; c++) {
+      if ((metricRow[c]||'').toString().trim() === '생산') prodCols.push(c);
     }
-    // 메트릭 라벨 행: 월 라벨 행 + 1
-    const labelRow = rows[monthRowIdx + 1] || [];
+
     const map = {};
-    for (const { month, col, endCol } of monthHits) {
+    for (let pi = 0; pi < prodCols.length; pi++) {
+      const startCol = prodCols[pi];
+      const nextStart = prodCols[pi+1] != null ? prodCols[pi+1] : metricRow.length;
+
+      // 위쪽 행에서 월 번호 찾기 (병합 셀: 같은 또는 그 이전 컬럼)
+      let month = null, isYearTotal = false;
+      for (let r = metricRowIdx - 1; r >= 0 && month === null && !isYearTotal; r--) {
+        const upRow = rows[r] || [];
+        for (let cc = startCol; cc >= Math.max(0, startCol - 6); cc--) {
+          const cell = (upRow[cc]||'').toString().trim();
+          if (!cell) continue;
+          // 연도 TOTAL 패턴 → 이 블록은 월이 아니라 연도
+          if (/\d{4}년/.test(cell) || /TOTAL/i.test(cell)) { isYearTotal = true; break; }
+          const mm = cell.match(/^(\d{1,2})월?$/);
+          if (mm) {
+            const num = +mm[1];
+            if (num >= 1 && num <= 12) { month = num; break; }
+          }
+          break; // 셀이 있지만 매치 안 됨 → 다른 의미 → 중단
+        }
+      }
+      if (isYearTotal || month === null) continue;
+
+      // 메트릭 컬럼 매핑 (다음 "생산" 블록 전까지)
       const slot = {};
-      for (let c = col; c <= endCol; c++) {
-        const lbl = (labelRow[c] || '').toString().trim();
+      for (let c = startCol; c < nextStart; c++) {
+        const lbl = (metricRow[c]||'').toString().trim();
         if (lbl === '생산') slot.생산 = c;
         else if (lbl === '출고') slot.출고 = c;
         else if (lbl === '불량' || lbl === '물량') slot.불량 = c;
@@ -1097,7 +1115,7 @@ function parse1Bu() {
       }
       map[month] = slot;
     }
-    return map;
+    return Object.keys(map).length > 0 ? map : null;
   }
 
   const FALLBACK_MONTHLY = {1:77,2:84,3:91,4:98,5:105,6:112,7:119,8:126,9:133,10:140,11:147,12:154};
