@@ -1344,7 +1344,8 @@ function renderHeader() {
 // 단일 연도 집계 (필터 월·품목 적용)
 function aggForYear(metric, items, year) {
   const f = getCurFilters();
-  const months = f ? [...f.months] : MONTH_OPTIONS;
+  const curM = getCurrentMonth();
+  const months = (f ? [...f.months] : MONTH_OPTIONS).filter(m => m <= curM);
   let sum = 0;
   for (const it of items) {
     if (year === 2026) {
@@ -1570,8 +1571,8 @@ function renderTrendChart() {
   const f = getCurFilters();
   const curM = getCurrentMonth();
   const showYoY = APP.trendYoY && data.has2025;
-  // 마감 여부 무관 — 필터에 선택된 모든 월 표시
-  const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m));
+  // 동기화일이 포함된 월까지만 표시 (예: 6/18 기준 → 1~6월)
+  const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= curM);
 
   // 선택된 품목군 목록 — 헤더 필터(품목군 + 품목 선택) 기준
   const filteredItems = filterItems(data.items);
