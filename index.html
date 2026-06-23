@@ -833,15 +833,20 @@ function aggMetric(metric, items) {
 }
 
 // 호환용 (yr/months 명시) — 기존 호출부 처리
+// 동기간 비교 정합: 월별 데이터 보유 연도는 현재월(curM)까지만 합산.
+// Why: 전년(2025) 비교가 선택 월 전체(1~12)를 더해 연간값으로 잡히던 버그 수정(2026-06-23).
 function aggMetricExplicit(metric, items, yr, monthsToSum) {
+  const curM = getCurrentMonth();
+  const ytdMonths = monthsToSum.filter(m => m <= curM);
   let sum = 0;
   for (const it of items) {
     if (yr === 2026) {
-      for (const m of monthsToSum) sum += it.monthData?.[m]?.[metric] || 0;
+      for (const m of ytdMonths) sum += it.monthData?.[m]?.[metric] || 0;
     } else if (yr === 2025 && it.monthData2025) {
-      for (const m of monthsToSum) sum += it.monthData2025[m]?.[metric] || 0;
+      for (const m of ytdMonths) sum += it.monthData2025[m]?.[metric] || 0;
     } else {
-      sum += (it.yearData?.[yr]?.[metric] || 0) * (monthsToSum.length / 12);
+      // 월별 데이터 없는 과거연도: 연간 총계를 동기간(경과월/12) 비율로 환산
+      sum += (it.yearData?.[yr]?.[metric] || 0) * (ytdMonths.length / 12);
     }
   }
   return sum;
