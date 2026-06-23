@@ -1044,19 +1044,7 @@ function renderTrendChart() {
   };
   const yearHasMonthly = yr => (yr === 2026) || (yr === 2025 && data.has2025);
   const yearMaxMonth = yr => (yr === CUR_YEAR ? curM : 12); // 진행연도는 동기화월까지, 과거연도는 12월까지
-
-  // 선택된 연도 중 월별 데이터가 있는 연도 (최신순). 없으면 2026 폴백.
-  let yearsToShow = [...f.years].filter(yearHasMonthly);
-  if (APP.trendYoY && data.has2025 && !yearsToShow.includes(2025)) yearsToShow.push(2025);
-  if (yearsToShow.length === 0) yearsToShow.push(2026);
-  yearsToShow.sort((a,b) => b - a);
-  const newestYr = yearsToShow[0];
-  const showYoY = yearsToShow.length > 1;
   const yy = yr => String(yr).slice(2);
-
-  // X축: 선택 월 ∩ (선택 연도들 중 최대 표시월까지)
-  const maxMo = Math.max(...yearsToShow.map(yearMaxMonth));
-  const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= maxMo);
 
   // 선택된 품목군 목록 — 헤더 필터(품목군 + 품목 선택) 기준
   const filteredItems = filterItems(data.items);
@@ -1066,49 +1054,106 @@ function renderTrendChart() {
   // 카테고리별 / 전체 여부 — 2개 이상이면 카테고리별 분리 표시
   const showByCat = activeCats.length > 1 && activeCats.length < allCats.length;
 
-  const xData = monthsToShow.map(m => `${m}월`);
+  // 선택된 연도 중 월별 데이터 없는 연도(2023·2024 등)가 있으면 → 연간 추이 모드
+  const selYears = [...f.years].sort((a,b) => a - b);
+  const annualMode = selYears.length > 0 && selYears.some(y => !yearHasMonthly(y));
+
+  let xData = [];
   const series = [];
   const legendData = [];
+  let yearsToShow = [], newestYr = 2026, showYoY = false;
 
-  // 연도별 라인 추가 헬퍼 — 최신연도=실선, 과거연도=점선
-  const pushYearLine = (baseName, color, metric, catItems, withArea) => {
-    yearsToShow.forEach(yr => {
-      const isNewest = yr === newestYr;
-      const arr = monthsToShow.map(m => {
-        if (m > yearMaxMonth(yr)) return null;
-        let v = 0; for (const it of catItems) v += monthVal(it, yr, m, metric) || 0; return v;
+  if (annualMode) {
+    // ── 연간 추이 모드 — X축 = 선택 연도, 값 = 연간 합계 ──────────────
+    // 월별 데이터 있는 연도는 12개월 합, 없는 연도(23·24)는 yearData 연간 총계 사용
+    const yearTotal = (catItems, yr, metric) => {
+      let v = 0;
+      for (const it of catItems) {
+        if (yr === 2026) { for (let m=1;m<=12;m++) v += it.monthData?.[m]?.[metric] || 0; }
+        else if (yr === 2025 && it.monthData2025) { for (let m=1;m<=12;m++) v += it.monthData2025[m]?.[metric] || 0; }
+        else v += it.yearData?.[yr]?.[metric] || 0;
+      }
+      return v;
+    };
+    xData = selYears.map(y => `${y}년`);
+    const valLabel = col => ({ show:true, position:'top', color:col, fontWeight:700, fontSize:10,
+      formatter: p => p.value ? Number(p.value).toLocaleString() : '' });
+    if (!showByCat) {
+      const catItems = activeCats.length === 1
+        ? filteredItems.filter(it => it.category === activeCats[0])
+        : filteredItems;
+      ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m)).forEach((metric, mi) => {
+        const col = METRIC_COLORS[metric];
+        series.push({
+          name: metric, type:'line', smooth:false, symbol:'circle', symbolSize:8,
+          data: selYears.map(y => yearTotal(catItems, y, metric)),
+          lineStyle:{color:col, width:2.5}, itemStyle:{color:col}, label: valLabel(col),
+          areaStyle: mi===1 ? {color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:col+'40'},{offset:1,color:col+'05'}]}} : undefined,
+        });
+        legendData.push(metric);
       });
-      const name = isNewest ? baseName : `${baseName}(${yy(yr)})`;
-      series.push({
-        name, type:'line', smooth:true,
-        symbol: isNewest ? 'circle' : 'emptyCircle', symbolSize: isNewest ? 7 : 5,
-        data: arr,
-        lineStyle: isNewest ? {color, width:2.5} : {color, width:1.5, type:'dashed', opacity:0.6},
-        itemStyle: {color, opacity: isNewest ? 1 : 0.6},
-        areaStyle: (withArea && isNewest)
-          ? {color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:color+'40'},{offset:1,color:color+'05'}]}}
-          : undefined,
-        connectNulls: false
+    } else {
+      activeCats.forEach((cat, ci) => {
+        const col = CAT_COLORS[ci % CAT_COLORS.length];
+        const catItems = filteredItems.filter(it => it.category === cat);
+        series.push({
+          name: cat, type:'line', smooth:false, symbol:'circle', symbolSize:8,
+          data: selYears.map(y => yearTotal(catItems, y, '생산')),
+          lineStyle:{color:col, width:2.5}, itemStyle:{color:col},
+        });
+        legendData.push(cat);
       });
-      legendData.push(name);
-    });
-  };
-
-  if (!showByCat) {
-    // 단일 품목군 or 전체 합산 — 3개 지표 × 선택연도
-    const catItems = activeCats.length === 1
-      ? filteredItems.filter(it => it.category === activeCats[0])
-      : filteredItems;
-    ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m)).forEach((metric, mi) => {
-      pushYearLine(metric, METRIC_COLORS[metric], metric, catItems, mi === 1);
-    });
+    }
   } else {
-    // 복수 품목군 — 품목군별 생산 × 선택연도
-    activeCats.forEach((cat, ci) => {
-      const col = CAT_COLORS[ci % CAT_COLORS.length];
-      const catItems = filteredItems.filter(it => it.category === cat);
-      pushYearLine(cat, col, '생산', catItems, false);
-    });
+    // ── 월별 추이 모드 — 선택연도(월별 데이터 보유)만, 최신=실선·과거=점선 ──
+    yearsToShow = [...f.years].filter(yearHasMonthly);
+    if (APP.trendYoY && data.has2025 && !yearsToShow.includes(2025)) yearsToShow.push(2025);
+    if (yearsToShow.length === 0) yearsToShow.push(2026);
+    yearsToShow.sort((a,b) => b - a);
+    newestYr = yearsToShow[0];
+    showYoY = yearsToShow.length > 1;
+
+    const maxMo = Math.max(...yearsToShow.map(yearMaxMonth));
+    const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= maxMo);
+    xData = monthsToShow.map(m => `${m}월`);
+
+    const pushYearLine = (baseName, color, metric, catItems, withArea) => {
+      yearsToShow.forEach(yr => {
+        const isNewest = yr === newestYr;
+        const arr = monthsToShow.map(m => {
+          if (m > yearMaxMonth(yr)) return null;
+          let v = 0; for (const it of catItems) v += monthVal(it, yr, m, metric) || 0; return v;
+        });
+        const name = isNewest ? baseName : `${baseName}(${yy(yr)})`;
+        series.push({
+          name, type:'line', smooth:true,
+          symbol: isNewest ? 'circle' : 'emptyCircle', symbolSize: isNewest ? 7 : 5,
+          data: arr,
+          lineStyle: isNewest ? {color, width:2.5} : {color, width:1.5, type:'dashed', opacity:0.6},
+          itemStyle: {color, opacity: isNewest ? 1 : 0.6},
+          areaStyle: (withArea && isNewest)
+            ? {color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:color+'40'},{offset:1,color:color+'05'}]}}
+            : undefined,
+          connectNulls: false
+        });
+        legendData.push(name);
+      });
+    };
+
+    if (!showByCat) {
+      const catItems = activeCats.length === 1
+        ? filteredItems.filter(it => it.category === activeCats[0])
+        : filteredItems;
+      ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m)).forEach((metric, mi) => {
+        pushYearLine(metric, METRIC_COLORS[metric], metric, catItems, mi === 1);
+      });
+    } else {
+      activeCats.forEach((cat, ci) => {
+        const col = CAT_COLORS[ci % CAT_COLORS.length];
+        const catItems = filteredItems.filter(it => it.category === cat);
+        pushYearLine(cat, col, '생산', catItems, false);
+      });
+    }
   }
 
   if (!APP.charts.trend) APP.charts.trend = echarts.init(document.getElementById('chartTrend'));
@@ -1147,10 +1192,16 @@ function renderTrendChart() {
   const catLabel = activeCats.length === allCats.length ? '전체 품목군'
     : activeCats.length === 1 ? activeCats[0]
     : `${activeCats.length}개 품목군`;
-  const yearLabel = [...yearsToShow].sort((a,b)=>a-b).join('·') + '년';
-  const yoyLabel = showYoY ? ` | 실선=${newestYr}년 점선=과거연도` : '';
-  document.getElementById('trendSubtitle').textContent =
-    `${yearLabel} ${showByCat ? '품목군별 생산 비교' : '수주·생산·출고 추이'} — ${catLabel}${yoyLabel}`;
+  if (annualMode) {
+    const yearLabel = selYears.join('·') + '년';
+    document.getElementById('trendSubtitle').textContent =
+      `${yearLabel} 연간 추이 — ${catLabel} | 연간 합계 기준 (월 필터 미적용)`;
+  } else {
+    const yearLabel = [...yearsToShow].sort((a,b)=>a-b).join('·') + '년';
+    const yoyLabel = showYoY ? ` | 실선=${newestYr}년 점선=과거연도` : '';
+    document.getElementById('trendSubtitle').textContent =
+      `${yearLabel} ${showByCat ? '품목군별 생산 비교' : '수주·생산·출고 추이'} — ${catLabel}${yoyLabel}`;
+  }
   document.getElementById('trendYoYBtn').classList.toggle('active', showYoY);
 }
 
