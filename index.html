@@ -293,8 +293,26 @@ document.addEventListener('fullscreenchange', () => {
     </div>
     <div class="filter-row">
       <span class="filter-label">월 <span style="font-weight:400;color:var(--text-muted);font-size:9px;">(<span id="filterMonthYear">2026</span>년)</span></span>
-      <div class="filter-grid" id="filterMonths"></div>
-      <span class="chip chip-all" onclick="toggleAllFilter('months')">전체선택</span>
+      <div class="filter-grid" id="filterMonths" style="flex:0 0 auto;"></div>
+      <div id="megaKpiStrip" style="display:flex; gap:0; align-items:center; margin-left:24px;
+           background:rgba(15,20,32,0.55); border:1px solid var(--border); border-radius:10px; padding:4px 2px;">
+        <div style="padding:2px 12px;border-right:1px solid rgba(255,255,255,0.08);">
+          <div class="kpi-label" style="font-size:10px;">총 수주</div>
+          <div style="font-size:22px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-gold);" id="kpiOrders">—</div>
+          <div class="kpi-sub" style="margin-top:1px;" id="kpiOrdersSub">—</div>
+        </div>
+        <div style="padding:2px 12px;border-right:1px solid rgba(255,255,255,0.08);">
+          <div class="kpi-label" style="font-size:10px;">총 생산</div>
+          <div style="font-size:22px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-cyan);" id="kpiProduction">—</div>
+          <div class="kpi-sub" style="margin-top:1px;" id="kpiProductionSub">—</div>
+        </div>
+        <div style="padding:2px 12px;">
+          <div class="kpi-label" style="font-size:10px;">총 출고</div>
+          <div style="font-size:22px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-mint);" id="kpiShipped">—</div>
+          <div class="kpi-sub" style="margin-top:1px;" id="kpiShippedSub">—</div>
+        </div>
+      </div>
+      <span class="chip chip-all" onclick="toggleAllFilter('months')" style="margin-left:auto;">전체선택</span>
     </div>
     <div class="filter-row">
       <span class="filter-label">품목군</span>
@@ -356,44 +374,10 @@ document.addEventListener('fullscreenchange', () => {
       </div>
     </div>
 
-    <!-- 차트 + KPI 오버레이 통합 컨테이너 -->
+    <!-- 차트 컨테이너 -->
     <div style="position:relative;">
       <!-- 차트 -->
       <div id="chartTrend" style="height: 380px;"></div>
-
-      <!-- KPI 5개 오버레이 (차트 안 상단 빈공간) -->
-      <div id="megaKpiStrip"
-           style="position:absolute; top:6px; left:55px; right:20px; z-index:5;
-                  display:grid; grid-template-columns:repeat(5,1fr); gap:0;
-                  pointer-events:none;
-                  background:linear-gradient(180deg, rgba(10,14,24,0.55), rgba(10,14,24,0.0));
-                  border-radius:10px; padding:6px 2px;">
-        <div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,0.06);">
-          <div class="kpi-label" style="font-size:10px;">총 수주</div>
-          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-gold);margin-top:2px;" id="kpiOrders">—</div>
-          <div class="kpi-sub" style="margin-top:2px;" id="kpiOrdersSub">—</div>
-        </div>
-        <div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,0.06);">
-          <div class="kpi-label" style="font-size:10px;">총 생산</div>
-          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-cyan);margin-top:2px;" id="kpiProduction">—</div>
-          <div class="kpi-sub" style="margin-top:2px;" id="kpiProductionSub">—</div>
-        </div>
-        <div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,0.06);">
-          <div class="kpi-label" style="font-size:10px;">총 출고</div>
-          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-mint);margin-top:2px;" id="kpiShipped">—</div>
-          <div class="kpi-sub" style="margin-top:2px;" id="kpiShippedSub">—</div>
-        </div>
-        <div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,0.06);">
-          <div class="kpi-label" style="font-size:10px;">달성률</div>
-          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;margin-top:2px;" id="kpiAchieve">—</div>
-          <div class="kpi-sub" style="margin-top:2px;" id="kpiAchieveSub">—</div>
-        </div>
-        <div style="padding:4px 10px;">
-          <div class="kpi-label" style="font-size:10px;">불량율</div>
-          <div style="font-size:26px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;margin-top:2px;" id="kpiDefect">—</div>
-          <div class="kpi-sub" style="margin-top:2px;" id="kpiDefectSub">—</div>
-        </div>
-      </div>
     </div>
 
     <!-- 푸터 (누적 설명 + 종합 판정) -->
@@ -904,17 +888,21 @@ function renderKPI() {
   document.getElementById('kpiShipped').textContent = fmtN(s26);
   document.getElementById('kpiShippedSub').innerHTML = arrowSub(sG, s25);
 
-  const achClr = ach == null ? 'var(--text-muted)' : ach>=100?'var(--accent-mint)':ach>=90?'var(--accent-gold)':ach>=75?'var(--accent-amber)':'var(--accent-red)';
-  const defClr = def == null ? 'var(--text-muted)' : def<=0.5?'var(--accent-mint)':def<=1?'var(--accent-gold)':def<=2?'var(--accent-amber)':'var(--accent-red)';
+  // 달성률·불량율 KPI 카드는 제거됨 — 요소 있을 때만 갱신 (호환용)
   const achEl = document.getElementById('kpiAchieve');
-  achEl.textContent = fmtPct(ach);
-  achEl.style.color = achClr;
-  document.getElementById('kpiAchieveSub').innerHTML = ach == null ? '—'
-    : (ach >= 100 ? `초과 +${fmtN(p26-o26)}개` : `부족 ${fmtN(o26-p26)}개`);
+  if (achEl) {
+    achEl.textContent = fmtPct(ach);
+    achEl.style.color = ach == null ? 'var(--text-muted)' : ach>=100?'var(--accent-mint)':ach>=90?'var(--accent-gold)':ach>=75?'var(--accent-amber)':'var(--accent-red)';
+    const achSub = document.getElementById('kpiAchieveSub');
+    if (achSub) achSub.innerHTML = ach == null ? '—' : (ach >= 100 ? `초과 +${fmtN(p26-o26)}개` : `부족 ${fmtN(o26-p26)}개`);
+  }
   const defEl = document.getElementById('kpiDefect');
-  defEl.textContent = fmtPct(def, 2);
-  defEl.style.color = defClr;
-  document.getElementById('kpiDefectSub').innerHTML = def == null ? '—' : `불량 ${fmtN(d26)}개 / 생산 ${fmtN(p26)}개`;
+  if (defEl) {
+    defEl.textContent = fmtPct(def, 2);
+    defEl.style.color = def == null ? 'var(--text-muted)' : def<=0.5?'var(--accent-mint)':def<=1?'var(--accent-gold)':def<=2?'var(--accent-amber)':'var(--accent-red)';
+    const defSub = document.getElementById('kpiDefectSub');
+    if (defSub) defSub.innerHTML = def == null ? '—' : `불량 ${fmtN(d26)}개 / 생산 ${fmtN(p26)}개`;
+  }
 
   // 종합 판정
   const scores = [oG, pG, sG].filter(v => v != null);
