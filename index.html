@@ -1362,7 +1362,9 @@ function renderTopMovers() {
   const data = getCurrentData(); if (!data) return;
   const items = filterItems(data.items);
   const f = getCurFilters();
-  const months = [...f.months];
+  const curM = getCurrentMonth();
+  // 동기간 비교: 현재월까지만 합산 (전년이 연간값으로 잡혀 성장 품목이 사라지던 버그 수정)
+  const months = [...f.months].filter(m => m <= curM);
   const yrs = [...f.years].sort();
   const cur = yrs[yrs.length-1] || 2026;
   const prev = cur - 1;
