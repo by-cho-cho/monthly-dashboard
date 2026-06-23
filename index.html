@@ -1034,9 +1034,29 @@ function renderTrendChart() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
   const curM = getCurrentMonth();
-  const showYoY = APP.trendYoY && data.has2025;
-  // 동기화일이 포함된 월까지만 표시 (예: 6/18 기준 → 1~6월)
-  const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= curM);
+  const CUR_YEAR = (() => { const ds=getSyncDateStr(); const dt=ds?new Date(ds.replace(' ','T')):new Date(); return dt.getFullYear(); })();
+
+  // 연도별 월 데이터 접근 — 월 단위 데이터는 2025·2026만 존재
+  const monthVal = (it, yr, m, metric) => {
+    if (yr === 2026) return it.monthData?.[m]?.[metric] || 0;
+    if (yr === 2025) return it.monthData2025?.[m]?.[metric] || 0;
+    return 0; // 그 외 연도는 월별 데이터 없음
+  };
+  const yearHasMonthly = yr => (yr === 2026) || (yr === 2025 && data.has2025);
+  const yearMaxMonth = yr => (yr === CUR_YEAR ? curM : 12); // 진행연도는 동기화월까지, 과거연도는 12월까지
+
+  // 선택된 연도 중 월별 데이터가 있는 연도 (최신순). 없으면 2026 폴백.
+  let yearsToShow = [...f.years].filter(yearHasMonthly);
+  if (APP.trendYoY && data.has2025 && !yearsToShow.includes(2025)) yearsToShow.push(2025);
+  if (yearsToShow.length === 0) yearsToShow.push(2026);
+  yearsToShow.sort((a,b) => b - a);
+  const newestYr = yearsToShow[0];
+  const showYoY = yearsToShow.length > 1;
+  const yy = yr => String(yr).slice(2);
+
+  // X축: 선택 월 ∩ (선택 연도들 중 최대 표시월까지)
+  const maxMo = Math.max(...yearsToShow.map(yearMaxMonth));
+  const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= maxMo);
 
   // 선택된 품목군 목록 — 헤더 필터(품목군 + 품목 선택) 기준
   const filteredItems = filterItems(data.items);
@@ -1050,81 +1070,44 @@ function renderTrendChart() {
   const series = [];
   const legendData = [];
 
-  // 지표 색상 (전역 METRIC_COLORS 사용)
-
-  if (!showByCat) {
-    // 단일 품목군 or 전체 합산 — 3개 지표 실선 + 25년 점선
-    const catItems = activeCats.length === 1
-      ? filterItems(data.items).filter(it => it.category === activeCats[0])
-      : filterItems(data.items);
-
-    ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m)).forEach((metric, mi) => {
-      const col = METRIC_COLORS[metric];
-      const arr26 = [], arr25 = [];
-      for (const m of monthsToShow) {
-        let v26=0, v25=0;
-        for (const it of catItems) {
-          v26 += it.monthData?.[m]?.[metric]||0;
-          if (showYoY) v25 += it.monthData2025?.[m]?.[metric]||0;
-        }
-        arr26.push(v26);
-        arr25.push(v25);
-      }
+  // 연도별 라인 추가 헬퍼 — 최신연도=실선, 과거연도=점선
+  const pushYearLine = (baseName, color, metric, catItems, withArea) => {
+    yearsToShow.forEach(yr => {
+      const isNewest = yr === newestYr;
+      const arr = monthsToShow.map(m => {
+        if (m > yearMaxMonth(yr)) return null;
+        let v = 0; for (const it of catItems) v += monthVal(it, yr, m, metric) || 0; return v;
+      });
+      const name = isNewest ? baseName : `${baseName}(${yy(yr)})`;
       series.push({
-        name: metric,
-        type: 'line', smooth:true, symbol:'circle', symbolSize:7,
-        data: arr26,
-        lineStyle:{color:col, width:2.5}, itemStyle:{color:col},
-        areaStyle: mi===1 ? {color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:col+'40'},{offset:1,color:col+'05'}]}} : undefined,
+        name, type:'line', smooth:true,
+        symbol: isNewest ? 'circle' : 'emptyCircle', symbolSize: isNewest ? 7 : 5,
+        data: arr,
+        lineStyle: isNewest ? {color, width:2.5} : {color, width:1.5, type:'dashed', opacity:0.6},
+        itemStyle: {color, opacity: isNewest ? 1 : 0.6},
+        areaStyle: (withArea && isNewest)
+          ? {color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:color+'40'},{offset:1,color:color+'05'}]}}
+          : undefined,
         connectNulls: false
       });
-      legendData.push(metric);
-      if (showYoY) {
-        series.push({
-          name: metric + "(25)",
-          type:'line', smooth:true, symbol:'emptyCircle', symbolSize:5,
-          data: arr25,
-          lineStyle:{color:col, width:1.5, type:'dashed', opacity:0.6},
-          itemStyle:{color:col, opacity:0.6},
-          areaStyle:{opacity:0},
-        });
-        legendData.push(metric + "(25)");
-      }
+      legendData.push(name);
     });
+  };
 
+  if (!showByCat) {
+    // 단일 품목군 or 전체 합산 — 3개 지표 × 선택연도
+    const catItems = activeCats.length === 1
+      ? filteredItems.filter(it => it.category === activeCats[0])
+      : filteredItems;
+    ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m)).forEach((metric, mi) => {
+      pushYearLine(metric, METRIC_COLORS[metric], metric, catItems, mi === 1);
+    });
   } else {
-    // 복수 품목군 — 품목군별로 생산 실선 표시 + 25년 점선
+    // 복수 품목군 — 품목군별 생산 × 선택연도
     activeCats.forEach((cat, ci) => {
       const col = CAT_COLORS[ci % CAT_COLORS.length];
-      const catItems = filterItems(data.items).filter(it => it.category === cat);
-      const arr26 = [], arr25 = [];
-      for (const m of monthsToShow) {
-        let v26=0, v25=0;
-        for (const it of catItems) {
-          v26 += it.monthData?.[m]?.['생산']||0;
-          if (showYoY) v25 += it.monthData2025?.[m]?.['생산']||0;
-        }
-        arr26.push(v26);
-        arr25.push(v25);
-      }
-      series.push({
-        name: cat,
-        type:'line', smooth:true, symbol:'circle', symbolSize:7,
-        data: arr26,
-        lineStyle:{color:col, width:2.5}, itemStyle:{color:col},
-      });
-      legendData.push(cat);
-      if (showYoY) {
-        series.push({
-          name: cat+"(25)",
-          type:'line', smooth:true, symbol:'emptyCircle', symbolSize:5,
-          data: arr25,
-          lineStyle:{color:col, width:1.5, type:'dashed', opacity:0.6},
-          itemStyle:{color:col, opacity:0.6},
-          areaStyle:{opacity:0},
-        });
-        legendData.push(cat+"(25)");
-      }
+      const catItems = filteredItems.filter(it => it.category === cat);
+      pushYearLine(cat, col, '생산', catItems, false);
     });
   }
 
@@ -1164,9 +1147,10 @@ function renderTrendChart() {
   const catLabel = activeCats.length === allCats.length ? '전체 품목군'
     : activeCats.length === 1 ? activeCats[0]
     : `${activeCats.length}개 품목군`;
-  const yoyLabel = showYoY ? ' | 실선=26년 점선=25년 동기' : '';
+  const yearLabel = [...yearsToShow].sort((a,b)=>a-b).join('·') + '년';
+  const yoyLabel = showYoY ? ` | 실선=${newestYr}년 점선=과거연도` : '';
   document.getElementById('trendSubtitle').textContent =
-    `${showByCat ? '품목군별 생산 비교' : '수주·생산·출고 추이'} — ${catLabel}${yoyLabel}`;
+    `${yearLabel} ${showByCat ? '품목군별 생산 비교' : '수주·생산·출고 추이'} — ${catLabel}${yoyLabel}`;
   document.getElementById('trendYoYBtn').classList.toggle('active', showYoY);
 }
 
@@ -1363,6 +1347,8 @@ function renderTopMovers() {
 }
 
 function renderExecSummary() {
+  const elOut = document.getElementById('execSummary');
+  if (!elOut) return; // 표지·월간보고 페이지 제거로 요소 없음 — 안전 종료
   const data = getCurrentData(); if (!data) return;
   const items = filterItems(data.items);
   const f = getCurFilters();
@@ -1420,7 +1406,7 @@ function renderExecSummary() {
   if (shortCnt > 0) lines.push(`<b style="color:var(--accent-red);">⚠ 안전재고 부족 ${shortCnt}품목</b> — 신속한 보충 생산 검토 필요.`);
   else lines.push(`✓ 안전재고 전 품목 충족.`);
 
-  document.getElementById('execSummary').innerHTML = lines.map(l => `<div style="margin-bottom:6px;">▶ ${l}</div>`).join('');
+  elOut.innerHTML = lines.map(l => `<div style="margin-bottom:6px;">▶ ${l}</div>`).join('');
 }
 
 /* ============================================================
