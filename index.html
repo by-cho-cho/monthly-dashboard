@@ -176,9 +176,7 @@
 </style>
 </head>
 <body>
-
 <!-- 데이터는 Apps Script 서버에서 실시간 로딩 -->
-
 <!-- 로딩 오버레이 -->
 <div id="loadingOverlay" style="
   position:fixed;inset:0;z-index:99999;
@@ -193,7 +191,6 @@
   <div style="font-size:12px;color:#6B7693;">구글 스프레드시트에서 실시간 데이터를 가져오는 중…</div>
   <style>@keyframes ldbar{0%{transform:translateX(-100%)}50%{transform:translateX(60%)}100%{transform:translateX(220%)}}</style>
 </div>
-
 <header class="sticky-top" style="padding: 16px 40px 12px;
                background: linear-gradient(180deg, rgba(10,14,24,0.95), rgba(10,14,24,0.90));">
   <div class="flex items-start justify-between flex-wrap gap-4">
@@ -207,7 +204,6 @@
         <span id="reportRange" style="display:none;">—</span>
       </div>
     </div>
-
     <!-- 1반 / 2반 토글 -->
     <div class="flex gap-2 items-center no-print">
       <span class="text-[10px]" style="color: var(--text-muted); margin-right: 4px;">부서 선택</span>
@@ -235,11 +231,9 @@
       </div>
     </div>
   </div>
-
 <script>
 let _presentMode = false;
 let _zoom = 80;
-
 function togglePresentMode() {
   _presentMode = !_presentMode;
   const btn = document.getElementById('presentBtn');
@@ -260,17 +254,14 @@ function togglePresentMode() {
     if (document.fullscreenElement) document.exitFullscreen?.();
   }
 }
-
 function setZoom(delta) {
   _zoom = Math.max(50, Math.min(_zoom + delta, 100));
   applyZoom();
 }
-
 function applyZoom() {
   document.documentElement.style.zoom = _zoom + '%';
   document.getElementById('zoomLabel').textContent = _zoom + '%';
 }
-
 document.addEventListener('fullscreenchange', () => {
   if (!document.fullscreenElement && _presentMode) {
     _presentMode = false;
@@ -281,9 +272,7 @@ document.addEventListener('fullscreenchange', () => {
     if (zoomBar) zoomBar.style.display = 'none';
   }
 });
-
 </script>
-
   <!-- 필터 패널 (항상 펼침) -->
   <div id="filterPanel" class="mt-3 pt-3 no-print" style="border-top: 1px dashed rgba(255,255,255,0.08);">
     <div class="filter-row">
@@ -342,13 +331,11 @@ document.addEventListener('fullscreenchange', () => {
     <div class="filter-summary" id="filterSummary">—</div>
   </div>
 </header>
-
 <!-- ────────────────────────────────────────────────────── -->
 <!-- KPI + 월별 추이 차트 (통합 카드) -->
 <!-- ────────────────────────────────────────────────────── -->
 <section class="grid grid-cols-1 xl:grid-cols-12 gap-4" style="padding: 14px 40px 0;">
   <div class="card xl:col-span-12">
-
     <!-- 차트 제목 + 컨트롤 -->
     <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
       <div>
@@ -373,7 +360,6 @@ document.addEventListener('fullscreenchange', () => {
         </span>
       </div>
     </div>
-
     <!-- 차트 컨테이너 -->
     <div style="position:relative;">
       <!-- 동기간 누계 · 25년 비교 오버레이 -->
@@ -381,7 +367,6 @@ document.addEventListener('fullscreenchange', () => {
       <!-- 차트 -->
       <div id="chartTrend" style="height: 380px;"></div>
     </div>
-
     <!-- 푸터 (누적 설명 + 종합 판정) -->
     <div class="flex items-center justify-between flex-wrap gap-2 mt-3 pt-2"
          style="border-top:1px dashed var(--border);">
@@ -392,43 +377,35 @@ document.addEventListener('fullscreenchange', () => {
     </div>
   </div>
 </section>
-
 <!-- ────────────────────────────────────────────────────── -->
 <!-- 4. TOP 성장/하락 품목 -->
 <!-- ────────────────────────────────────────────────────── -->
 <section class="grid grid-cols-1 xl:grid-cols-12 gap-4" style="padding: 24px 40px 0;">
-
   <div class="card xl:col-span-6">
     <div class="kpi-label">📈 TOP 5 성장 품목 (전년 동기 比)</div>
     <div class="mt-3" id="topGrowth"></div>
   </div>
-
   <div class="card xl:col-span-6">
     <div class="kpi-label">📉 TOP 5 하락 품목 (전년 동기 比)</div>
     <div class="mt-3" id="topDecline"></div>
   </div>
 </section>
-
 <!-- ────────────────────────────────────────────────────── -->
 <!-- 5. 품목군별 성과 + 재고 알림 -->
 <!-- ────────────────────────────────────────────────────── -->
 <section class="grid grid-cols-1 xl:grid-cols-12 gap-4" style="padding: 24px 40px 40px;">
-
   <div class="card xl:col-span-7">
     <div class="kpi-label">품목군별 성과</div>
     <div class="text-[11px] mt-1" style="color: var(--text-muted);">생산량 기준 점유율 · 누적 수주/생산/달성률</div>
     <div class="mt-3" id="catTable"></div>
   </div>
-
   <div class="card xl:col-span-5">
     <div class="kpi-label">⚠ 재고 부족 알림</div>
     <div class="text-[11px] mt-1" style="color: var(--text-muted);">실가용재고 = 현재고 − 미출오더 기준</div>
     <div class="mt-3" id="stockAlerts"></div>
   </div>
 </section>
-
 <span id="footSyncTime" style="display:none;"></span>
-
 <script>
 /* ============================================================
    STATE & CONFIG
@@ -444,14 +421,11 @@ const APP = {
     '2반': null,
   },
 };
-
 const CAT_COLORS = ['#C9A961','#4FC3F7','#00E5A0','#FFB547','#E63946','#FF8A65','#AB8FE0','#5AD8C0'];
 const METRIC_COLORS = { '수주': '#C9A961', '생산': '#4FC3F7', '출고': '#00E5A0' };
 const APP_TREND_METRICS = new Set(['수주']); // 전역 — 시작은 수주만
-
 const YEAR_OPTIONS = [2023, 2024, 2025, 2026];
 const MONTH_OPTIONS = [1,2,3,4,5,6,7,8,9,10,11,12];
-
 function makeDefaultFilter(items) {
   const cats = [...new Set(items.map(it => it.category))];
   return {
@@ -461,9 +435,7 @@ function makeDefaultFilter(items) {
     items: new Set(),  // empty = 전체 (필터 해제와 같음)
   };
 }
-
 function getCurFilters() { return APP.filters[APP.currentDept]; }
-
 function filterItems(items) {
   const f = getCurFilters();
   if (!f) return items;
@@ -474,7 +446,6 @@ function filterItems(items) {
     return true;
   });
 }
-
 const fmtN = v => v == null ? '—' : Math.round(v).toLocaleString();
 const fmtPct = (v, dp=1) => v == null ? '—' : v.toFixed(dp) + '%';
 const parseNum = v => {
@@ -482,7 +453,6 @@ const parseNum = v => {
   const n = Number(String(v).replace(/,/g, '').trim());
   return isFinite(n) ? n : 0;
 };
-
 /* ============================================================
    1반 파서 (1반 대쉬보드.html에서 발췌)
    ============================================================ */
@@ -499,12 +469,10 @@ function parseCSV(text){
   if(cell||row.length){row.push(cell);rows.push(row);}
   return rows;
 }
-
 function parse1Bu() {
   const csv = window._CSV_1BAN?.['2145094968'];
   if (!csv) return null;
   const rows = parseCSV(csv);
-
   // ── 동적 월별 컬럼 감지 ──
   // row 0 의 월 마커("1"~"12" 또는 "N월")만 기준으로 인식.
   // 같은 월 마커가 두 번 나오는 경우(월간 요약 / 주간 상세) 첫 번째만 사용.
@@ -522,13 +490,11 @@ function parse1Bu() {
     }
     const months = Object.keys(monthCols).map(Number).sort((a,b)=>a-b);
     if (months.length < 3) return null;
-
     // 다음 월 마커까지의 폭(stride) — 마지막 월은 평균값
     const colsArr = months.map(m => monthCols[m]);
     const strides = [];
     for (let i=0; i<colsArr.length-1; i++) strides.push(colsArr[i+1]-colsArr[i]);
     const avgStride = strides.length ? Math.round(strides.reduce((a,b)=>a+b,0)/strides.length) : 7;
-
     // 메트릭 라벨 행(있으면 — 첫 월 블록 내 "생산" 1회 이상) 탐색
     let metricRowIdx = -1;
     for (let r = 1; r < Math.min(10, rows.length); r++) {
@@ -542,7 +508,6 @@ function parse1Bu() {
       if (has) { metricRowIdx = r; break; }
     }
     const metricRow = metricRowIdx >= 0 ? rows[metricRowIdx] : null;
-
     const map = {};
     for (let i=0; i<months.length; i++) {
       const m = months[i];
@@ -567,7 +532,6 @@ function parse1Bu() {
     }
     return Object.keys(map).length > 0 ? map : null;
   }
-
   const FALLBACK_MONTHLY = {1:77,2:84,3:91,4:98,5:105,6:112,7:119,8:126,9:133,10:140,11:147,12:154};
   const detectedMap = detectMonthlyMap();
   const monthly2026 = detectedMap;  // null이면 폴백으로 동작
@@ -660,7 +624,6 @@ function parse1Bu() {
   }
   return { items, has2025: !!window.DATA_1BAN_2025 };
 }
-
 /* ============================================================
    2반 파서
    ============================================================ */
@@ -669,7 +632,6 @@ function parse2Ban() {
   if (!csv) return null;
   const rows = parseCSV(csv);
   const headers = rows[0] || [];
-
   const colMap = { safetyStock:-1, currentStock:-1, unshipped:-1, yearTotals:{}, monthly:{}, weeklyStart:-1 };
   const M = ['수주','생산','출고','불량','성능','외관','기타'];
   let currentYear = null, currentMonth = null, inWeekly = false;
@@ -691,11 +653,9 @@ function parse2Ban() {
     if (M.includes(h) && currentYear) colMap.yearTotals[currentYear][h] = i;
     else if (M.includes(h) && currentMonth) colMap.monthly[currentMonth][h] = i;
   }
-
   const CAT_HEADERS = ['EP','ENBD','EPO Probe','Cable total','Cable'];
   const DUO = ['SM720SJD','SM720SOD'];
   const EXCLUDE = new Set(['Cable']);
-
   const items = [];
   const catStocks = {};   // 카테고리별 재고 데이터 (EP·ENBD 등)
   let currentCategory = null;
@@ -739,7 +699,6 @@ function parse2Ban() {
     }
     items.push({ model, spec, category, safetyStock, currentStock, unshipped, yearData, monthData });
   }
-
   // 25년 실측 주입
   if (window.DATA_2BAN_2025?.items?.length) {
     const norm = s => (s||'').replace(/\s+/g,'').replace(/\n/g,'').toLowerCase();
@@ -756,27 +715,22 @@ function parse2Ban() {
   }
   return { items, has2025: !!window.DATA_2BAN_2025, catStocks };
 }
-
 /* ============================================================
    RENDERING
    ============================================================ */
 function getCurrentData() { return APP.data[APP.currentDept]; }
-
 function getSyncDateStr() {
   return APP.currentDept === '1반' ? window._CSV_1BAN_DATE : window._CSV_2BAN_DATE;
 }
-
 function getCurrentMonth() {
   const ds = getSyncDateStr();
   const dt = ds ? new Date(ds.replace(' ','T')) : new Date();
   return dt.getMonth() + 1;
 }
-
 function syncHeaderHeight() {
   const h = document.querySelector('header.sticky-top');
   if (h) document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
 }
-
 function renderHeader() {
   document.getElementById('reportDeptTitle').textContent = APP.currentDept;
   const suffixEl = document.getElementById('reportDeptSuffix');
@@ -790,7 +744,6 @@ function renderHeader() {
   const curM = getCurrentMonth();
   document.getElementById('reportRange').textContent = `2026년 1월 ~ ${curM}월 누적`;
 }
-
 // 단일 연도 집계 (필터 월·품목 적용)
 function aggForYear(metric, items, year) {
   const f = getCurFilters();
@@ -808,7 +761,6 @@ function aggForYear(metric, items, year) {
   }
   return sum;
 }
-
 // 다년 합산 (현재 필터 연도들 합산)
 function aggMetric(metric, items) {
   const f = getCurFilters();
@@ -817,7 +769,6 @@ function aggMetric(metric, items) {
   for (const yr of f.years) sum += aggForYear(metric, items, yr);
   return sum;
 }
-
 // 호환용 (yr/months 명시) — 기존 호출부 처리
 // 동기간 비교 정합: 월별 데이터 보유 연도는 현재월(curM)까지만 합산.
 // Why: 전년(2025) 비교가 선택 월 전체(1~12)를 더해 연간값으로 잡히던 버그 수정(2026-06-23).
@@ -837,7 +788,6 @@ function aggMetricExplicit(metric, items, yr, monthsToSum) {
   }
   return sum;
 }
-
 function renderKPI() {
   const data = getCurrentData(); if (!data) return;
   const items = filterItems(data.items);
@@ -858,16 +808,13 @@ function renderKPI() {
   const o25 = aggMetricExplicit('수주', items, prev, months);
   const p25 = aggMetricExplicit('생산', items, prev, months);
   const s25 = aggMetricExplicit('출고', items, prev, months);
-
   const ach = o26 > 0 ? p26/o26*100 : null;
   const def = p26 > 0 ? d26/p26*100 : null;
   const oG = o25 > 0 ? (o26y-o25)/o25*100 : null;
   const pG = p25 > 0 ? (p26y-p25)/p25*100 : null;
   const sG = s25 > 0 ? (s26y-s25)/s25*100 : null;
-
   const arrowSub = (g, p25v) => g == null ? `전년 동기 비교 없음`
     : `<span class="${g>=0?'delta-up':'delta-down'}">${g>=0?'▲':'▼'} ${Math.abs(g).toFixed(1)}%</span> · 전년 동기 ${fmtN(p25v)}`;
-
   document.getElementById('kpiOrders').textContent = fmtN(o26);
   document.getElementById('kpiOrdersSub').innerHTML = arrowSub(oG, o25);
   document.getElementById('kpiProduction').textContent = fmtN(p26);
@@ -889,7 +836,6 @@ function renderKPI() {
   if (mps) mps.innerHTML = miniArrow(pG, p25);
   document.getElementById('kpiShipped').textContent = fmtN(s26);
   document.getElementById('kpiShippedSub').innerHTML = arrowSub(sG, s25);
-
   // 달성률·불량율 KPI 카드는 제거됨 — 요소 있을 때만 갱신 (호환용)
   const achEl = document.getElementById('kpiAchieve');
   if (achEl) {
@@ -905,7 +851,6 @@ function renderKPI() {
     const defSub = document.getElementById('kpiDefectSub');
     if (defSub) defSub.innerHTML = def == null ? '—' : `불량 ${fmtN(d26)}개 / 생산 ${fmtN(p26)}개`;
   }
-
   // 종합 판정
   const scores = [oG, pG, sG].filter(v => v != null);
   const avg = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : 0;
@@ -918,7 +863,6 @@ function renderKPI() {
   verdict.textContent = vText;
   verdict.style.cssText = `background:${vBg}; color:${vColor}; border:1px solid ${vColor}55; padding:6px 18px; border-radius:12px;`;
 }
-
 function renderYoY() {
   const data = getCurrentData(); if (!data) return;
   const items = filterItems(data.items);
@@ -930,7 +874,6 @@ function renderYoY() {
   const list = document.getElementById('yoyList');
   if (!list) return;
   list.innerHTML = '';
-
   const metrics = [
     {key:'수주', color:'var(--accent-gold)'},
     {key:'생산', color:'var(--accent-cyan)'},
@@ -955,8 +898,6 @@ function renderYoY() {
       </div>`;
   });
 }
-
-
 function toggleTrendMetric(metric) {
   if (APP_TREND_METRICS.has(metric)) {
     if (APP_TREND_METRICS.size === 1) return; // 최소 1개 유지
@@ -982,7 +923,6 @@ function toggleTrendMetric(metric) {
   });
   renderTrendChart();
 }
-
 function buildTrendCatChecks() {
   const data = getCurrentData(); if (!data) return;
   const cats = [...new Set(data.items.map(it => it.category))];
@@ -1000,7 +940,6 @@ function buildTrendCatChecks() {
   const allEl = document.getElementById('trendCatAll');
   if (allEl) allEl.checked = !APP.trendCats;
 }
-
 function toggleTrendCat(cat, checked) {
   const data = getCurrentData(); if (!data) return;
   const allCats = [...new Set(data.items.map(it => it.category))];
@@ -1016,7 +955,6 @@ function toggleTrendCat(cat, checked) {
   if (btn) btn.textContent = APP.trendCats ? `🏷 ${APP.trendCats.size}개 선택 ▾` : '🏷 품목군 ▾';
   renderTrendChart();
 }
-
 function toggleTrendCatAll(checked) {
   APP.trendCats = checked ? null : new Set();
   buildTrendCatChecks();
@@ -1024,7 +962,6 @@ function toggleTrendCatAll(checked) {
   if (btn) btn.textContent = '🏷 품목군 ▾';
   renderTrendChart();
 }
-
 // 동기간 누계 · 25년 비교 — 차트 우상단 HTML 오버레이 (활성 지표별 1줄)
 function renderYtdOverlay(annualMode) {
   const box = document.getElementById('ytdOverlay');
@@ -1066,13 +1003,11 @@ function renderYtdOverlay(annualMode) {
   });
   box.innerHTML = rows.join('');
 }
-
 function renderTrendChart() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
   const curM = getCurrentMonth();
   const CUR_YEAR = (() => { const ds=getSyncDateStr(); const dt=ds?new Date(ds.replace(' ','T')):new Date(); return dt.getFullYear(); })();
-
   // 연도별 월 데이터 접근 — 월 단위 데이터는 2025·2026만 존재
   const monthVal = (it, yr, m, metric) => {
     if (yr === 2026) return it.monthData?.[m]?.[metric] || 0;
@@ -1082,24 +1017,19 @@ function renderTrendChart() {
   const yearHasMonthly = yr => (yr === 2026) || (yr === 2025 && data.has2025);
   const yearMaxMonth = yr => (yr === CUR_YEAR ? curM : 12); // 진행연도는 동기화월까지, 과거연도는 12월까지
   const yy = yr => String(yr).slice(2);
-
   // 선택된 품목군 목록 — 헤더 필터(품목군 + 품목 선택) 기준
   const filteredItems = filterItems(data.items);
   const allCats = [...new Set(data.items.map(it => it.category))];
   const activeCats = [...new Set(filteredItems.map(it => it.category))];
-
   // 카테고리별 / 전체 여부 — 2개 이상이면 카테고리별 분리 표시
   const showByCat = activeCats.length > 1 && activeCats.length < allCats.length;
-
   // 선택된 연도 중 월별 데이터 없는 연도(2023·2024 등)가 있으면 → 연간 추이 모드
   const selYears = [...f.years].sort((a,b) => a - b);
   const annualMode = selYears.length > 0 && selYears.some(y => !yearHasMonthly(y));
-
   let xData = [];
   const series = [];
   const legendData = [];
   let yearsToShow = [], newestYr = 2026, showYoY = false;
-
   if (annualMode) {
     // ── 연간 추이 모드 — X축 = 선택 연도, 값 = 연간 합계 ──────────────
     // 월별 데이터 있는 연도는 12개월 합, 없는 연도(23·24)는 yearData 연간 총계 사용
@@ -1149,11 +1079,9 @@ function renderTrendChart() {
     yearsToShow.sort((a,b) => b - a);
     newestYr = yearsToShow[0];
     showYoY = yearsToShow.length > 1;
-
     const maxMo = Math.max(...yearsToShow.map(yearMaxMonth));
     const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= maxMo);
     xData = monthsToShow.map(m => `${m}월`);
-
     const pushYearLine = (baseName, color, metric, catItems, withArea) => {
       yearsToShow.forEach(yr => {
         const isNewest = yr === newestYr;
@@ -1171,12 +1099,15 @@ function renderTrendChart() {
           areaStyle: (withArea && isNewest)
             ? {color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:color+'40'},{offset:1,color:color+'05'}]}}
             : undefined,
+          label: isNewest ? {
+            show:true, position:'top', color, fontSize:9, fontWeight:700,
+            formatter: p => (p.value != null && p.value !== 0) ? Number(p.value).toLocaleString() : ''
+          } : { show:false },
           connectNulls: false
         });
         legendData.push(name);
       });
     };
-
     if (!showByCat) {
       const catItems = activeCats.length === 1
         ? filteredItems.filter(it => it.category === activeCats[0])
@@ -1192,7 +1123,6 @@ function renderTrendChart() {
       });
     }
   }
-
   if (!APP.charts.trend) APP.charts.trend = echarts.init(document.getElementById('chartTrend'));
   APP.charts.trend.setOption({
     backgroundColor: 'transparent',
@@ -1201,10 +1131,13 @@ function renderTrendChart() {
       trigger:'axis', backgroundColor:'#0F1520', borderColor:'#243049', textStyle:{color:'#EDF2FB'},
       confine: true,
       position: function(point, params, dom, rect, size){
-        // 차트 좌측 plot 영역(legend 아래)에 고정 표시 — KPI 오버레이와 겹치지 않게
-        return [10, 130];
+        // 차트 우측 상단에 고정 표시 — 월별 수치(위) + 누적합계·전년비교(아래)를 한눈에
+        const vw = size.viewSize[0];
+        const tw = size.contentSize[0];
+        return [Math.max(vw - tw - 14, 10), 44];
       },
       formatter(params){
+        const idx = params && params.length ? params[0].dataIndex : null;
         let h = `<div style="font-weight:700;margin-bottom:4px;">${params[0].axisValue}</div>`;
         params.forEach(p => {
           if (p.value==null) return;
@@ -1213,6 +1146,42 @@ function renderTrendChart() {
             <span>${p.seriesName}:</span>
             <b style="margin-left:auto;padding-left:12px;">${Number(p.value).toLocaleString()}</b></div>`;
         });
+        // ── 누적합계 (연도별) — 작년 대비 분석용 ──
+        if (idx != null && series.length) {
+          const cumMap = new Map(); // baseName -> { cur:{val,color}, prev:{val,color} }
+          series.forEach(s => {
+            const cum = (s.data || []).slice(0, idx + 1).reduce((a, b) => a + (b || 0), 0);
+            const yrMatch = s.name.match(/\((\d{2})\)$/);
+            const base = yrMatch ? s.name.replace(/\(\d{2}\)$/, '') : s.name;
+            const col = (s.lineStyle && s.lineStyle.color) || (s.itemStyle && s.itemStyle.color) || '#8A9BBF';
+            if (!cumMap.has(base)) cumMap.set(base, {});
+            const slot = cumMap.get(base);
+            if (yrMatch) slot.prev = { val: cum, color: col };
+            else slot.cur = { val: cum, color: col };
+          });
+          let cumHtml = '';
+          cumMap.forEach((slot, base) => {
+            if (!slot.cur) return;
+            const curV = slot.cur.val;
+            const prevV = slot.prev ? slot.prev.val : null;
+            const rate = (prevV != null && prevV > 0) ? (curV - prevV) / prevV * 100 : null;
+            const rateHtml = rate == null ? ''
+              : ` <span style="color:${rate>=0?'#00E5A0':'#E63946'};font-weight:700;">${rate>=0?'▲':'▼'} ${Math.abs(rate).toFixed(1)}%</span>`;
+            cumHtml += `<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">
+              <span style="width:8px;height:8px;border-radius:50%;background:${slot.cur.color};display:inline-block;"></span>
+              <span>${base} 누적:</span>
+              <b style="margin-left:auto;padding-left:12px;">${Number(curV).toLocaleString()}</b>
+              ${prevV != null ? `<span style="color:#6B7693;font-size:10px;margin-left:6px;">(전년 ${Number(prevV).toLocaleString()})</span>` : ''}
+              ${rateHtml}
+            </div>`;
+          });
+          if (cumHtml) {
+            h += `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed rgba(255,255,255,0.18);">
+              <div style="font-size:10px;color:#8A9BBF;margin-bottom:4px;">📊 누적합계 (1월~${params[0].axisValue}, 전년比)</div>
+              ${cumHtml}
+            </div>`;
+          }
+        }
         return h;
       }
     },
@@ -1224,7 +1193,6 @@ function renderTrendChart() {
              axisLabel:{color:'#8A9BBF', formatter:v=>v>=1000?Math.round(v/1000)+'k':v} },
     series
   }, true);
-
   // 서브타이틀
   const catLabel = activeCats.length === allCats.length ? '전체 품목군'
     : activeCats.length === 1 ? activeCats[0]
@@ -1243,7 +1211,6 @@ function renderTrendChart() {
 
   renderYtdOverlay(annualMode);
 }
-
 function renderCatTable() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
@@ -1253,7 +1220,6 @@ function renderCatTable() {
   const prev = cur - 1;
   // 헤더 필터와 무관하게 전체 품목군 항상 표시
   const cats = [...new Set(data.items.map(it => it.category))];
-
   const rows = cats.map(cat => {
     const grp = data.items.filter(it => it.category === cat);
     const o = aggMetricExplicit('수주', grp, cur, months);
@@ -1266,11 +1232,9 @@ function renderCatTable() {
     const pG = p25 > 0 ? (p-p25)/p25*100 : null;
     return {cat, o, p, s, ach, oG, pG, count:grp.length};
   }).filter(r => r.o > 0 || r.p > 0 || r.s > 0).sort((a,b) => b.p - a.p);
-
   const totalP = rows.reduce((s,r) => s+r.p, 0);
   const fmtG = g => g == null ? '<span style="color:var(--text-muted)">—</span>'
     : `<span style="color:${g>=0?'var(--accent-mint)':'var(--accent-red)'};font-weight:700;">${g>=0?'▲':'▼'} ${Math.abs(g).toFixed(1)}%</span>`;
-
   let html = `<table class="exec" style="width:100%;border-collapse:collapse;">
     <thead><tr>
       <th>품목군</th>
@@ -1297,12 +1261,10 @@ function renderCatTable() {
   html += '</tbody></table>';
   document.getElementById('catTable').innerHTML = html;
 }
-
 function setStockFilter(key) {
   window._stockFilter = (window._stockFilter === key) ? 'all' : key;
   renderStockAlerts();
 }
-
 function renderStockAlerts() {
   const data = getCurrentData(); if (!data) return;
   const items = filterItems(data.items);
@@ -1318,22 +1280,17 @@ function renderStockAlerts() {
     shortage: it.safetyStock - (it.currentStock - (it.unshipped || 0)),
     rate: (it.currentStock - (it.unshipped || 0)) / it.safetyStock
   })).sort((a,b) => b.shortage - a.shortage);
-
   const totalUnship = items.reduce((s,it) => s + (it.unshipped||0), 0);
   const dangerCnt = shortItems.filter(it => it.rate < 0.5).length;
   const warnCnt = shortItems.filter(it => it.rate >= 0.5 && it.rate < 0.8).length;
-
   // 현재 필터 상태 (danger/warn/all)
   const cur_sf = window._stockFilter || 'all';
-
   const dangerItems = shortItems.filter(it => it.rate < 0.5);
   const warnItems   = shortItems.filter(it => it.rate >= 0.5 && it.rate < 0.8);
   const unshipItems = items.filter(it => (it.unshipped||0) > 0).sort((a,b)=>(b.unshipped||0)-(a.unshipped||0));
-
   const activeStyle = (key, col) => cur_sf === key
     ? `background:${col};border:1px solid ${col};border-radius:8px;padding:8px;text-align:center;cursor:pointer;transition:all .2s;`
     : `background:${col.replace('0.3','0.08').replace('rgba(','rgba(').replace(',0.3',',0.08')};border:1px solid ${col};border-radius:8px;padding:8px;text-align:center;cursor:pointer;transition:all .2s;opacity:${cur_sf==='all'?1:0.45};`;
-
   let html = `<div class="grid grid-cols-3 gap-2 mb-3">
     <div onclick="setStockFilter('danger')" style="${cur_sf==='danger'?'background:rgba(230,57,70,0.25);':'background:rgba(230,57,70,0.08);'}border:1px solid rgba(230,57,70,${cur_sf==='danger'?'0.7':'0.3'});border-radius:8px;padding:8px;text-align:center;cursor:pointer;transition:all .2s;">
       <div class="text-[10px]" style="color:var(--text-muted);">위험 (&lt;50%)</div>
@@ -1348,7 +1305,6 @@ function renderStockAlerts() {
       <div class="num" style="font-size:20px;font-weight:700;color:var(--accent-gold);">${unshipItems.length}</div>
     </div>
   </div>`;
-
   // 필터에 따른 목록 결정
   let listItems = [];
   let cols = '';
@@ -1365,7 +1321,6 @@ function renderStockAlerts() {
     listItems = shortItems;
     cols = `<th>품목</th><th style="text-align:right">안전</th><th style="text-align:right">가용재고</th><th style="text-align:right">부족</th>`;
   }
-
   if (listItems.length === 0) {
     html += '<div style="text-align:center;padding:16px;color:var(--accent-mint);font-weight:600;">✓ 해당 품목 없음</div>';
   } else {
@@ -1391,7 +1346,6 @@ function renderStockAlerts() {
   }
   document.getElementById('stockAlerts').innerHTML = html;
 }
-
 function renderTopMovers() {
   const data = getCurrentData(); if (!data) return;
   const items = filterItems(data.items);
@@ -1402,7 +1356,6 @@ function renderTopMovers() {
   const yrs = [...f.years].sort();
   const cur = yrs[yrs.length-1] || 2026;
   const prev = cur - 1;
-
   const moves = items.map(it => {
     let p26 = 0, p25 = 0;
     for (const m of months) {
@@ -1415,10 +1368,8 @@ function renderTopMovers() {
     const rate = p25 > 0 ? diff/p25*100 : null;
     return {model:it.model, spec:it.spec, cat:it.category, p26, p25, diff, rate};
   }).filter(m => m.rate != null && (m.p26 + m.p25) >= 10);  // 총수량 10개 미만 제외
-
   const growth = [...moves].filter(m => m.rate > 0).sort((a,b) => b.rate - a.rate).slice(0, 5);
   const decline = [...moves].filter(m => m.rate < 0).sort((a,b) => a.rate - b.rate).slice(0, 5);
-
   const rowHTML = (m, color) => `
     <div style="display:grid;grid-template-columns:1fr 80px 80px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
       <div>
@@ -1428,16 +1379,13 @@ function renderTopMovers() {
       <div style="text-align:right;font-size:11px;color:var(--text-secondary);" class="num">${fmtN(m.p26)} ← ${fmtN(Math.round(m.p25))}</div>
       <div style="text-align:right;font-weight:700;color:${color};font-size:14px;">${m.rate>=0?'▲':'▼'} ${Math.abs(m.rate).toFixed(1)}%</div>
     </div>`;
-
   document.getElementById('topGrowth').innerHTML = growth.length
     ? growth.map(m => rowHTML(m, 'var(--accent-mint)')).join('')
     : '<div style="color:var(--text-muted);padding:14px;text-align:center;">데이터 없음</div>';
-
   document.getElementById('topDecline').innerHTML = decline.length
     ? decline.map(m => rowHTML(m, 'var(--accent-red)')).join('')
     : '<div style="color:var(--text-muted);padding:14px;text-align:center;">데이터 없음</div>';
 }
-
 function renderExecSummary() {
   const elOut = document.getElementById('execSummary');
   if (!elOut) return; // 표지·월간보고 페이지 제거로 요소 없음 — 안전 종료
@@ -1449,7 +1397,6 @@ function renderExecSummary() {
   const yrs = [...f.years].sort();
   const cur = yrs[yrs.length-1] || 2026;
   const prev = cur - 1;
-
   const o26 = aggMetricExplicit('수주', items, cur, months);
   const p26 = aggMetricExplicit('생산', items, cur, months);
   const s26 = aggMetricExplicit('출고', items, cur, months);
@@ -1460,7 +1407,6 @@ function renderExecSummary() {
   const def = p26 > 0 ? d26/p26*100 : null;
   const oG = o25 > 0 ? (o26-o25)/o25*100 : null;
   const pG = p25 > 0 ? (p26-p25)/p25*100 : null;
-
   // 가장 큰 성장/하락 카테고리
   const cats = [...new Set(items.map(it => it.category))];
   const catPerf = cats.map(cat => {
@@ -1472,13 +1418,10 @@ function renderExecSummary() {
   });
   const topCat = catPerf.filter(c => c.g!=null).sort((a,b) => b.g - a.g)[0];
   const botCat = catPerf.filter(c => c.g!=null).sort((a,b) => a.g - b.g)[0];
-
   // 부족 재고 카운트
   const shortCnt = items.filter(it => it.safetyStock && (it.currentStock - (it.unshipped||0)) < it.safetyStock).length;
-
   const lines = [];
   lines.push(`<b style="color:var(--accent-gold);">${APP.currentDept}</b>의 2026년 1~${curM}월 누적 실적: 수주 <b class="num">${fmtN(o26)}개</b>, 생산 <b class="num">${fmtN(p26)}개</b>, 출고 <b class="num">${fmtN(s26)}개</b>.`);
-
   if (oG != null && pG != null) {
     const oArrow = oG >= 0 ? '↑' : '↓';
     const pArrow = pG >= 0 ? '↑' : '↓';
@@ -1497,50 +1440,40 @@ function renderExecSummary() {
   }
   if (shortCnt > 0) lines.push(`<b style="color:var(--accent-red);">⚠ 안전재고 부족 ${shortCnt}품목</b> — 신속한 보충 생산 검토 필요.`);
   else lines.push(`✓ 안전재고 전 품목 충족.`);
-
   elOut.innerHTML = lines.map(l => `<div style="margin-bottom:6px;">▶ ${l}</div>`).join('');
 }
-
 /* ============================================================
    필터 렌더링 & 핸들러
    ============================================================ */
 function renderFilters() {
   const f = getCurFilters(); if (!f) return;
   const data = getCurrentData(); if (!data) return;
-
   // 연도 칩
   document.getElementById('filterYears').innerHTML = YEAR_OPTIONS.map(y =>
     `<span class="chip chip-year ${f.years.has(y)?'active':''}" data-ftype="years" data-fval="${y}" onclick="toggleFilter('years',${y})">${y}</span>`
   ).join('');
-
   // 월 칩 + 라벨에 monthlyYear 표기 (가장 최근 선택 연도)
   const latestYr = [...f.years].sort((a,b)=>b-a)[0] || 2026;
   document.getElementById('filterMonthYear').textContent = latestYr;
   document.getElementById('filterMonths').innerHTML = MONTH_OPTIONS.map(m =>
     `<span class="chip chip-month ${f.months.has(m)?'active':''}" data-ftype="months" data-fval="${m}" onclick="toggleFilter('months',${m})">${m}월</span>`
   ).join('');
-
   // 카테고리 칩 (부서별)
   const allCats = [...new Set(data.items.map(it => it.category))];
   document.getElementById('filterCats').innerHTML = allCats.map(c =>
     `<span class="chip chip-cat ${f.categories.has(c)?'active':''}" data-ftype="categories" data-fval="${escapeAttr(c)}" onclick="toggleFilter('categories','${escapeAttr(c)}')">${c}</span>`
   ).join('');
-
   // 품목 카운트
   const totalItems = data.items.filter(it => f.categories.has(it.category)).length;
   document.getElementById('filterItemCount').textContent =
     f.items.size === 0 ? `(전체 ${totalItems}개)` : `(${f.items.size}개 선택 / 가능 ${totalItems}개)`;
-
   // 품목 picker
   renderItemPicker();
-
   // 요약
   document.getElementById('filterSummary').textContent =
     `연도 ${f.years.size}개 / 월 ${f.months.size}개 / 품목군 ${f.categories.size}개 / 적용 품목 ${f.items.size===0?totalItems:f.items.size}개`;
 }
-
 function escapeAttr(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
-
 function renderItemPicker() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
@@ -1562,7 +1495,6 @@ function renderItemPicker() {
     </label>`;
   }).join('');
 }
-
 function setFilterState(type, val, on) {
   const f = getCurFilters(); if (!f) return false;
   if (type === 'years' || type === 'months') val = +val;
@@ -1578,7 +1510,6 @@ function setFilterState(type, val, on) {
   }
   return true;
 }
-
 // 드래그 선택 — 월·품목군·연도 칩에서 마우스 드래그로 일괄 토글
 const DRAG = { active:false, mode:null, touched:new Set(), moved:false };
 function chipKey(el){ return `${el.dataset.ftype}|${el.dataset.fval}`; }
@@ -1630,7 +1561,6 @@ document.addEventListener('mouseup', () => {
     setTimeout(()=>{ DRAG.suppressClick = false; }, 0);
   }
 });
-
 function toggleFilter(type, val) {
   if (DRAG.suppressClick) { DRAG.suppressClick = false; return; }
   const f = getCurFilters();
@@ -1649,7 +1579,6 @@ function toggleFilter(type, val) {
   renderFilters();
   renderBody();
 }
-
 function toggleAllFilter(type) {
   const f = getCurFilters();
   const data = getCurrentData();
@@ -1674,14 +1603,12 @@ function toggleAllFilter(type) {
   renderFilters();
   renderBody();
 }
-
 function resetFilters() {
   const data = getCurrentData(); if (!data) return;
   APP.filters[APP.currentDept] = makeDefaultFilter(data.items);
   renderFilters();
   renderBody();
 }
-
 function renderBody() {
   renderKPI();
   renderYoY();
@@ -1691,7 +1618,6 @@ function renderBody() {
   renderTopMovers();
   renderExecSummary();
 }
-
 function renderAll() {
   renderHeader();
   renderFilters();
@@ -1699,7 +1625,6 @@ function renderAll() {
   setTimeout(syncHeaderHeight, 50);
 }
 window.addEventListener('resize', syncHeaderHeight);
-
 function switchDept(dept) {
   if (dept === APP.currentDept) return;
   if (!APP.data[dept]) {
@@ -1712,23 +1637,19 @@ function switchDept(dept) {
   });
   renderAll();
 }
-
 function toggleTrendYoY() {
   const data = getCurrentData();
   if (!data?.has2025) { alert('25년 실측 데이터가 없습니다.'); return; }
   APP.trendYoY = !APP.trendYoY;
   renderTrendChart();
 }
-
 window.addEventListener('resize', () => {
   Object.values(APP.charts).forEach(c => c && c.resize());
 });
-
 // 초기화
 function init() {
   APP.data['1반'] = parse1Bu();
   APP.data['2반'] = parse2Ban();
-
   if (!APP.data['1반'] && !APP.data['2반']) {
     document.getElementById('loadingOverlay').innerHTML = `
       <div style="text-align:center;padding:40px;">
@@ -1740,14 +1661,11 @@ function init() {
     document.getElementById('loadingOverlay').style.display = 'flex';
     return;
   }
-
   // 부서별 필터 초기화
   if (APP.data['1반']) APP.filters['1반'] = makeDefaultFilter(APP.data['1반'].items);
   if (APP.data['2반']) APP.filters['2반'] = makeDefaultFilter(APP.data['2반'].items);
-
   // 기본 부서 선택 (둘 다 있으면 1반, 없으면 가능한 것)
   if (!APP.data['1반'] && APP.data['2반']) APP.currentDept = '2반';
-
   document.querySelectorAll('.toggle-btn[data-dept]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.dept === APP.currentDept);
     if (!APP.data[btn.dataset.dept]) {
@@ -1755,15 +1673,12 @@ function init() {
       btn.title = '데이터 없음';
     }
   });
-
   renderAll();
 }
-
 function showLoadingOverlay(show) {
   const el = document.getElementById('loadingOverlay');
   if (el) el.style.display = show ? 'flex' : 'none';
 }
-
 /* ── 2025년 데이터 파서 (2반) ─────────────────────────────── */
 function parse2025_2ban(csvText) {
   const rows = parseCSV(csvText);
@@ -1786,7 +1701,6 @@ function parse2025_2ban(csvText) {
   }
   return {items, meta:{source:'25년 2반', count:items.length}};
 }
-
 /* ── 2025년 데이터 파서 (1반) ─────────────────────────────── */
 function parse2025_1ban(csvText) {
   const rows = parseCSV(csvText);
@@ -1809,21 +1723,17 @@ function parse2025_1ban(csvText) {
   }
   return {items, meta:{source:'25년 1반', count:items.length}};
 }
-
 document.addEventListener('DOMContentLoaded', async function() {
   showLoadingOverlay(true);
-
   const SHEET_ID      = '1SX8ZOh2i4LrH9X7HSQ3RhrxREeGl7Vl6qcu42Uf8qro';
   const SHEET_ID_2025 = '1k3k3BB4kLIXPGvdl2X84-aCzKT-nyltOb93AU5VexY4';
   const GIDS = { '1BAN': '2145094968', '2BAN': '680125344' };
-
   async function fetchGviz(sheetId, gid) {
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return resp.text();
   }
-
   try {
     const [csv1ban, csv2ban, csv1ban25, csv2ban25] = await Promise.all([
       fetchGviz(SHEET_ID,      GIDS['1BAN']).catch(() => null),
@@ -1831,13 +1741,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       fetchGviz(SHEET_ID_2025, GIDS['1BAN']).catch(() => null),
       fetchGviz(SHEET_ID_2025, GIDS['2BAN']).catch(() => null),
     ]);
-
     const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
     if (csv1ban)  { window._CSV_1BAN  = { '2145094968': csv1ban  }; window._CSV_1BAN_DATE  = now; }
     if (csv2ban)  { window._CSV_2BAN  = { '680125344':  csv2ban  }; window._CSV_2BAN_DATE  = now; }
     if (csv1ban25) window.DATA_1BAN_2025 = parse2025_1ban(csv1ban25);
     if (csv2ban25) window.DATA_2BAN_2025 = parse2025_2ban(csv2ban25);
-
     showLoadingOverlay(false);
     init();
     // 차트 컨테이너가 보인 후 크기 재계산
@@ -1854,6 +1762,5 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 });
 </script>
-
 </body>
 </html>
