@@ -1088,7 +1088,10 @@ function renderTrendChart() {
     const maxMo = Math.max(...yearsToShow.map(yearMaxMonth));
     const monthsToShow = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= maxMo);
     xData = monthsToShow.map(m => `${m}월`);
-    const pushYearLine = (baseName, color, metric, catItems, withArea) => {
+    // 동기간 비교 기준점 = 최신연도 마지막 표시월의 index (배지는 이 시점 누계로 통일)
+    let cmpIdx = -1;
+    for (let i = monthsToShow.length - 1; i >= 0; i--) { if (monthsToShow[i] <= yearMaxMonth(newestYr)) { cmpIdx = i; break; } }
+    const pushYearLine = (baseName, color, metric, catItems, withArea, endBadge) => {
       yearsToShow.forEach(yr => {
         const isNewest = yr === newestYr;
         const arr = monthsToShow.map(m => {
@@ -1096,6 +1099,31 @@ function renderTrendChart() {
           let v = 0; for (const it of catItems) v += monthVal(it, yr, m, metric) || 0; return v;
         });
         const name = isNewest ? baseName : `${baseName}(${yy(yr)})`;
+        // ── 끝점 누적합계 배지 (스샷 스타일 pill) ──
+        let markPoint;
+        if (endBadge) {
+          // 동기간 비교: 최신·과거 연도 모두 cmpIdx(최신연도 마지막 표시월) 시점 누계로 통일
+          const lastIdx = cmpIdx >= 0 ? cmpIdx : (() => { for (let i = arr.length - 1; i >= 0; i--) { if (arr[i] != null) return i; } return -1; })();
+          if (lastIdx >= 0 && arr[lastIdx] != null) {
+            const cum = arr.slice(0, lastIdx + 1).reduce((a, b) => a + (b || 0), 0);
+            const txt = isNewest ? `∑ ${cum.toLocaleString()}` : `${yy(yr)}년 ${cum.toLocaleString()}`;
+            const w = Math.max(56, txt.length * 8.5 + 20);
+            markPoint = {
+              silent: true, symbol: 'roundRect', symbolSize: [w, isNewest ? 24 : 21],
+              symbolOffset: [-(w / 2 + 10), isNewest ? -20 : 16],
+              itemStyle: isNewest
+                ? { color, borderColor: '#0F1520', borderWidth: 1.5, shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)' }
+                : { color: '#1B2334', borderColor: color, borderWidth: 1.5, opacity: 0.95 },
+              data: [{ coord: [lastIdx, arr[lastIdx]], value: txt }],
+              label: {
+                show: true, formatter: p => p.value,
+                color: isNewest ? '#0F1520' : color,
+                fontWeight: isNewest ? 800 : 700, fontSize: isNewest ? 13 : 11,
+                fontFamily: 'Pretendard'
+              }
+            };
+          }
+        }
         series.push({
           name, type:'line', smooth:true,
           symbol: isNewest ? 'circle' : 'emptyCircle', symbolSize: isNewest ? 7 : 5,
@@ -1109,6 +1137,7 @@ function renderTrendChart() {
             show:true, position:'top', color, fontSize:9, fontWeight:700,
             formatter: p => (p.value != null && p.value !== 0) ? Number(p.value).toLocaleString() : ''
           } : { show:false },
+          markPoint,
           connectNulls: false
         });
         legendData.push(name);
@@ -1118,14 +1147,16 @@ function renderTrendChart() {
       const catItems = activeCats.length === 1
         ? filteredItems.filter(it => it.category === activeCats[0])
         : filteredItems;
-      ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m)).forEach((metric, mi) => {
-        pushYearLine(metric, METRIC_COLORS[metric], metric, catItems, mi === 1);
+      const activeMetrics = ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m));
+      activeMetrics.forEach((metric, mi) => {
+        // 지표 1개일 때만 끝점 누적합계 배지 표시 — 여러 개면 겹쳐서 지저분해짐
+        pushYearLine(metric, METRIC_COLORS[metric], metric, catItems, mi === 1, activeMetrics.length === 1);
       });
     } else {
       activeCats.forEach((cat, ci) => {
         const col = CAT_COLORS[ci % CAT_COLORS.length];
         const catItems = filteredItems.filter(it => it.category === cat);
-        pushYearLine(cat, col, '생산', catItems, false);
+        pushYearLine(cat, col, '생산', catItems, false, false);
       });
     }
   }
