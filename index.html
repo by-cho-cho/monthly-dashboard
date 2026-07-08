@@ -376,6 +376,8 @@ document.addEventListener('fullscreenchange', () => {
 
     <!-- 차트 컨테이너 -->
     <div style="position:relative;">
+      <!-- 동기간 누계 · 25년 비교 오버레이 -->
+      <div id="ytdOverlay" style="position:absolute;top:8px;right:14px;z-index:6;display:flex;flex-direction:column;gap:6px;align-items:flex-end;pointer-events:none;"></div>
       <!-- 차트 -->
       <div id="chartTrend" style="height: 380px;"></div>
     </div>
@@ -433,7 +435,7 @@ document.addEventListener('fullscreenchange', () => {
    ============================================================ */
 const APP = {
   currentDept: '1반',
-  trendYoY: false,
+  trendYoY: true,
   trendCats: null,
   data: { '1반': null, '2반': null },
   charts: {},
@@ -1023,6 +1025,48 @@ function toggleTrendCatAll(checked) {
   renderTrendChart();
 }
 
+// 동기간 누계 · 25년 비교 — 차트 우상단 HTML 오버레이 (활성 지표별 1줄)
+function renderYtdOverlay(annualMode) {
+  const box = document.getElementById('ytdOverlay');
+  if (!box) return;
+  const data = getCurrentData();
+  if (!data || annualMode) { box.innerHTML = ''; return; }
+
+  const items = filterItems(data.items);
+  const f = getCurFilters();
+  const curM = getCurrentMonth();
+  const months = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= curM);
+  const yrs = [...f.years].sort();
+  const curYear = yrs[yrs.length - 1] || 2026;
+  const prevYear = curYear - 1;
+  const showYoY = APP.trendYoY && data.has2025;
+
+  const rows = [];
+  ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m)).forEach(metric => {
+    const cur = aggMetricExplicit(metric, items, curYear, months);
+    if (!(cur > 0)) return;
+    const color = METRIC_COLORS[metric];
+    let yoyHtml = '';
+    if (showYoY) {
+      const prv = aggMetricExplicit(metric, items, prevYear, months);
+      if (prv > 0) {
+        const diff = cur - prv, rate = diff / prv * 100, up = diff >= 0;
+        const rc = up ? '#00E5A0' : '#E63946', rtc = up ? '#0F1520' : '#FFFFFF';
+        yoyHtml =
+          `<span style="color:#B8C2D9;font-weight:800;font-size:11px;background:rgba(15,20,32,0.9);border:1px solid var(--border);border-radius:4px;padding:2px 7px;">${String(prevYear).slice(2)}년 ${fmtN(prv)}</span>`
+        + `<span style="color:${rtc};font-weight:800;font-size:11px;background:${rc};border-radius:4px;padding:2px 6px;">${up?'▲':'▼'} ${Math.abs(rate).toFixed(1)}%</span>`;
+      }
+    }
+    rows.push(
+      `<div style="display:flex;gap:5px;align-items:center;background:rgba(15,20,32,0.82);backdrop-filter:blur(6px);border:1px solid var(--border);border-left:3px solid ${color};border-radius:7px;padding:5px 9px;box-shadow:0 4px 12px rgba(0,0,0,0.35);">`
+      + `<span style="color:#0F1520;font-weight:800;font-size:10px;background:${color};border-radius:4px;padding:2px 6px;">동기간 누계 · ${metric}</span>`
+      + `<span style="color:${color};font-weight:800;font-size:13px;font-family:'IBM Plex Sans',sans-serif;">${fmtN(cur)}</span>`
+      + yoyHtml + `</div>`
+    );
+  });
+  box.innerHTML = rows.join('');
+}
+
 function renderTrendChart() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
@@ -1196,6 +1240,8 @@ function renderTrendChart() {
       `${yearLabel} ${showByCat ? '품목군별 생산 비교' : '수주·생산·출고 추이'} — ${catLabel}${yoyLabel}`;
   }
   document.getElementById('trendYoYBtn').classList.toggle('active', showYoY);
+
+  renderYtdOverlay(annualMode);
 }
 
 function renderCatTable() {
