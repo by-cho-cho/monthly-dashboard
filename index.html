@@ -398,6 +398,7 @@ document.addEventListener('fullscreenchange', () => {
     <div class="kpi-label">품목군별 성과</div>
     <div class="text-[11px] mt-1" style="color: var(--text-muted);">생산량 기준 점유율 · 누적 수주/생산/달성률</div>
     <div class="mt-3" id="catTable"></div>
+    <div class="mt-3" id="catYoySummary"></div>
   </div>
   <div class="card xl:col-span-5">
     <div class="kpi-label">⚠ 재고 부족 알림</div>
@@ -1261,6 +1262,45 @@ function renderCatTable() {
   html += '</tbody></table>';
   document.getElementById('catTable').innerHTML = html;
 }
+// 품목군별 수주 전년 동기 대비 요약 — 표 아래 한눈에 보는 칩 목록
+function renderCatYoySummary() {
+  const box = document.getElementById('catYoySummary');
+  if (!box) return;
+  const data = getCurrentData(); if (!data) { box.innerHTML = ''; return; }
+  const f = getCurFilters();
+  const months = [...f.months];
+  const yrs = [...f.years].sort();
+  const cur = yrs[yrs.length - 1] || 2026;
+  const prev = cur - 1;
+  const cats = [...new Set(data.items.map(it => it.category))];
+  const rows = cats.map((cat, i) => {
+    const grp = data.items.filter(it => it.category === cat);
+    const o = aggMetricExplicit('수주', grp, cur, months);
+    const o25 = aggMetricExplicit('수주', grp, prev, months);
+    const g = o25 > 0 ? (o - o25) / o25 * 100 : null;
+    return { cat, o, o25, g, color: CAT_COLORS[i % CAT_COLORS.length] };
+  }).filter(r => r.o > 0 || r.o25 > 0).sort((a, b) => b.o - a.o);
+  if (!rows.length) { box.innerHTML = ''; return; }
+  const totalO = rows.reduce((s, r) => s + r.o, 0);
+  const totalO25 = rows.reduce((s, r) => s + r.o25, 0);
+  const totalG = totalO25 > 0 ? (totalO - totalO25) / totalO25 * 100 : null;
+  const chip = (label, val, g, color, strong) => {
+    const gHtml = g == null
+      ? '<span style="color:var(--text-muted);font-size:10px;">신규</span>'
+      : `<span style="color:${g >= 0 ? 'var(--accent-mint)' : 'var(--accent-red)'};font-weight:700;font-size:11px;">${g >= 0 ? '▲' : '▼'} ${Math.abs(g).toFixed(1)}%</span>`;
+    return `<div style="display:flex;align-items:center;gap:6px;background:rgba(15,20,32,${strong ? 0.9 : 0.55});border:1px solid var(--border);border-left:3px solid ${color};border-radius:7px;padding:5px 10px;">
+      <span style="font-size:11px;font-weight:${strong ? 800 : 600};color:${strong ? color : 'var(--text-secondary)'};">${label}</span>
+      <span class="num" style="font-size:12px;font-weight:700;color:var(--text-primary);">${fmtN(val)}</span>
+      ${gHtml}
+    </div>`;
+  };
+  let html = `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">수주 전년 동기 대비 요약 · ${prev}년 → ${cur}년</div>`;
+  html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+  html += chip('전체 수주', totalO, totalG, 'var(--accent-gold)', true);
+  rows.forEach(r => { html += chip(r.cat, r.o, r.g, r.color, false); });
+  html += `</div>`;
+  box.innerHTML = html;
+}
 function setStockFilter(key) {
   window._stockFilter = (window._stockFilter === key) ? 'all' : key;
   renderStockAlerts();
@@ -1614,6 +1654,7 @@ function renderBody() {
   renderYoY();
   renderTrendChart();
   renderCatTable();
+  renderCatYoySummary();
   renderStockAlerts();
   renderTopMovers();
   renderExecSummary();
