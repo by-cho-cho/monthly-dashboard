@@ -723,10 +723,12 @@ function getCurrentData() { return APP.data[APP.currentDept]; }
 function getSyncDateStr() {
   return APP.currentDept === '1반' ? window._CSV_1BAN_DATE : window._CSV_2BAN_DATE;
 }
-function getCurrentMonth() {
+// 기준월 = 마지막 마감월(전월). 진행 중인 달을 포함하면 며칠치 부분 실적이
+// 전년의 완전한 한 달과 비교돼 YoY가 왜곡되므로, 집계·차트·비교 전부 마감월까지만 사용.
+function getBaseMonth() {
   const ds = getSyncDateStr();
   const dt = ds ? new Date(ds.replace(' ','T')) : new Date();
-  return dt.getMonth() + 1;
+  return Math.max(1, dt.getMonth()); // getMonth()는 0-based → 그대로 쓰면 전월
 }
 function syncHeaderHeight() {
   const h = document.querySelector('header.sticky-top');
@@ -742,13 +744,13 @@ function renderHeader() {
     `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
   document.getElementById('footSyncTime').textContent =
     ds || dt.toLocaleString('ko-KR');
-  const curM = getCurrentMonth();
+  const curM = getBaseMonth();
   document.getElementById('reportRange').textContent = `2026년 1월 ~ ${curM}월 누적`;
 }
 // 단일 연도 집계 (필터 월·품목 적용)
 function aggForYear(metric, items, year) {
   const f = getCurFilters();
-  const curM = getCurrentMonth();
+  const curM = getBaseMonth();
   const months = (f ? [...f.months] : MONTH_OPTIONS).filter(m => m <= curM);
   let sum = 0;
   for (const it of items) {
@@ -771,10 +773,10 @@ function aggMetric(metric, items) {
   return sum;
 }
 // 호환용 (yr/months 명시) — 기존 호출부 처리
-// 동기간 비교 정합: 월별 데이터 보유 연도는 현재월(curM)까지만 합산.
+// 동기간 비교 정합: 월별 데이터 보유 연도는 기준월(마감월)까지만 합산.
 // Why: 전년(2025) 비교가 선택 월 전체(1~12)를 더해 연간값으로 잡히던 버그 수정(2026-06-23).
 function aggMetricExplicit(metric, items, yr, monthsToSum) {
-  const curM = getCurrentMonth();
+  const curM = getBaseMonth();
   const ytdMonths = monthsToSum.filter(m => m <= curM);
   let sum = 0;
   for (const it of items) {
@@ -972,7 +974,7 @@ function renderYtdOverlay(annualMode) {
 
   const items = filterItems(data.items);
   const f = getCurFilters();
-  const curM = getCurrentMonth();
+  const curM = getBaseMonth();
   const months = MONTH_OPTIONS.filter(m => f.months.has(m) && m <= curM);
   const yrs = [...f.years].sort();
   const curYear = yrs[yrs.length - 1] || 2026;
@@ -997,7 +999,7 @@ function renderYtdOverlay(annualMode) {
     }
     rows.push(
       `<div style="display:flex;gap:5px;align-items:center;background:rgba(15,20,32,0.82);backdrop-filter:blur(6px);border:1px solid var(--border);border-left:3px solid ${color};border-radius:7px;padding:5px 9px;box-shadow:0 4px 12px rgba(0,0,0,0.35);">`
-      + `<span style="color:#0F1520;font-weight:800;font-size:10px;background:${color};border-radius:4px;padding:2px 6px;">동기간 누계 · ${metric}</span>`
+      + `<span style="color:#0F1520;font-weight:800;font-size:10px;background:${color};border-radius:4px;padding:2px 6px;">동기간 누계(1~${curM}월) · ${metric}</span>`
       + `<span style="color:${color};font-weight:800;font-size:13px;font-family:'IBM Plex Sans',sans-serif;">${fmtN(cur)}</span>`
       + yoyHtml + `</div>`
     );
@@ -1007,7 +1009,7 @@ function renderYtdOverlay(annualMode) {
 function renderTrendChart() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
-  const curM = getCurrentMonth();
+  const curM = getBaseMonth();
   const CUR_YEAR = (() => { const ds=getSyncDateStr(); const dt=ds?new Date(ds.replace(' ','T')):new Date(); return dt.getFullYear(); })();
   // 연도별 월 데이터 접근 — 월 단위 데이터는 2025·2026만 존재
   const monthVal = (it, yr, m, metric) => {
@@ -1016,7 +1018,7 @@ function renderTrendChart() {
     return 0; // 그 외 연도는 월별 데이터 없음
   };
   const yearHasMonthly = yr => (yr === 2026) || (yr === 2025 && data.has2025);
-  const yearMaxMonth = yr => (yr === CUR_YEAR ? curM : 12); // 진행연도는 동기화월까지, 과거연도는 12월까지
+  const yearMaxMonth = yr => (yr === CUR_YEAR ? curM : 12); // 진행연도는 기준월(마감월)까지, 과거연도는 12월까지
   const yy = yr => String(yr).slice(2);
   // 선택된 품목군 목록 — 헤더 필터(품목군 + 품목 선택) 기준
   const filteredItems = filterItems(data.items);
@@ -1294,7 +1296,7 @@ function renderCatYoySummary() {
       ${gHtml}
     </div>`;
   };
-  let html = `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">수주 전년 동기 대비 요약 · ${prev}년 → ${cur}년</div>`;
+  let html = `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">수주 전년 동기 대비 요약 · ${prev}년 → ${cur}년 (1~${getBaseMonth()}월 마감 기준)</div>`;
   html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
   html += chip('전체 수주', totalO, totalG, 'var(--accent-gold)', true);
   rows.forEach(r => { html += chip(r.cat, r.o, r.g, r.color, false); });
@@ -1390,8 +1392,8 @@ function renderTopMovers() {
   const data = getCurrentData(); if (!data) return;
   const items = filterItems(data.items);
   const f = getCurFilters();
-  const curM = getCurrentMonth();
-  // 동기간 비교: 현재월까지만 합산 (전년이 연간값으로 잡혀 성장 품목이 사라지던 버그 수정)
+  const curM = getBaseMonth();
+  // 동기간 비교: 기준월(마감월)까지만 합산 (전년이 연간값으로 잡혀 성장 품목이 사라지던 버그 수정)
   const months = [...f.months].filter(m => m <= curM);
   const yrs = [...f.years].sort();
   const cur = yrs[yrs.length-1] || 2026;
@@ -1433,7 +1435,7 @@ function renderExecSummary() {
   const items = filterItems(data.items);
   const f = getCurFilters();
   const months = [...f.months];
-  const curM = getCurrentMonth();
+  const curM = getBaseMonth();
   const yrs = [...f.years].sort();
   const cur = yrs[yrs.length-1] || 2026;
   const prev = cur - 1;
@@ -1748,13 +1750,15 @@ function parse2025_1ban(csvText) {
   const MS = {1:64,2:71,3:78,4:85,5:92,6:99,7:106,8:113,9:120,10:127,11:134,12:141};
   const MO = {'생산':1,'출고':2,'불량':4,'수주':6};
   const YC = {'생산':56,'출고':57,'불량':59,'수주':61};
-  const SKIP = new Set(['total','spec','item','품명','sepia','sepia & oem']);
+  const SKIP = new Set(['total','spec','item','품명']);
   const items = [];
   for (let i=0; i<rows.length; i++) {
-    if (i>=29) break;
     const r = rows[i];
     const model = (r[2]||'').trim();
     const spec  = (r[3]||'').trim();
+    // SEPIA & OEM 섹션부터는 별도 제품군(컬럼 구조 다름) — 행 수 고정(i>=29)으로 자르면
+    // 30~35행의 C/F(비올)·스토케어·Muco Doctor·시린지 3종이 누락되므로 섹션 마커로 중단
+    if (/^sepia/i.test(model)) break;
     if (!model || SKIP.has(model.toLowerCase())) continue;
     const monthData = {};
     for (const [m,c] of Object.entries(MS)) { monthData[+m]={}; for (const [met,off] of Object.entries(MO)) monthData[+m][met]=parseNum(r[c+off]); }
