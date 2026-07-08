@@ -723,12 +723,15 @@ function getCurrentData() { return APP.data[APP.currentDept]; }
 function getSyncDateStr() {
   return APP.currentDept === '1반' ? window._CSV_1BAN_DATE : window._CSV_2BAN_DATE;
 }
-// 기준월 = 마지막 마감월(전월). 진행 중인 달을 포함하면 며칠치 부분 실적이
-// 전년의 완전한 한 달과 비교돼 YoY가 왜곡되므로, 집계·차트·비교 전부 마감월까지만 사용.
+// 기준월 = 월 필터에서 선택한 마지막 월 (진행 중인 달 포함).
+// 단, 데이터가 없는 미래 월은 제외 — 현재월(동기화일 기준)을 넘지 않도록 캡.
 function getBaseMonth() {
   const ds = getSyncDateStr();
   const dt = ds ? new Date(ds.replace(' ','T')) : new Date();
-  return Math.max(1, dt.getMonth()); // getMonth()는 0-based → 그대로 쓰면 전월
+  const nowM = dt.getMonth() + 1; // 진행 중인 달 포함
+  const f = getCurFilters();
+  const selMax = f && f.months && f.months.size ? Math.max(...f.months) : nowM;
+  return Math.max(1, Math.min(selMax, nowM));
 }
 function syncHeaderHeight() {
   const h = document.querySelector('header.sticky-top');
@@ -773,7 +776,7 @@ function aggMetric(metric, items) {
   return sum;
 }
 // 호환용 (yr/months 명시) — 기존 호출부 처리
-// 동기간 비교 정합: 월별 데이터 보유 연도는 기준월(마감월)까지만 합산.
+// 동기간 비교 정합: 월별 데이터 보유 연도는 기준월(월 필터 선택 마지막 월)까지만 합산.
 // Why: 전년(2025) 비교가 선택 월 전체(1~12)를 더해 연간값으로 잡히던 버그 수정(2026-06-23).
 function aggMetricExplicit(metric, items, yr, monthsToSum) {
   const curM = getBaseMonth();
@@ -1018,7 +1021,7 @@ function renderTrendChart() {
     return 0; // 그 외 연도는 월별 데이터 없음
   };
   const yearHasMonthly = yr => (yr === 2026) || (yr === 2025 && data.has2025);
-  const yearMaxMonth = yr => (yr === CUR_YEAR ? curM : 12); // 진행연도는 기준월(마감월)까지, 과거연도는 12월까지
+  const yearMaxMonth = yr => (yr === CUR_YEAR ? curM : 12); // 진행연도는 기준월(선택 마지막 월)까지, 과거연도는 12월까지
   const yy = yr => String(yr).slice(2);
   // 선택된 품목군 목록 — 헤더 필터(품목군 + 품목 선택) 기준
   const filteredItems = filterItems(data.items);
@@ -1296,7 +1299,7 @@ function renderCatYoySummary() {
       ${gHtml}
     </div>`;
   };
-  let html = `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">수주 전년 동기 대비 요약 · ${prev}년 → ${cur}년 (1~${getBaseMonth()}월 마감 기준)</div>`;
+  let html = `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">수주 전년 동기 대비 요약 · ${prev}년 → ${cur}년 (1~${getBaseMonth()}월 기준)</div>`;
   html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
   html += chip('전체 수주', totalO, totalG, 'var(--accent-gold)', true);
   rows.forEach(r => { html += chip(r.cat, r.o, r.g, r.color, false); });
