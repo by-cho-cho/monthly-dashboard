@@ -419,6 +419,22 @@ document.addEventListener('fullscreenchange', () => {
     <div class="mt-3" id="stockAlerts"></div>
   </div>
 </section>
+<!-- ────────────────────────────────────────────────────── -->
+<!-- 6. 품목군별 현재고 조회 -->
+<!-- ────────────────────────────────────────────────────── -->
+<section style="padding: 0 40px 48px;">
+  <div class="card">
+    <div class="kpi-label">📦 품목군별 현재고 조회</div>
+    <div class="text-[11px] mt-1" style="color: var(--text-muted);">품목군을 선택한 뒤 세부 품목을 고르면 현재고를 확인할 수 있습니다 · 실가용재고 = 현재고 − 미출오더</div>
+    <div class="mt-3" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">품목군 선택</div>
+    <div id="stockPanelCats" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    <div id="stockPanelItemsWrap" style="display:none;">
+      <div style="font-size:11px;color:var(--text-muted);margin:12px 0 4px;">세부 품목 선택</div>
+      <div id="stockPanelItems" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    </div>
+    <div id="stockPanelDetail" class="mt-3"></div>
+  </div>
+</section>
 <span id="footSyncTime" style="display:none;"></span>
 <script>
 /* ============================================================
@@ -1761,6 +1777,62 @@ function toggleCatTable() {
   btn.textContent = hidden ? '숨기기 ▲' : '펼치기 ▼';
   btn.classList.toggle('active', !hidden);
 }
+/* ── 품목군별 현재고 조회 패널 ─────────────────────────────── */
+function renderStockPanel() {
+  const catsBox = document.getElementById('stockPanelCats');
+  if (!catsBox) return;
+  const data = getCurrentData();
+  const st = window._stockPanel || (window._stockPanel = { cat: null, item: null });
+  if (!data) { catsBox.innerHTML = ''; return; }
+  const cats = [...new Set(data.items.map(it => it.category))];
+  if (st.cat && !cats.includes(st.cat)) { st.cat = null; st.item = null; }
+  const esc = s => String(s).replace(/'/g, "\\'");
+  catsBox.innerHTML = cats.map(cat => {
+    const grp = data.items.filter(it => it.category === cat);
+    const totCur = grp.reduce((s, it) => s + (it.currentStock || 0), 0);
+    const active = st.cat === cat;
+    return `<button onclick="selectStockCat('${esc(cat)}')" style="padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:${active?800:600};border:1px solid ${active?'var(--accent-gold)':'var(--border)'};background:${active?'rgba(201,169,97,0.18)':'rgba(255,255,255,0.03)'};color:${active?'var(--accent-gold)':'var(--text-secondary)'};">${cat} <span style="font-size:10px;color:var(--text-muted);">${grp.length}종 · 재고 ${fmtN(totCur)}</span></button>`;
+  }).join('');
+  const itemsWrap = document.getElementById('stockPanelItemsWrap');
+  const itemsBox = document.getElementById('stockPanelItems');
+  const detail = document.getElementById('stockPanelDetail');
+  if (!st.cat) { itemsWrap.style.display = 'none'; detail.innerHTML = ''; return; }
+  const grp = data.items.filter(it => it.category === st.cat);
+  if (st.item && !grp.some(it => it.model === st.item)) st.item = null;
+  itemsWrap.style.display = 'block';
+  itemsBox.innerHTML = grp.map(it => {
+    const active = st.item === it.model;
+    const short = (it.safetyStock > 0) && ((it.currentStock - (it.unshipped || 0)) < it.safetyStock);
+    const dot = short ? 'var(--accent-red)' : (it.safetyStock > 0 ? 'var(--accent-mint)' : 'var(--text-muted)');
+    return `<button onclick="selectStockItem('${esc(it.model)}')" style="padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:${active?800:600};border:1px solid ${active?'var(--accent-cyan)':'var(--border)'};background:${active?'rgba(79,195,247,0.16)':'rgba(255,255,255,0.03)'};color:${active?'var(--accent-cyan)':'var(--text-secondary)'};display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:${dot};display:inline-block;"></span>${it.model}${it.spec?` <span style="font-size:10px;color:var(--text-muted);">${it.spec}</span>`:''}</button>`;
+  }).join('');
+  detail.innerHTML = st.item ? stockDetailCard(grp.find(x => x.model === st.item)) : stockCatTable(grp, st.cat);
+}
+function stockDetailCard(it) {
+  if (!it) return '';
+  const eff = (it.currentStock || 0) - (it.unshipped || 0);
+  const short = (it.safetyStock > 0) && (eff < it.safetyStock);
+  const statusColor = short ? 'var(--accent-red)' : (it.safetyStock > 0 ? 'var(--accent-mint)' : 'var(--text-muted)');
+  const statusText = it.safetyStock > 0 ? (short ? '⚠ 안전재고 미달' : '✔ 안전재고 충족') : '안전재고 미설정';
+  const cell = (label, val, color) => `<div style="flex:1;min-width:120px;background:rgba(15,20,32,0.55);border:1px solid var(--border);border-radius:10px;padding:12px 14px;"><div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">${label}</div><div class="num" style="font-size:22px;font-weight:800;color:${color||'var(--text-primary)'};">${fmtN(val)}</div></div>`;
+  return `<div style="margin-top:6px;"><div style="font-size:13px;font-weight:700;margin-bottom:8px;">${it.model} ${it.spec?`<span style="font-size:11px;color:var(--text-muted);">${it.spec}</span>`:''}<span style="margin-left:8px;font-size:11px;font-weight:700;color:${statusColor};">${statusText}</span></div><div style="display:flex;flex-wrap:wrap;gap:8px;">${cell('현재고(EA)', it.currentStock||0, 'var(--accent-cyan)')}${cell('안전재고', it.safetyStock||0)}${cell('미출오더', it.unshipped||0, 'var(--accent-amber)')}${cell('실가용재고', eff, short?'var(--accent-red)':'var(--accent-mint)')}</div></div>`;
+}
+function stockCatTable(grp, cat) {
+  const totCur = grp.reduce((s, it) => s + (it.currentStock || 0), 0);
+  const totUnship = grp.reduce((s, it) => s + (it.unshipped || 0), 0);
+  let html = `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;"><b style="color:var(--accent-gold);">${cat}</b> 전체 현재고 <b class="num" style="color:var(--accent-cyan);">${fmtN(totCur)}</b> · 미출오더 <b class="num" style="color:var(--accent-amber);">${fmtN(totUnship)}</b> · 실가용 <b class="num">${fmtN(totCur-totUnship)}</b> <span style="color:var(--text-muted);">— 세부 품목을 선택하면 상세가 표시됩니다</span></div>`;
+  html += `<table class="exec" style="width:100%;border-collapse:collapse;"><thead><tr><th>품목</th><th style="text-align:right">현재고</th><th style="text-align:right">안전재고</th><th style="text-align:right">미출오더</th><th style="text-align:right">실가용</th><th style="text-align:right">상태</th></tr></thead><tbody>`;
+  grp.slice().sort((a, b) => (b.currentStock||0) - (a.currentStock||0)).forEach(it => {
+    const eff = (it.currentStock||0) - (it.unshipped||0);
+    const short = (it.safetyStock > 0) && (eff < it.safetyStock);
+    const stTxt = it.safetyStock > 0 ? (short ? '<span style="color:var(--accent-red);font-weight:700;">부족</span>' : '<span style="color:var(--accent-mint);font-weight:700;">충족</span>') : '<span style="color:var(--text-muted);">—</span>';
+    html += `<tr onclick="selectStockItem('${String(it.model).replace(/'/g,"\\'")}')" style="cursor:pointer;"><td>${it.model}${it.spec?` <span style="font-size:10px;color:var(--text-muted);">${it.spec}</span>`:''}</td><td style="text-align:right;color:var(--accent-cyan);font-weight:600;" class="num">${fmtN(it.currentStock||0)}</td><td style="text-align:right;" class="num">${fmtN(it.safetyStock||0)}</td><td style="text-align:right;color:var(--accent-amber);" class="num">${fmtN(it.unshipped||0)}</td><td style="text-align:right;color:${short?'var(--accent-red)':'var(--accent-mint)'};font-weight:600;" class="num">${fmtN(eff)}</td><td style="text-align:right;">${stTxt}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  return html;
+}
+function selectStockCat(cat) { const st = window._stockPanel || (window._stockPanel = {}); st.cat = (st.cat === cat) ? null : cat; st.item = null; renderStockPanel(); }
+function selectStockItem(model) { const st = window._stockPanel || (window._stockPanel = {}); st.item = (st.item === model) ? null : model; renderStockPanel(); }
 function renderBody() {
   renderKPI();
   renderYoY();
@@ -1770,6 +1842,7 @@ function renderBody() {
   renderStockAlerts();
   renderTopMovers();
   renderExecSummary();
+  renderStockPanel();
 }
 function renderAll() {
   renderHeader();
