@@ -403,9 +403,15 @@ document.addEventListener('fullscreenchange', () => {
 <!-- ────────────────────────────────────────────────────── -->
 <section class="grid grid-cols-1 xl:grid-cols-12 gap-4" style="padding: 24px 40px 40px;">
   <div class="card xl:col-span-7">
-    <div class="kpi-label">품목군별 성과</div>
-    <div class="text-[11px] mt-1" style="color: var(--text-muted);">생산량 기준 점유율 · 누적 수주/생산/달성률</div>
-    <div class="mt-3" id="catTable"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <div class="kpi-label">품목군별 성과</div>
+      <button id="catTableToggleBtn" class="toggle-btn no-print" onclick="toggleCatTable()"
+              style="padding:4px 12px;font-size:12px;">숨기기 ▲</button>
+    </div>
+    <div id="catTableBody">
+      <div class="text-[11px] mt-1" style="color: var(--text-muted);">생산량 기준 점유율 · 누적 수주/생산/달성률</div>
+      <div class="mt-3" id="catTable"></div>
+    </div>
   </div>
   <div class="card xl:col-span-5">
     <div class="kpi-label">⚠ 재고 부족 알림</div>
@@ -1691,6 +1697,15 @@ function resetFilters() {
   APP.filters[APP.currentDept] = makeDefaultFilter(data.items);
   renderFilters();
   renderBody();
+}
+function toggleCatTable() {
+  const body = document.getElementById('catTableBody');
+  const btn = document.getElementById('catTableToggleBtn');
+  if (!body || !btn) return;
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  btn.textContent = hidden ? '숨기기 ▲' : '펼치기 ▼';
+  btn.classList.toggle('active', !hidden);
 }
 function renderBody() {
   renderKPI();
