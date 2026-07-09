@@ -1367,13 +1367,11 @@ function renderCatYoySummary() {
     const grp = data.items.filter(it => it.category === cat);
     const o = aggMetricExplicit('수주', grp, cur, months);
     const o25 = aggMetricExplicit('수주', grp, prev, months);
-    const g = o25 > 0 ? (o - o25) / o25 * 100 : null;
-    return { cat, o, o25, g, color: CAT_COLORS[i % CAT_COLORS.length] };
-  }).filter(r => r.o > 0 || r.o25 > 0).sort((a, b) => b.o - a.o);
+    const p = aggMetricExplicit('생산', grp, cur, months);
+    const p25 = aggMetricExplicit('생산', grp, prev, months);
+    return { cat, o, o25, p, p25, color: CAT_COLORS[i % CAT_COLORS.length] };
+  }).filter(r => r.o > 0 || r.o25 > 0 || r.p > 0 || r.p25 > 0).sort((a, b) => b.o - a.o);
   if (!rows.length) { box.innerHTML = ''; return; }
-  const totalO = rows.reduce((s, r) => s + r.o, 0);
-  const totalO25 = rows.reduce((s, r) => s + r.o25, 0);
-  const totalG = totalO25 > 0 ? (totalO - totalO25) / totalO25 * 100 : null;
   const chip = (label, val, g, color, strong) => {
     const gHtml = g == null
       ? '<span style="color:var(--text-muted);font-size:10px;">신규</span>'
@@ -1384,11 +1382,26 @@ function renderCatYoySummary() {
       ${gHtml}
     </div>`;
   };
-  let html = `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">수주 전년 동기 대비 요약 · ${prev}년 → ${cur}년 (1~${getBaseMonth()}월 기준)</div>`;
-  html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
-  html += chip('전체 수주', totalO, totalG, 'var(--accent-gold)', true);
-  rows.forEach(r => { html += chip(r.cat, r.o, r.g, r.color, false); });
-  html += `</div>`;
+  // 지표별 섹션 (수주·생산) — 각 전체 + 품목군별 칩, 전년 동기 대비 증감
+  const section = (title, metric, valKey, prevKey, totColor) => {
+    // 전체 합계는 품목군 칩 단순합이 아니라 aggMetricExplicit(periodContributors 경유)로 계산 —
+    // 2반은 DUO DECA가 EP 합계행에 포함돼 있어 단순합하면 이중집계되므로 KPI와 어긋남
+    const tot = aggMetricExplicit(metric, data.items, cur, months);
+    const tot25 = aggMetricExplicit(metric, data.items, prev, months);
+    const totG = tot25 > 0 ? (tot - tot25) / tot25 * 100 : null;
+    let h = `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">${title} 전년 동기 대비 요약 · ${prev}년 → ${cur}년 (1~${getBaseMonth()}월 기준)</div>`;
+    h += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+    h += chip(`전체 ${title}`, tot, totG, totColor, true);
+    rows.forEach(r => {
+      const g = r[prevKey] > 0 ? (r[valKey] - r[prevKey]) / r[prevKey] * 100 : null;
+      h += chip(r.cat, r[valKey], g, r.color, false);
+    });
+    h += `</div>`;
+    return h;
+  };
+  let html = section('수주', '수주', 'o', 'o25', 'var(--accent-gold)');
+  html += `<div style="height:10px;"></div>`;
+  html += section('생산', '생산', 'p', 'p25', 'var(--accent-cyan)');
   box.innerHTML = html;
 }
 function setStockFilter(key) {
