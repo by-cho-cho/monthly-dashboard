@@ -672,6 +672,7 @@ function parse2Ban() {
   const EXCLUDE = new Set(['Cable']);
   const items = [];
   const catStocks = {};   // 카테고리별 재고 데이터 (EP·ENBD 등)
+  const catTotals = {};   // 카테고리 합계(Total) 행 실적 — EP는 하위 SM720(DUO) 포함한 시트 합계
   let currentCategory = null;
   for (let r=1; r<rows.length; r++) {
     const row = rows[r]; if (!row || !row[0]) continue;
@@ -690,6 +691,12 @@ function parse2Ban() {
       const catCS = colMap.currentStock >= 0 ? parseNum(row[colMap.currentStock]) : 0;
       const catUS = colMap.unshipped  >= 0 ? parseNum(row[colMap.unshipped])  : 0;
       if (catSS > 0) catStocks[norm] = { model: norm, spec: '(품목군 합계)', category: norm, safetyStock: catSS, currentStock: catCS, unshipped: catUS };
+      // 카테고리 합계 행의 월별/연간 실적 저장 (2반 EP는 시트상 SM720 포함한 합계)
+      const ctMonth = {};
+      for (const [mo, mm] of Object.entries(colMap.monthly)) { const mn=+mo; ctMonth[mn]={}; for (const me of M) ctMonth[mn][me] = mm[me]!=null ? parseNum(row[mm[me]]) : 0; }
+      const ctYear = {};
+      for (const [yr, mm] of Object.entries(colMap.yearTotals)) { const y=+yr; ctYear[y]={}; for (const me of M) ctYear[y][me] = mm[me]!=null ? parseNum(row[mm[me]]) : 0; }
+      catTotals[norm] = { category: norm, monthData: ctMonth, yearData: ctYear };
       continue;
     }
     if (!currentCategory) continue;
@@ -726,8 +733,17 @@ function parse2Ban() {
         it.yearData[2025] = {...it.yearData[2025], ...r.yearData};
       }
     }
+    // 카테고리 합계 행에도 25년 실측 주입 (parse2025_2ban은 EP/ENBD 등 카테고리 행도 item으로 파싱함)
+    for (const [cat, ct] of Object.entries(catTotals)) {
+      const r = lookup25.get(norm(cat));
+      if (r) {
+        ct.monthData2025 = {};
+        for (let m=1; m<=12; m++) ct.monthData2025[m] = r.monthData[m] || r.monthData[String(m)] || {수주:0,생산:0,출고:0,불량:0};
+        ct.yearData[2025] = {...ct.yearData[2025], ...r.yearData};
+      }
+    }
   }
-  return { items, has2025: !!window.DATA_2BAN_2025, catStocks };
+  return { items, has2025: !!window.DATA_2BAN_2025, catStocks, catTotals };
 }
 /* ============================================================
    RENDERING
@@ -763,13 +779,37 @@ function renderHeader() {
   const curM = getBaseMonth();
   document.getElementById('reportRange').textContent = `2026년 1월 ~ ${curM}월 누적`;
 }
+// 2반 집계 소스 = 카테고리 합계(Total) 행 기준.
+// EP 합계행은 시트상 하위 SM720(DUO DECA) 품목을 포함하므로, 개별 품목 합산 대신
+// 합계행을 써서 EP=353/월(3,134 누적)로 시트·주간과 일치시킴. DUO DECA 칩은 별도 유지하되
+// EP 합계행에 이미 포함돼 있으므로 EP를 합계행으로 쓰는 집계에선 DUO 개별을 더하지 않음(이중집계 방지).
+function periodContributors(items) {
+  if (APP.currentDept !== '2반') return items;
+  const data = getCurrentData();
+  const ct = (data && data.catTotals) || {};
+  const all = (data && data.items) || [];
+  const byCat = new Map();
+  for (const it of items) { if (!byCat.has(it.category)) byCat.set(it.category, []); byCat.get(it.category).push(it); }
+  const usingTotal = new Set();
+  byCat.forEach((grp, cat) => {
+    const totalInCat = all.filter(x => x.category === cat).length;
+    if (ct[cat] && grp.length === totalInCat) usingTotal.add(cat);
+  });
+  const src = [];
+  byCat.forEach((grp, cat) => {
+    if (usingTotal.has(cat)) { src.push(ct[cat]); return; }
+    if (cat === 'DUO DECA' && usingTotal.has('EP')) return; // EP 합계행에 이미 포함 → 스킵
+    src.push(...grp);
+  });
+  return src;
+}
 // 단일 연도 집계 (필터 월·품목 적용)
 function aggForYear(metric, items, year) {
   const f = getCurFilters();
   const curM = getBaseMonth();
   const months = (f ? [...f.months] : MONTH_OPTIONS).filter(m => m <= curM);
   let sum = 0;
-  for (const it of items) {
+  for (const it of periodContributors(items)) {
     if (year === 2026) {
       for (const m of months) sum += it.monthData?.[m]?.[metric] || 0;
     } else if (year === 2025 && it.monthData2025) {
@@ -795,7 +835,7 @@ function aggMetricExplicit(metric, items, yr, monthsToSum) {
   const curM = getBaseMonth();
   const ytdMonths = monthsToSum.filter(m => m <= curM);
   let sum = 0;
-  for (const it of items) {
+  for (const it of periodContributors(items)) {
     if (yr === 2026) {
       for (const m of ytdMonths) sum += it.monthData?.[m]?.[metric] || 0;
     } else if (yr === 2025 && it.monthData2025) {
@@ -1054,7 +1094,7 @@ function renderTrendChart() {
     // 월별 데이터 있는 연도는 12개월 합, 없는 연도(23·24)는 yearData 연간 총계 사용
     const yearTotal = (catItems, yr, metric) => {
       let v = 0;
-      for (const it of catItems) {
+      for (const it of periodContributors(catItems)) {
         if (yr === 2026) { for (let m=1;m<=12;m++) v += it.monthData?.[m]?.[metric] || 0; }
         else if (yr === 2025 && it.monthData2025) { for (let m=1;m<=12;m++) v += it.monthData2025[m]?.[metric] || 0; }
         else v += it.yearData?.[yr]?.[metric] || 0;
@@ -1105,11 +1145,12 @@ function renderTrendChart() {
     let cmpIdx = -1;
     for (let i = monthsToShow.length - 1; i >= 0; i--) { if (monthsToShow[i] <= yearMaxMonth(newestYr)) { cmpIdx = i; break; } }
     const pushYearLine = (baseName, color, metric, catItems, withArea, endBadge) => {
+      const contrib = periodContributors(catItems);
       yearsToShow.forEach(yr => {
         const isNewest = yr === newestYr;
         const arr = monthsToShow.map(m => {
           if (m > yearMaxMonth(yr)) return null;
-          let v = 0; for (const it of catItems) v += monthVal(it, yr, m, metric) || 0; return v;
+          let v = 0; for (const it of contrib) v += monthVal(it, yr, m, metric) || 0; return v;
         });
         const name = isNewest ? baseName : `${baseName}(${yy(yr)})`;
         // ── 끝점 누적합계 배지 (스샷 스타일 pill) ──
