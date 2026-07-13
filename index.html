@@ -23,6 +23,60 @@
     --accent-mint: #00E5A0;
     --accent-red: #E63946;
     --accent-amber: #FFB547;
+    /* 테마 인지용 — 다크 기본값 (주간 대시보드와 동일 체계) */
+    --wash: rgba(255,255,255,0.03);
+    --wash-2: rgba(255,255,255,0.06);
+    --wash-3: rgba(255,255,255,0.02);
+    --wash-4: rgba(255,255,255,0.10);
+    --divider: rgba(255,255,255,0.08);
+    --divider-2: rgba(255,255,255,0.12);
+    --divider-3: rgba(255,255,255,0.18);
+    --chip-border: rgba(255,255,255,0.25);
+    --header-bg: rgba(10,14,24,0.92);
+    --card-shadow: rgba(0,0,0,0.35);
+    --body-glow-1: rgba(201,169,97,0.08);
+    --body-glow-2: rgba(79,195,247,0.05);
+    --tip-bg: #0F1520;
+    --tip-border: #243049;
+    --tip-text: #EDF2FB;
+    --axis-text: #8A9BBF;
+    --axis-line: #243049;
+    --split-line: #1A2236;
+    --kpi-strip-bg: rgba(15,20,32,0.55);
+  }
+  body.light {
+    --bg-deep: #EEF1F6;
+    --bg-card: #FFFFFF;
+    --bg-card-hi: #FFFFFF;
+    --border: #E1E5EC;
+    --border-gold: rgba(147,108,18,0.35);
+    --text-primary: #161D29;
+    --text-secondary: #3D4757;
+    --text-muted: #5B6473;
+    --accent-gold: #936C12;
+    --accent-cyan: #1A6FB5;
+    --accent-mint: #087C5A;
+    --accent-red: #C32330;
+    --accent-amber: #9C6610;
+    --wash: rgba(0,0,0,0.035);
+    --wash-2: rgba(0,0,0,0.06);
+    --wash-3: rgba(0,0,0,0.02);
+    --wash-4: rgba(0,0,0,0.08);
+    --divider: rgba(0,0,0,0.09);
+    --divider-2: rgba(0,0,0,0.13);
+    --divider-3: rgba(0,0,0,0.18);
+    --chip-border: rgba(0,0,0,0.20);
+    --header-bg: rgba(255,255,255,0.92);
+    --card-shadow: rgba(20,30,50,0.12);
+    --body-glow-1: transparent;
+    --body-glow-2: transparent;
+    --tip-bg: #FFFFFF;
+    --tip-border: #D5DAE3;
+    --tip-text: #1B2433;
+    --axis-text: #5A6577;
+    --axis-line: #D5DAE3;
+    --split-line: #E6EAF1;
+    --kpi-strip-bg: rgba(255,255,255,0.65);
   }
   * { box-sizing: border-box; }
   html, body {
@@ -32,11 +86,12 @@
     font-family: 'Pretendard', -apple-system, sans-serif;
     font-size: 13px;
     min-height: 100vh;
+    transition: background .25s, color .25s;
   }
   body {
     background:
-      radial-gradient(ellipse at top, rgba(201,169,97,0.08), transparent 50%),
-      radial-gradient(ellipse at bottom, rgba(79,195,247,0.05), transparent 50%),
+      radial-gradient(ellipse at top, var(--body-glow-1), transparent 50%),
+      radial-gradient(ellipse at bottom, var(--body-glow-2), transparent 50%),
       var(--bg-deep);
   }
   .num { font-family: 'IBM Plex Sans', sans-serif; font-variant-numeric: tabular-nums; }
@@ -66,12 +121,12 @@
     font-size: 14px;
     cursor: pointer;
     border: 1px solid var(--border);
-    background: rgba(255,255,255,0.03);
+    background: var(--wash);
     color: var(--text-secondary);
     transition: all .2s;
     letter-spacing: 0.04em;
   }
-  .toggle-btn:hover { background: rgba(255,255,255,0.06); }
+  .toggle-btn:hover { background: var(--wash-2); }
   .toggle-btn.active {
     background: linear-gradient(135deg, rgba(201,169,97,0.20), rgba(201,169,97,0.08));
     border-color: var(--accent-gold);
@@ -109,15 +164,15 @@
   }
   table.exec th, table.exec td { padding: 8px 12px; }
   table.exec thead th {
-    background: rgba(255,255,255,0.03);
+    background: var(--wash);
     color: var(--text-muted);
     font-size: 11px;
     font-weight: 600;
     text-align: left;
     border-bottom: 1px solid var(--border);
   }
-  table.exec tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
-  table.exec tbody tr:hover { background: rgba(255,255,255,0.02); }
+  table.exec tbody tr { border-bottom: 1px solid var(--wash-4); }
+  table.exec tbody tr:hover { background: var(--wash-3); }
   .verdict-pill {
     display: inline-flex; align-items: center; gap: 8px;
     padding: 6px 18px;
@@ -130,11 +185,11 @@
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(10,14,24,0.92);
+    background: var(--header-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    box-shadow: 0 6px 18px var(--card-shadow);
   }
   /* 필터 칩 */
   .chip {
@@ -156,15 +211,15 @@
   .chip-month.active { background: rgba(79,195,247,0.22); border-color: var(--accent-cyan); box-shadow: 0 0 6px rgba(79,195,247,0.3); }
   .chip-cat          { color: var(--accent-red); border-color: rgba(230,57,70,0.35); background: rgba(230,57,70,0.05); }
   .chip-cat.active   { background: rgba(230,57,70,0.22); border-color: var(--accent-red); box-shadow: 0 0 6px rgba(230,57,70,0.3); }
-  .chip-all          { color: var(--text-secondary); border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.04); font-size: 10px; }
-  .chip-all:hover    { background: rgba(255,255,255,0.10); color: var(--text-primary); }
+  .chip-all          { color: var(--text-secondary); border-color: var(--chip-border); background: var(--wash); font-size: 10px; }
+  .chip-all:hover    { background: var(--wash-4); color: var(--text-primary); }
   .filter-row        { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:3px 0; }
   .filter-label      { font-size:11px; font-weight:700; color:var(--text-muted); min-width:50px; }
   .filter-grid       { display:flex; flex-wrap:wrap; gap:4px; flex:1; user-select:none; -webkit-user-select:none; }
   .filter-summary    {
     font-size:10px; color:var(--text-muted);
     padding-top:6px; margin-top:4px;
-    border-top:1px dashed rgba(255,255,255,0.08);
+    border-top:1px dashed var(--divider);
   }
   /* 인쇄용 */
   @media print {
@@ -191,12 +246,11 @@
   <div style="font-size:12px;color:#6B7693;">구글 스프레드시트에서 실시간 데이터를 가져오는 중…</div>
   <style>@keyframes ldbar{0%{transform:translateX(-100%)}50%{transform:translateX(60%)}100%{transform:translateX(220%)}}</style>
 </div>
-<header class="sticky-top" style="padding: 16px 40px 12px;
-               background: linear-gradient(180deg, rgba(10,14,24,0.95), rgba(10,14,24,0.90));">
+<header class="sticky-top" style="padding: 16px 40px 12px;">
   <div style="text-align:center;font-size:26px;font-weight:800;letter-spacing:0.06em;color:var(--accent-gold);margin-bottom:10px;">월간 생산 현황</div>
   <div class="flex items-start justify-between flex-wrap gap-4">
     <div>
-      <a href="https://by-cho-cho.github.io/weekly-dashboard/" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--accent-cyan);text-decoration:none;border:1px solid var(--border);background:rgba(255,255,255,0.03);border-radius:8px;padding:4px 10px;margin-bottom:8px;" title="주간 대시보드로 이동">📈 주간 대시보드 →</a>
+      <a href="https://by-cho-cho.github.io/weekly-dashboard/" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--accent-cyan);text-decoration:none;border:1px solid var(--border);background:var(--wash);border-radius:8px;padding:4px 10px;margin-bottom:8px;" title="주간 대시보드로 이동">📈 주간 대시보드 →</a>
       <h1 class="text-[20px] font-bold" style="color: var(--text-primary); letter-spacing: -0.01em;">
         생산<span id="reportDeptTitle" style="color: var(--accent-gold);">2반</span> 종합현황 - <span id="reportDeptSuffix">카테터</span>
       </h1>
@@ -225,11 +279,15 @@
         style="margin-left: 4px; padding: 8px 14px; font-size: 11px;">
         🖥 발표 모드
       </button>
+      <button id="themeBtn" class="toggle-btn no-print" onclick="toggleTheme()"
+        style="margin-left: 4px; padding: 8px 14px; font-size: 11px;" title="다크/화이트 전환">
+        ☀️ 화이트
+      </button>
       <!-- 배율 조절 -->
       <div id="zoomBar" class="no-print" style="display:none;align-items:center;gap:4px;margin-left:4px;">
-        <button onclick="setZoom(-5)" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);cursor:pointer;font-size:12px;">−</button>
+        <button onclick="setZoom(-5)" style="padding:6px 10px;background:var(--wash-2);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);cursor:pointer;font-size:12px;">−</button>
         <span id="zoomLabel" style="font-size:11px;color:var(--text-muted);min-width:36px;text-align:center;">80%</span>
-        <button onclick="setZoom(+5)" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);cursor:pointer;font-size:12px;">+</button>
+        <button onclick="setZoom(+5)" style="padding:6px 10px;background:var(--wash-2);border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);cursor:pointer;font-size:12px;">+</button>
       </div>
     </div>
   </div>
@@ -276,7 +334,7 @@ document.addEventListener('fullscreenchange', () => {
 });
 </script>
   <!-- 필터 패널 (항상 펼침) -->
-  <div id="filterPanel" class="mt-3 pt-3 no-print" style="border-top: 1px dashed rgba(255,255,255,0.08);">
+  <div id="filterPanel" class="mt-3 pt-3 no-print" style="border-top: 1px dashed var(--divider);">
     <div class="filter-row">
       <span class="filter-label">연도</span>
       <div class="filter-grid" id="filterYears"></div>
@@ -286,13 +344,13 @@ document.addEventListener('fullscreenchange', () => {
       <span class="filter-label">월 <span style="font-weight:400;color:var(--text-muted);font-size:9px;">(<span id="filterMonthYear">2026</span>년)</span></span>
       <div class="filter-grid" id="filterMonths" style="flex:0 0 auto;"></div>
       <div id="megaKpiStrip" style="display:flex; gap:0; align-items:center; margin-left:24px;
-           background:rgba(15,20,32,0.55); border:1px solid var(--border); border-radius:10px; padding:4px 2px;">
-        <div style="padding:2px 12px;border-right:1px solid rgba(255,255,255,0.08);">
+           background:var(--kpi-strip-bg); border:1px solid var(--border); border-radius:10px; padding:4px 2px;">
+        <div style="padding:2px 12px;border-right:1px solid var(--divider);">
           <div class="kpi-label" style="font-size:10px;">총 수주</div>
           <div style="font-size:22px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-gold);" id="kpiOrders">—</div>
           <div class="kpi-sub" style="margin-top:1px;" id="kpiOrdersSub">—</div>
         </div>
-        <div style="padding:2px 12px;border-right:1px solid rgba(255,255,255,0.08);">
+        <div style="padding:2px 12px;border-right:1px solid var(--divider);">
           <div class="kpi-label" style="font-size:10px;">총 생산</div>
           <div style="font-size:22px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-cyan);" id="kpiProduction">—</div>
           <div class="kpi-sub" style="margin-top:1px;" id="kpiProductionSub">—</div>
@@ -314,7 +372,7 @@ document.addEventListener('fullscreenchange', () => {
       <span class="filter-label">품목 <span id="filterItemCount" style="font-weight:400;color:var(--text-muted);font-size:10px;">전체</span></span>
       <div style="flex:1; display:flex; align-items:center; gap:6px;">
         <input id="filterItemSearch" placeholder="🔍 품목 검색…" oninput="renderItemPicker()"
-          style="background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--text-primary);
+          style="background:var(--wash); border:1px solid var(--border); color:var(--text-primary);
                  border-radius:8px; padding:5px 10px; font-size:11px; width:240px; outline:none;">
         <button onclick="document.getElementById('itemPickerPanel').style.display = document.getElementById('itemPickerPanel').style.display==='block'?'none':'block'"
           class="chip chip-all" style="cursor:pointer;">▼ 품목 선택</button>
@@ -327,7 +385,7 @@ document.addEventListener('fullscreenchange', () => {
     </div>
     <!-- 품목 선택 드롭다운 (접힘) -->
     <div id="itemPickerPanel" style="display:none; max-height:200px; overflow-y:auto; margin-top:6px;
-         padding:8px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px;">
+         padding:8px; background:var(--wash-3); border:1px solid var(--border); border-radius:8px;">
       <div id="itemPickerList" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:4px;"></div>
     </div>
     <div class="filter-summary" id="filterSummary">—</div>
@@ -346,14 +404,14 @@ document.addEventListener('fullscreenchange', () => {
       </div>
       <div class="flex items-center gap-2 flex-wrap no-print">
         <div style="display:flex;gap:4px;align-items:center;padding:4px 8px;
-                    background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;">
+                    background:var(--wash);border:1px solid var(--border);border-radius:8px;">
           <span style="font-size:10px;color:var(--text-muted);margin-right:2px;">지표</span>
           <span class="chip chip-trend-metric active" data-metric="수주" onclick="toggleTrendMetric('수주')"
             style="padding:3px 9px;font-size:10px;color:#C9A961;border-color:rgba(201,169,97,0.4);background:rgba(201,169,97,0.15);">수주</span>
           <span class="chip chip-trend-metric" data-metric="생산" onclick="toggleTrendMetric('생산')"
-            style="padding:3px 9px;font-size:10px;color:#4FC3F7;border-color:rgba(255,255,255,0.12);background:transparent;opacity:0.35;">생산</span>
+            style="padding:3px 9px;font-size:10px;color:#4FC3F7;border-color:var(--divider-2);background:transparent;opacity:0.35;">생산</span>
           <span class="chip chip-trend-metric" data-metric="출고" onclick="toggleTrendMetric('출고')"
-            style="padding:3px 9px;font-size:10px;color:#00E5A0;border-color:rgba(255,255,255,0.12);background:transparent;opacity:0.35;">출고</span>
+            style="padding:3px 9px;font-size:10px;color:#00E5A0;border-color:var(--divider-2);background:transparent;opacity:0.35;">출고</span>
         </div>
         <button id="trendYoYBtn" onclick="toggleTrendYoY()" class="toggle-btn"
           style="padding:5px 10px;font-size:10px;">📊 25년 비교</button>
@@ -422,19 +480,19 @@ document.addEventListener('fullscreenchange', () => {
   </div>
 </section>
 <!-- ────────────────────────────────────────────────────── -->
-<!-- 6. 품목군별 현재고 조회 -->
+<!-- 6. 품목군별 현재고 요약 (품목별 상세는 주간 대시보드) -->
 <!-- ────────────────────────────────────────────────────── -->
 <section style="padding: 0 40px 48px;">
   <div class="card">
-    <div class="kpi-label">📦 품목군별 현재고 조회</div>
-    <div class="text-[11px] mt-1" style="color: var(--text-muted);">품목군을 선택한 뒤 세부 품목을 고르면 현재고를 확인할 수 있습니다 · 실가용재고 = 현재고 − 미출오더</div>
-    <div class="mt-3" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">품목군 선택</div>
-    <div id="stockPanelCats" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    <div id="stockPanelItemsWrap" style="display:none;">
-      <div style="font-size:11px;color:var(--text-muted);margin:12px 0 4px;">세부 품목 선택</div>
-      <div id="stockPanelItems" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+      <div class="kpi-label">📦 품목군별 현재고 요약</div>
+      <a href="https://by-cho-cho.github.io/weekly-dashboard/" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--accent-cyan);text-decoration:none;border:1px solid var(--border);background:var(--wash);border-radius:8px;padding:4px 10px;">
+        🔍 품목별 상세는 주간 대시보드에서 →
+      </a>
     </div>
-    <div id="stockPanelDetail" class="mt-3"></div>
+    <div class="text-[11px] mt-1" style="color: var(--text-muted);">실가용재고 = 현재고 − 미출오더 · 확보율 100% 미만 품목군 강조</div>
+    <div class="mt-3" id="stockPanelSummary"></div>
   </div>
 </section>
 <span id="footSyncTime" style="display:none;"></span>
@@ -456,6 +514,42 @@ const APP = {
 const CAT_COLORS = ['#C9A961','#4FC3F7','#00E5A0','#FFB547','#E63946','#FF8A65','#AB8FE0','#5AD8C0'];
 const METRIC_COLORS = { '수주': '#C9A961', '생산': '#4FC3F7', '출고': '#00E5A0' };
 const APP_TREND_METRICS = new Set(['수주']); // 전역 — 시작은 수주만
+
+/* ============================================================
+   테마(다크/화이트) — 주간 대시보드와 동일 체계
+   ============================================================ */
+// 강조색 — 화이트 모드에서 대비 확보를 위해 한 단계 진하게 매핑(다크에선 원색 유지)
+const ACCENT_LIGHT = {
+  '#C9A961':'#936C12','#4FC3F7':'#1A6FB5','#00E5A0':'#087C5A','#E63946':'#C32330',
+  '#FFB547':'#9C6610','#AB8FE0':'#5A41B0','#FF8A65':'#B54F2E','#5AD8C0':'#1F8F7A',
+  '#8A9BBF':'#52607A','#6B7693':'#5B6473',
+};
+function mapAccent(hex) {
+  return document.body.classList.contains('light') ? (ACCENT_LIGHT[hex] || hex) : hex;
+}
+function chartTheme() {
+  const l = document.body.classList.contains('light');
+  return l
+    ? { axisText:'#5A6577', split:'#E6EAF1', axisLine:'#D5DAE3', tipBg:'#FFFFFF', tipText:'#1B2433', tipBorder:'#D5DAE3', divider:'rgba(0,0,0,0.18)', muted:'#5B6473' }
+    : { axisText:'#8A9BBF', split:'#1A2236', axisLine:'#243049', tipBg:'#0F1520', tipText:'#EDF2FB', tipBorder:'#243049', divider:'rgba(255,255,255,0.18)', muted:'#6B7693' };
+}
+function applyTheme(t) {
+  document.body.classList.toggle('light', t === 'light');
+  try { localStorage.setItem('md_theme', t); } catch(e) {}
+  const b = document.getElementById('themeBtn');
+  if (b) b.textContent = t === 'light' ? '🌙 다크' : '☀️ 화이트';
+  if (APP.data['1반'] || APP.data['2반']) renderAll();
+}
+function toggleTheme() {
+  applyTheme(document.body.classList.contains('light') ? 'dark' : 'light');
+}
+(function initTheme(){
+  let t = 'dark';
+  try { t = localStorage.getItem('md_theme') || 'dark'; } catch(e) {}
+  document.body.classList.toggle('light', t === 'light');
+  const b = document.getElementById('themeBtn');
+  if (b) b.textContent = t === 'light' ? '🌙 다크' : '☀️ 화이트';
+})();
 const YEAR_OPTIONS = [2023, 2024, 2025, 2026];
 const MONTH_OPTIONS = [1,2,3,4,5,6,7,8,9,10,11,12];
 function makeDefaultFilter(items) {
@@ -964,7 +1058,7 @@ function renderYoY() {
     const rateClr = rate == null ? 'var(--text-muted)' : rate >= 0 ? 'var(--accent-mint)' : 'var(--accent-red)';
     const arrow = rate == null ? '—' : rate >= 0 ? '▲' : '▼';
     list.innerHTML += `
-      <div style="display:grid;grid-template-columns:60px 1fr 1fr 100px;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div style="display:grid;grid-template-columns:60px 1fr 1fr 100px;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--wash-4);">
         <span class="badge" style="background:${color}22; color:${color};">${key}</span>
         <div class="text-[10px]" style="color:var(--text-muted);">'${String(prev).slice(2)} 동기<br><span class="num" style="font-size:14px;color:var(--text-secondary);">${fmtN(v25)}</span></div>
         <div class="text-[10px]" style="color:var(--text-muted);">'${String(cur).slice(2)} 누적<br><span class="num" style="font-size:14px;color:var(--text-primary);font-weight:600;">${fmtN(v26)}</span></div>
@@ -995,7 +1089,7 @@ function toggleTrendMetric(metric) {
       el.classList.remove('active');
       el.style.opacity = '0.35';
       el.style.background = 'transparent';
-      el.style.borderColor = 'rgba(255,255,255,0.12)';
+      el.style.borderColor = 'var(--divider-2)';
     }
   });
   renderTrendChart();
@@ -1222,22 +1316,23 @@ function renderTrendChart() {
       const activeMetrics = ['수주','생산','출고'].filter(m => APP_TREND_METRICS.has(m));
       activeMetrics.forEach((metric, mi) => {
         // 지표 1개일 때만 끝점 누적합계 배지 표시 — 여러 개면 겹쳐서 지저분해짐
-        pushYearLine(metric, METRIC_COLORS[metric], metric, catItems, mi === 1, activeMetrics.length === 1);
+        pushYearLine(metric, mapAccent(METRIC_COLORS[metric]), metric, catItems, mi === 1, activeMetrics.length === 1);
       });
     } else {
       activeCats.forEach((cat, ci) => {
-        const col = CAT_COLORS[ci % CAT_COLORS.length];
+        const col = mapAccent(CAT_COLORS[ci % CAT_COLORS.length]);
         const catItems = filteredItems.filter(it => it.category === cat);
         pushYearLine(cat, col, '생산', catItems, false, false);
       });
     }
   }
   if (!APP.charts.trend) APP.charts.trend = echarts.init(document.getElementById('chartTrend'));
+  const CT = chartTheme();
   APP.charts.trend.setOption({
     backgroundColor: 'transparent',
-    textStyle: { fontFamily:'Pretendard', color:'#8A9BBF' },
+    textStyle: { fontFamily:'Pretendard', color:CT.axisText },
     tooltip: {
-      trigger:'axis', backgroundColor:'#0F1520', borderColor:'#243049', textStyle:{color:'#EDF2FB'},
+      trigger:'axis', backgroundColor:CT.tipBg, borderColor:CT.tipBorder, textStyle:{color:CT.tipText},
       confine: true,
       position: function(point, params, dom, rect, size){
         // 차트 우측 상단에 고정 표시 — 월별 수치(위) + 누적합계·전년비교(아래)를 한눈에
@@ -1262,7 +1357,7 @@ function renderTrendChart() {
             const cum = (s.data || []).slice(0, idx + 1).reduce((a, b) => a + (b || 0), 0);
             const yrMatch = s.name.match(/\((\d{2})\)$/);
             const base = yrMatch ? s.name.replace(/\(\d{2}\)$/, '') : s.name;
-            const col = (s.lineStyle && s.lineStyle.color) || (s.itemStyle && s.itemStyle.color) || '#8A9BBF';
+            const col = (s.lineStyle && s.lineStyle.color) || (s.itemStyle && s.itemStyle.color) || CT.axisText;
             if (!cumMap.has(base)) cumMap.set(base, {});
             const slot = cumMap.get(base);
             if (yrMatch) slot.prev = { val: cum, color: col };
@@ -1275,18 +1370,18 @@ function renderTrendChart() {
             const prevV = slot.prev ? slot.prev.val : null;
             const rate = (prevV != null && prevV > 0) ? (curV - prevV) / prevV * 100 : null;
             const rateHtml = rate == null ? ''
-              : ` <span style="color:${rate>=0?'#00E5A0':'#E63946'};font-weight:700;">${rate>=0?'▲':'▼'} ${Math.abs(rate).toFixed(1)}%</span>`;
+              : ` <span style="color:${mapAccent(rate>=0?'#00E5A0':'#E63946')};font-weight:700;">${rate>=0?'▲':'▼'} ${Math.abs(rate).toFixed(1)}%</span>`;
             cumHtml += `<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">
               <span style="width:8px;height:8px;border-radius:50%;background:${slot.cur.color};display:inline-block;"></span>
               <span>${base} 누적:</span>
               <b style="margin-left:auto;padding-left:12px;">${Number(curV).toLocaleString()}</b>
-              ${prevV != null ? `<span style="color:#6B7693;font-size:10px;margin-left:6px;">(전년 ${Number(prevV).toLocaleString()})</span>` : ''}
+              ${prevV != null ? `<span style="color:${CT.muted};font-size:10px;margin-left:6px;">(전년 ${Number(prevV).toLocaleString()})</span>` : ''}
               ${rateHtml}
             </div>`;
           });
           if (cumHtml) {
-            h += `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed rgba(255,255,255,0.18);">
-              <div style="font-size:10px;color:#8A9BBF;margin-bottom:4px;">📊 누적합계 (1월~${params[0].axisValue}, 전년比)</div>
+            h += `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed ${CT.divider};">
+              <div style="font-size:10px;color:${CT.axisText};margin-bottom:4px;">📊 누적합계 (1월~${params[0].axisValue}, 전년比)</div>
               ${cumHtml}
             </div>`;
           }
@@ -1294,12 +1389,12 @@ function renderTrendChart() {
         return h;
       }
     },
-    legend: { data:legendData, textStyle:{color:'#8A9BBF'}, top:90, left:'center',
-              type:'scroll', pageTextStyle:{color:'#8A9BBF'} },
+    legend: { data:legendData, textStyle:{color:CT.axisText}, top:90, left:'center',
+              type:'scroll', pageTextStyle:{color:CT.axisText} },
     grid: { left:55, right:20, top:120, bottom:30 },
-    xAxis: { type:'category', data:xData, axisLine:{lineStyle:{color:'#243049'}}, axisLabel:{color:'#8A9BBF'} },
-    yAxis: { type:'value', splitLine:{lineStyle:{color:'#1A2236'}},
-             axisLabel:{color:'#8A9BBF', formatter:v=>v>=1000?Math.round(v/1000)+'k':v} },
+    xAxis: { type:'category', data:xData, axisLine:{lineStyle:{color:CT.axisLine}}, axisLabel:{color:CT.axisText} },
+    yAxis: { type:'value', splitLine:{lineStyle:{color:CT.split}},
+             axisLabel:{color:CT.axisText, formatter:v=>v>=1000?Math.round(v/1000)+'k':v} },
     series
   }, true);
   // 서브타이틀
@@ -1532,7 +1627,7 @@ function renderTopMovers() {
   const growth = [...moves].filter(m => m.rate > 0).sort((a,b) => b.rate - a.rate).slice(0, 5);
   const decline = [...moves].filter(m => m.rate < 0).sort((a,b) => a.rate - b.rate).slice(0, 5);
   const rowHTML = (m, color) => `
-    <div style="display:grid;grid-template-columns:1fr 80px 80px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+    <div style="display:grid;grid-template-columns:1fr 80px 80px;align-items:center;padding:8px 0;border-bottom:1px solid var(--wash-4);">
       <div>
         <div style="font-weight:600;font-size:12px;">${m.model}</div>
         <div style="font-size:9px;color:var(--text-muted);">${m.spec||''} · ${m.cat}</div>
@@ -1779,62 +1874,52 @@ function toggleCatTable() {
   btn.textContent = hidden ? '숨기기 ▲' : '펼치기 ▼';
   btn.classList.toggle('active', !hidden);
 }
-/* ── 품목군별 현재고 조회 패널 ─────────────────────────────── */
+/* ── 품목군별 현재고 요약 ─────────────────────────────────────
+   Why: 품목 단위 드릴다운(카테고리→세부품목) 전체 조회는 주간 대시보드에
+   동일 기능이 이미 있어 중복이었음. 월간은 임원 보고용 요약이 목적이므로
+   품목군 롤업 표로 축소하고, 상세는 주간 대시보드로 안내. */
 function renderStockPanel() {
-  const catsBox = document.getElementById('stockPanelCats');
-  if (!catsBox) return;
+  const box = document.getElementById('stockPanelSummary');
+  if (!box) return;
   const data = getCurrentData();
-  const st = window._stockPanel || (window._stockPanel = { cat: null, item: null });
-  if (!data) { catsBox.innerHTML = ''; return; }
-  const cats = [...new Set(data.items.map(it => it.category))];
-  if (st.cat && !cats.includes(st.cat)) { st.cat = null; st.item = null; }
-  const esc = s => String(s).replace(/'/g, "\\'");
-  catsBox.innerHTML = cats.map(cat => {
-    const grp = data.items.filter(it => it.category === cat);
-    const totCur = grp.reduce((s, it) => s + (it.currentStock || 0), 0);
-    const active = st.cat === cat;
-    return `<button onclick="selectStockCat('${esc(cat)}')" style="padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:${active?800:600};border:1px solid ${active?'var(--accent-gold)':'var(--border)'};background:${active?'rgba(201,169,97,0.18)':'rgba(255,255,255,0.03)'};color:${active?'var(--accent-gold)':'var(--text-secondary)'};">${cat} <span style="font-size:10px;color:var(--text-muted);">${grp.length}종 · 재고 ${fmtN(totCur)}</span></button>`;
-  }).join('');
-  const itemsWrap = document.getElementById('stockPanelItemsWrap');
-  const itemsBox = document.getElementById('stockPanelItems');
-  const detail = document.getElementById('stockPanelDetail');
-  if (!st.cat) { itemsWrap.style.display = 'none'; detail.innerHTML = ''; return; }
-  const grp = data.items.filter(it => it.category === st.cat);
-  if (st.item && !grp.some(it => it.model === st.item)) st.item = null;
-  itemsWrap.style.display = 'block';
-  itemsBox.innerHTML = grp.map(it => {
-    const active = st.item === it.model;
-    const short = (it.safetyStock > 0) && ((it.currentStock - (it.unshipped || 0)) < it.safetyStock);
-    const dot = short ? 'var(--accent-red)' : (it.safetyStock > 0 ? 'var(--accent-mint)' : 'var(--text-muted)');
-    return `<button onclick="selectStockItem('${esc(it.model)}')" style="padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:${active?800:600};border:1px solid ${active?'var(--accent-cyan)':'var(--border)'};background:${active?'rgba(79,195,247,0.16)':'rgba(255,255,255,0.03)'};color:${active?'var(--accent-cyan)':'var(--text-secondary)'};display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:${dot};display:inline-block;"></span>${it.model}${it.spec?` <span style="font-size:10px;color:var(--text-muted);">${it.spec}</span>`:''}</button>`;
-  }).join('');
-  detail.innerHTML = st.item ? stockDetailCard(grp.find(x => x.model === st.item)) : stockCatTable(grp, st.cat);
-}
-function stockDetailCard(it) {
-  if (!it) return '';
-  const eff = (it.currentStock || 0) - (it.unshipped || 0);
-  const short = (it.safetyStock > 0) && (eff < it.safetyStock);
-  const statusColor = short ? 'var(--accent-red)' : (it.safetyStock > 0 ? 'var(--accent-mint)' : 'var(--text-muted)');
-  const statusText = it.safetyStock > 0 ? (short ? '⚠ 안전재고 미달' : '✔ 안전재고 충족') : '안전재고 미설정';
-  const cell = (label, val, color) => `<div style="flex:1;min-width:120px;background:rgba(15,20,32,0.55);border:1px solid var(--border);border-radius:10px;padding:12px 14px;"><div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">${label}</div><div class="num" style="font-size:22px;font-weight:800;color:${color||'var(--text-primary)'};">${fmtN(val)}</div></div>`;
-  return `<div style="margin-top:6px;"><div style="font-size:13px;font-weight:700;margin-bottom:8px;">${it.model} ${it.spec?`<span style="font-size:11px;color:var(--text-muted);">${it.spec}</span>`:''}<span style="margin-left:8px;font-size:11px;font-weight:700;color:${statusColor};">${statusText}</span></div><div style="display:flex;flex-wrap:wrap;gap:8px;">${cell('현재고(EA)', it.currentStock||0, 'var(--accent-cyan)')}${cell('안전재고', it.safetyStock||0)}${cell('미출오더', it.unshipped||0, 'var(--accent-amber)')}${cell('실가용재고', eff, short?'var(--accent-red)':'var(--accent-mint)')}</div></div>`;
-}
-function stockCatTable(grp, cat) {
-  const totCur = grp.reduce((s, it) => s + (it.currentStock || 0), 0);
-  const totUnship = grp.reduce((s, it) => s + (it.unshipped || 0), 0);
-  let html = `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;"><b style="color:var(--accent-gold);">${cat}</b> 전체 현재고 <b class="num" style="color:var(--accent-cyan);">${fmtN(totCur)}</b> · 미출오더 <b class="num" style="color:var(--accent-amber);">${fmtN(totUnship)}</b> · 실가용 <b class="num">${fmtN(totCur-totUnship)}</b> <span style="color:var(--text-muted);">— 세부 품목을 선택하면 상세가 표시됩니다</span></div>`;
-  html += `<table class="exec" style="width:100%;border-collapse:collapse;"><thead><tr><th>품목</th><th style="text-align:right">현재고</th><th style="text-align:right">안전재고</th><th style="text-align:right">미출오더</th><th style="text-align:right">실가용</th><th style="text-align:right">상태</th></tr></thead><tbody>`;
-  grp.slice().sort((a, b) => (b.currentStock||0) - (a.currentStock||0)).forEach(it => {
-    const eff = (it.currentStock||0) - (it.unshipped||0);
-    const short = (it.safetyStock > 0) && (eff < it.safetyStock);
-    const stTxt = it.safetyStock > 0 ? (short ? '<span style="color:var(--accent-red);font-weight:700;">부족</span>' : '<span style="color:var(--accent-mint);font-weight:700;">충족</span>') : '<span style="color:var(--text-muted);">—</span>';
-    html += `<tr onclick="selectStockItem('${String(it.model).replace(/'/g,"\\'")}')" style="cursor:pointer;"><td>${it.model}${it.spec?` <span style="font-size:10px;color:var(--text-muted);">${it.spec}</span>`:''}</td><td style="text-align:right;color:var(--accent-cyan);font-weight:600;" class="num">${fmtN(it.currentStock||0)}</td><td style="text-align:right;" class="num">${fmtN(it.safetyStock||0)}</td><td style="text-align:right;color:var(--accent-amber);" class="num">${fmtN(it.unshipped||0)}</td><td style="text-align:right;color:${short?'var(--accent-red)':'var(--accent-mint)'};font-weight:600;" class="num">${fmtN(eff)}</td><td style="text-align:right;">${stTxt}</td></tr>`;
+  if (!data) { box.innerHTML = ''; return; }
+  const catItems = data.catStocks ? Object.values(data.catStocks) : [];
+  const allItems = data.items.some(it => it.safetyStock > 0) ? data.items : [...data.items, ...catItems];
+  const groups = {};
+  for (const it of allItems) {
+    if (!groups[it.category]) groups[it.category] = { safety: 0, current: 0, unshipped: 0 };
+    groups[it.category].safety += it.safetyStock || 0;
+    groups[it.category].current += it.currentStock || 0;
+    groups[it.category].unshipped += it.unshipped || 0;
+  }
+  const cats = Object.keys(groups).filter(c => groups[c].safety > 0 || groups[c].current > 0);
+  if (!cats.length) { box.innerHTML = '<span style="color:var(--text-muted);font-size:12px;">재고 데이터 없음</span>'; return; }
+  const rows = cats.map(c => {
+    const g = groups[c];
+    const eff = g.current - g.unshipped;
+    const rate = g.safety > 0 ? eff / g.safety * 100 : null;
+    return { cat: c, ...g, eff, rate };
+  }).sort((a,b) => (a.rate ?? 999) - (b.rate ?? 999));
+  let html = `<table class="exec" style="width:100%;border-collapse:collapse;"><thead><tr>
+    <th>품목군</th><th style="text-align:right">현재고</th><th style="text-align:right">안전재고</th>
+    <th style="text-align:right">미출오더</th><th style="text-align:right">실가용재고</th><th style="text-align:right">확보율</th>
+  </tr></thead><tbody>`;
+  rows.forEach(r => {
+    const short = r.rate != null && r.rate < 100;
+    const rateTxt = r.rate == null ? '<span style="color:var(--text-muted);">—</span>'
+      : `<span style="color:${short?'var(--accent-red)':'var(--accent-mint)'};font-weight:700;">${r.rate.toFixed(1)}%</span>`;
+    html += `<tr style="${short?'background:rgba(230,57,70,0.06);':''}">
+      <td style="font-weight:600;${short?'color:var(--accent-red);':''}">${r.cat}${short?' ⚠':''}</td>
+      <td style="text-align:right;" class="num">${fmtN(r.current)}</td>
+      <td style="text-align:right;" class="num">${fmtN(r.safety)}</td>
+      <td style="text-align:right;color:var(--accent-amber);" class="num">${fmtN(r.unshipped)}</td>
+      <td style="text-align:right;font-weight:600;color:${short?'var(--accent-red)':'var(--accent-mint)'};" class="num">${fmtN(r.eff)}</td>
+      <td style="text-align:right;">${rateTxt}</td>
+    </tr>`;
   });
   html += '</tbody></table>';
-  return html;
+  box.innerHTML = html;
 }
-function selectStockCat(cat) { const st = window._stockPanel || (window._stockPanel = {}); st.cat = (st.cat === cat) ? null : cat; st.item = null; renderStockPanel(); }
-function selectStockItem(model) { const st = window._stockPanel || (window._stockPanel = {}); st.item = (st.item === model) ? null : model; renderStockPanel(); }
 function renderBody() {
   renderKPI();
   renderYoY();
