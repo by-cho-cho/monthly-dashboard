@@ -23,6 +23,7 @@
     --accent-mint: #00E5A0;
     --accent-red: #E63946;
     --accent-amber: #FFB547;
+    --accent-purple: #AB8FE0;
     /* 테마 인지용 — 다크 기본값 (주간 대시보드와 동일 체계) */
     --wash: rgba(255,255,255,0.03);
     --wash-2: rgba(255,255,255,0.06);
@@ -58,6 +59,7 @@
     --accent-mint: #087C5A;
     --accent-red: #C32330;
     --accent-amber: #9C6610;
+    --accent-purple: #5A41B0;
     --wash: rgba(0,0,0,0.035);
     --wash-2: rgba(0,0,0,0.06);
     --wash-3: rgba(0,0,0,0.02);
@@ -205,14 +207,38 @@
     user-select: none;
     line-height: 1.4;
   }
-  .chip-year         { color: var(--accent-gold); border-color: rgba(201,169,97,0.35); background: rgba(201,169,97,0.05); }
-  .chip-year.active  { background: rgba(201,169,97,0.22); border-color: var(--accent-gold); box-shadow: 0 0 6px rgba(201,169,97,0.3); }
+  .chip-year         { color: var(--accent-purple); border-color: rgba(171,143,224,0.35); background: rgba(171,143,224,0.05); }
+  .chip-year.active  { background: rgba(171,143,224,0.25); border-color: var(--accent-purple); box-shadow: 0 0 6px rgba(171,143,224,0.3); }
   .chip-month        { color: var(--accent-cyan); border-color: rgba(79,195,247,0.35); background: rgba(79,195,247,0.05); }
   .chip-month.active { background: rgba(79,195,247,0.22); border-color: var(--accent-cyan); box-shadow: 0 0 6px rgba(79,195,247,0.3); }
   .chip-cat          { color: var(--accent-red); border-color: rgba(230,57,70,0.35); background: rgba(230,57,70,0.05); }
   .chip-cat.active   { background: rgba(230,57,70,0.22); border-color: var(--accent-red); box-shadow: 0 0 6px rgba(230,57,70,0.3); }
   .chip-all          { color: var(--text-secondary); border-color: var(--chip-border); background: var(--wash); font-size: 10px; }
   .chip-all:hover    { background: var(--wash-4); color: var(--text-primary); }
+  .chip-sub          { color: var(--accent-gold); border-color: rgba(201,169,97,0.35); background: rgba(201,169,97,0.05); font-size: 10px; padding: 3px 9px; }
+  .chip-sub.active   { background: rgba(201,169,97,0.22); border-color: var(--accent-gold); box-shadow: 0 0 6px rgba(201,169,97,0.3); }
+  /* 주간 대시보드와 동일한 구조 — 선택되지 않은 필터 칩은 흐리게 표시 */
+  .chip-year:not(.active), .chip-month:not(.active), .chip-cat:not(.active), .chip-sub:not(.active) { opacity: 0.4; }
+  .chip-year:not(.active):hover, .chip-month:not(.active):hover,
+  .chip-cat:not(.active):hover, .chip-sub:not(.active):hover { opacity: 0.7; }
+  /* KPI 미니 카드 — 주간 대시보드와 동일한 좌측 강조 테두리 카드 구조 */
+  .kpi-strip2 { display: flex; flex-direction: row; gap: 8px; }
+  .kpi-cell2 {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 10px;
+    background: var(--kpi-strip-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 7px;
+    box-shadow: 0 4px 12px var(--card-shadow);
+  }
+  .kpi-cell2 .kpi-label { font-size: 10px; letter-spacing: 0.04em; color: var(--text-muted); font-weight: 700; line-height: 1.2; white-space: nowrap; }
+  .kpi-cell2 .kpi-val2 {
+    color: var(--accent); font-size: 20px; font-weight: 800;
+    font-family: 'IBM Plex Sans', sans-serif; font-variant-numeric: tabular-nums;
+    line-height: 1.1; letter-spacing: -0.01em; white-space: nowrap;
+  }
+  .kpi-cell2 .kpi-sub { font-size: 10px; color: var(--text-secondary); font-weight: 600; margin: 2px 0 0; line-height: 1.3; white-space: nowrap; }
   .filter-row        { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:3px 0; }
   .filter-label      { font-size:11px; font-weight:700; color:var(--text-muted); min-width:50px; }
   .filter-grid       { display:flex; flex-wrap:wrap; gap:4px; flex:1; user-select:none; -webkit-user-select:none; }
@@ -343,30 +369,42 @@ document.addEventListener('fullscreenchange', () => {
     <div class="filter-row">
       <span class="filter-label">월 <span style="font-weight:400;color:var(--text-muted);font-size:9px;">(<span id="filterMonthYear">2026</span>년)</span></span>
       <div class="filter-grid" id="filterMonths" style="flex:0 0 auto;"></div>
-      <div id="megaKpiStrip" style="display:flex; gap:0; align-items:center; margin-left:24px;
-           background:var(--kpi-strip-bg); border:1px solid var(--border); border-radius:10px; padding:4px 2px;">
-        <div style="padding:2px 12px;border-right:1px solid var(--divider);">
-          <div class="kpi-label" style="font-size:10px;">총 수주</div>
-          <div style="font-size:22px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-gold);" id="kpiOrders">—</div>
-          <div class="kpi-sub" style="margin-top:1px;" id="kpiOrdersSub">—</div>
+      <div id="megaKpiStrip" class="kpi-strip2" style="margin-left:24px;">
+        <div class="kpi-cell2" style="--accent:var(--accent-gold);">
+          <div>
+            <div class="kpi-label">총 수주</div>
+            <div class="kpi-sub" id="kpiOrdersSub">—</div>
+          </div>
+          <div class="kpi-val2" id="kpiOrders">—</div>
         </div>
-        <div style="padding:2px 12px;border-right:1px solid var(--divider);">
-          <div class="kpi-label" style="font-size:10px;">총 생산</div>
-          <div style="font-size:22px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-cyan);" id="kpiProduction">—</div>
-          <div class="kpi-sub" style="margin-top:1px;" id="kpiProductionSub">—</div>
+        <div class="kpi-cell2" style="--accent:var(--accent-cyan);">
+          <div>
+            <div class="kpi-label">총 생산</div>
+            <div class="kpi-sub" id="kpiProductionSub">—</div>
+          </div>
+          <div class="kpi-val2" id="kpiProduction">—</div>
         </div>
-        <div style="padding:2px 12px;">
-          <div class="kpi-label" style="font-size:10px;">총 출고</div>
-          <div style="font-size:22px;font-weight:700;line-height:1.1;font-family:'IBM Plex Sans',sans-serif;font-variant-numeric:tabular-nums;color:var(--accent-mint);" id="kpiShipped">—</div>
-          <div class="kpi-sub" style="margin-top:1px;" id="kpiShippedSub">—</div>
+        <div class="kpi-cell2" style="--accent:var(--accent-mint);">
+          <div>
+            <div class="kpi-label">총 출고</div>
+            <div class="kpi-sub" id="kpiShippedSub">—</div>
+          </div>
+          <div class="kpi-val2" id="kpiShipped">—</div>
         </div>
       </div>
       <span class="chip chip-all" onclick="toggleAllFilter('months')" style="margin-left:auto;">전체선택</span>
+      <span class="chip chip-all" onclick="selectRecentMonths()">최근 3개월</span>
     </div>
     <div class="filter-row">
       <span class="filter-label">품목군</span>
       <div class="filter-grid" id="filterCats"></div>
       <span class="chip chip-all" onclick="toggleAllFilter('categories')">전체선택</span>
+      <span class="chip chip-all" onclick="clearCategories()">해제</span>
+    </div>
+    <div class="filter-row" id="filterSubRow" style="display:none;">
+      <span class="filter-label" style="padding-left:14px;font-size:10px;">└ 세부(제조사) <span id="filterSubCount" style="font-weight:400;color:var(--text-muted);font-size:9px;">전체</span></span>
+      <div class="filter-grid" id="filterSubs"></div>
+      <span class="chip chip-all" onclick="toggleAllFilter('subs')">전체선택</span>
     </div>
     <div class="filter-row">
       <span class="filter-label">품목 <span id="filterItemCount" style="font-weight:400;color:var(--text-muted);font-size:10px;">전체</span></span>
@@ -558,6 +596,7 @@ function makeDefaultFilter(items) {
     years: new Set([2026]),
     months: new Set(MONTH_OPTIONS), // 마감 여부 무관 — 전체 월 기본 선택
     categories: new Set(cats),
+    subs: new Set(),    // 세부품목(제조사, 커플링플로이드 하위) — empty = 전체
     items: new Set(),  // empty = 전체 (필터 해제와 같음)
   };
 }
@@ -568,6 +607,7 @@ function filterItems(items) {
   const itemAll = f.items.size === 0;
   return items.filter(it => {
     if (!f.categories.has(it.category)) return false;
+    if (f.subs && f.subs.size > 0 && it.subcategory && !f.subs.has(it.subcategory)) return false;
     if (!itemAll && !f.items.has(it.model)) return false;
     return true;
   });
@@ -728,9 +768,11 @@ function parse1Bu() {
     for (const sr of cd.sheetRows){
       const d = readRow(sr);
       if (!d.model || d.model.toLowerCase() === 'total') continue;
-      // 커플링플로이드는 제조사(텐텍/제이시스/비올/원텍/청우)를 그대로 품목군으로 승격
-      const category = cd.cat === '커플링플로이드' ? (detectSubcategory(cd.cat, d.model) || cd.cat) : cd.cat;
-      items.push({...d, category});
+      // 커플링플로이드는 품목군 그대로 유지하고, 제조사(텐텍/제이시스/비올/원텍/청우)는
+      // 세부품목(subcategory)으로 기록 — 주간 대시보드와 동일한 구조
+      const category = cd.cat;
+      const subcategory = detectSubcategory(category, d.model);
+      items.push({...d, category, subcategory});
     }
   }
   // 25년 실측 주입
@@ -1712,7 +1754,7 @@ function renderFilters() {
   const data = getCurrentData(); if (!data) return;
   // 연도 칩
   document.getElementById('filterYears').innerHTML = YEAR_OPTIONS.map(y =>
-    `<span class="chip chip-year ${f.years.has(y)?'active':''}" data-ftype="years" data-fval="${y}" onclick="toggleFilter('years',${y})">${y}</span>`
+    `<span class="chip chip-year ${f.years.has(y)?'active':''}" data-ftype="years" data-fval="${y}" onclick="toggleFilter('years',${y})">${y}년</span>`
   ).join('');
   // 월 칩 + 라벨에 monthlyYear 표기 (가장 최근 선택 연도)
   const latestYr = [...f.years].sort((a,b)=>b-a)[0] || 2026;
@@ -1725,15 +1767,41 @@ function renderFilters() {
   document.getElementById('filterCats').innerHTML = allCats.map(c =>
     `<span class="chip chip-cat ${f.categories.has(c)?'active':''}" data-ftype="categories" data-fval="${escapeAttr(c)}" onclick="toggleFilter('categories','${escapeAttr(c)}')">${c}</span>`
   ).join('');
-  // 품목 카운트
-  const totalItems = data.items.filter(it => f.categories.has(it.category)).length;
+  // 세부품목(제조사) 칩 — 커플링플로이드가 선택된 경우에만 노출
+  renderSubFilterChips();
+  // 품목 카운트 (세부품목 필터 반영)
+  const totalItems = data.items.filter(it =>
+    f.categories.has(it.category) &&
+    (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory))
+  ).length;
   document.getElementById('filterItemCount').textContent =
     f.items.size === 0 ? `(전체 ${totalItems}개)` : `(${f.items.size}개 선택 / 가능 ${totalItems}개)`;
   // 품목 picker
   renderItemPicker();
   // 요약
   document.getElementById('filterSummary').textContent =
-    `연도 ${f.years.size}개 / 월 ${f.months.size}개 / 품목군 ${f.categories.size}개 / 적용 품목 ${f.items.size===0?totalItems:f.items.size}개`;
+    `연도 ${f.years.size}개 / 월 ${f.months.size}개 / 품목군 ${f.categories.size}개${f.subs.size?` / 세부 ${f.subs.size}개`:''} / 적용 품목 ${f.items.size===0?totalItems:f.items.size}개`;
+}
+// 세부품목(제조사) 필터 칩 렌더링 — 커플링플로이드 하위 텐텍/제이시스/비올/원텍/청우
+function renderSubFilterChips() {
+  const f = getCurFilters(); if (!f) return;
+  const data = getCurrentData(); if (!data) return;
+  const row = document.getElementById('filterSubRow');
+  if (!row) return;
+  if (!f.categories.has('커플링플로이드')) {
+    row.style.display = 'none';
+    if (f.subs.size > 0) f.subs = new Set();
+    return;
+  }
+  const cpItems = data.items.filter(it => it.category === '커플링플로이드');
+  const subs = SUB_ORDER.filter(s => cpItems.some(it => it.subcategory === s));
+  if (subs.length === 0) { row.style.display = 'none'; return; }
+  row.style.display = 'flex';
+  document.getElementById('filterSubs').innerHTML = subs.map(s =>
+    `<span class="chip chip-sub ${f.subs.has(s)?'active':''}" data-ftype="subs" data-fval="${escapeAttr(s)}" onclick="toggleFilter('subs','${escapeAttr(s)}')">${s}</span>`
+  ).join('');
+  const cntEl = document.getElementById('filterSubCount');
+  if (cntEl) cntEl.textContent = f.subs.size === 0 ? '전체' : `${f.subs.size}개 선택`;
 }
 function escapeAttr(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 // 세부품목(제조사/브랜드) 분류 — 주간 대시보드와 동일한 로직
@@ -1757,10 +1825,11 @@ function renderItemPicker() {
   if (!list) return;
   const visible = data.items.filter(it =>
     f.categories.has(it.category) &&
+    (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory)) &&
     (!search || it.model.toLowerCase().includes(search) || (it.spec||'').toLowerCase().includes(search))
   );
-  // 세부품목(제조사) 그룹핑 — 텐텍/제이시스/비올/원텍/청우는 이미 품목군으로 승격되어 있어
-  // it.category 로 그대로 묶임 (detectSubcategory 는 다른 품목군엔 항상 null 반환)
+  // 세부품목(제조사) 그룹핑 — 커플링플로이드 하위는 텐텍/제이시스/비올/원텍/청우로 묶고,
+  // 그 외 품목군은 detectSubcategory가 항상 null이라 카테고리명으로 그대로 묶임
   const groups = new Map(); // label -> items[]
   visible.forEach(it => {
     const label = detectSubcategory(it.category, it.model) || it.category;
@@ -1831,6 +1900,8 @@ document.addEventListener('mousedown', (e) => {
   const el = e.target.closest('[data-ftype]');
   if (!el) return;
   const type = el.dataset.ftype;
+  // 품목군은 배타적 단일 선택(클릭)으로만 동작 — 드래그 다중토글 비활성화
+  if (type === 'categories') return;
   let val = el.dataset.fval;
   if (type === 'years' || type === 'months') val = +val;
   const f = getCurFilters(); if (!f) return;
@@ -1867,13 +1938,27 @@ function toggleFilter(type, val) {
   if (!f) return;
   // val을 정수로 (연도/월)
   if (type === 'years' || type === 'months') val = +val;
+  // 품목군은 배타적 단일 선택 — 클릭한 품목군만 선택되고 나머지는 해제됨.
+  // (전체 선택 상태로 되돌리려면 '전체선택' 칩 사용)
+  if (type === 'categories') {
+    f.categories = new Set([val]);
+    f.subs = new Set();
+    const data = getCurrentData();
+    const validModels = new Set(data.items.filter(it => f.categories.has(it.category)).map(it => it.model));
+    f.items = new Set([...f.items].filter(m => validModels.has(m)));
+    renderFilters();
+    renderBody();
+    return;
+  }
   const set = f[type];
   if (set.has(val)) set.delete(val);
   else set.add(val);
-  // 카테고리 변경 시 품목 필터 영향 — 카테고리에서 빠진 품목은 자동 해제
-  if (type === 'categories') {
+  // 세부품목(제조사) 변경 시 품목 필터 영향 — 세부품목에서 빠진 품목은 자동 해제
+  if (type === 'subs') {
     const data = getCurrentData();
-    const validModels = new Set(data.items.filter(it => f.categories.has(it.category)).map(it => it.model));
+    const validModels = new Set(data.items.filter(it =>
+      f.categories.has(it.category) && (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory))
+    ).map(it => it.model));
     f.items = new Set([...f.items].filter(m => validModels.has(m)));
   }
   renderFilters();
@@ -1886,9 +1971,19 @@ function toggleAllFilter(type) {
   if (type === 'years') all = YEAR_OPTIONS;
   else if (type === 'months') all = MONTH_OPTIONS;
   else if (type === 'categories') all = [...new Set(data.items.map(it => it.category))];
+  else if (type === 'subs') {
+    // 세부품목(제조사)도 토글 의미 다름 — 모두 해제(=전체 포함) 또는 모두 선택
+    const cpItems = data.items.filter(it => it.category === '커플링플로이드');
+    const valid = SUB_ORDER.filter(s => cpItems.some(it => it.subcategory === s));
+    if (f.subs.size === valid.length) f.subs.clear();
+    else f.subs = new Set(valid);
+    renderFilters(); renderBody(); return;
+  }
   else if (type === 'items') {
     // 품목은 토글이 의미 다름 — 모두 해제(=전체) 또는 모두 선택
-    const valid = data.items.filter(it => f.categories.has(it.category)).map(it => it.model);
+    const valid = data.items.filter(it =>
+      f.categories.has(it.category) && (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory))
+    ).map(it => it.model);
     if (f.items.size === valid.length) f.items.clear();
     else f.items = new Set(valid);
     renderFilters(); renderBody(); return;
@@ -1897,6 +1992,7 @@ function toggleAllFilter(type) {
   if (set.size === all.length) set.clear();
   else { set.clear(); all.forEach(v => set.add(v)); }
   if (type === 'categories') {
+    f.subs = new Set();  // 품목군 전체선택/해제 시 세부품목 필터 초기화
     const validModels = new Set(data.items.filter(it => f.categories.has(it.category)).map(it => it.model));
     f.items = new Set([...f.items].filter(m => validModels.has(m)));
   }
@@ -1906,6 +2002,28 @@ function toggleAllFilter(type) {
 function resetFilters() {
   const data = getCurrentData(); if (!data) return;
   APP.filters[APP.currentDept] = makeDefaultFilter(data.items);
+  renderFilters();
+  renderBody();
+}
+// 품목군 전체 해제 — 주간 대시보드의 '해제' 버튼과 동일한 동작
+function clearCategories() {
+  const f = getCurFilters(); if (!f) return;
+  f.categories = new Set();
+  f.subs = new Set();
+  f.items = new Set();
+  renderFilters();
+  renderBody();
+}
+// 최근 3개월 빠른 선택 — 주간 대시보드의 '최근 3개월' 버튼과 동일한 구조.
+// 월별 세부(monthData)는 2026년 데이터에만 존재하므로 실적이 있는 최근 월 3개를 고른다.
+function selectRecentMonths() {
+  const data = getCurrentData(); if (!data) return;
+  const f = getCurFilters(); if (!f) return;
+  const monthsWithData = MONTH_OPTIONS.filter(m => data.items.some(it => {
+    const md = it.monthData?.[m];
+    return md && ((md.생산||0) + (md.수주||0) + (md.출고||0)) > 0;
+  })).sort((a,b) => b - a);
+  f.months = new Set(monthsWithData.length ? monthsWithData.slice(0, 3) : MONTH_OPTIONS.slice(-3));
   renderFilters();
   renderBody();
 }
