@@ -728,7 +728,9 @@ function parse1Bu() {
     for (const sr of cd.sheetRows){
       const d = readRow(sr);
       if (!d.model || d.model.toLowerCase() === 'total') continue;
-      items.push({...d, category: cd.cat});
+      // 커플링플로이드는 제조사(텐텍/제이시스/비올/원텍/청우)를 그대로 품목군으로 승격
+      const category = cd.cat === '커플링플로이드' ? (detectSubcategory(cd.cat, d.model) || cd.cat) : cd.cat;
+      items.push({...d, category});
     }
   }
   // 25년 실측 주입
@@ -1757,8 +1759,8 @@ function renderItemPicker() {
     f.categories.has(it.category) &&
     (!search || it.model.toLowerCase().includes(search) || (it.spec||'').toLowerCase().includes(search))
   );
-  // 세부품목(제조사) 그룹핑 — 텐텍/제이시스/비올/원텍/청우 순으로 묶고,
-  // 세부분류가 없는 품목군은 기존처럼 품목군 이름으로 그룹핑
+  // 세부품목(제조사) 그룹핑 — 텐텍/제이시스/비올/원텍/청우는 이미 품목군으로 승격되어 있어
+  // it.category 로 그대로 묶임 (detectSubcategory 는 다른 품목군엔 항상 null 반환)
   const groups = new Map(); // label -> items[]
   visible.forEach(it => {
     const label = detectSubcategory(it.category, it.model) || it.category;
