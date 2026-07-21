@@ -217,10 +217,12 @@
   .chip-all:hover    { background: var(--wash-4); color: var(--text-primary); }
   .chip-sub          { color: var(--accent-gold); border-color: rgba(201,169,97,0.35); background: rgba(201,169,97,0.05); font-size: 10px; padding: 3px 9px; }
   .chip-sub.active   { background: rgba(201,169,97,0.22); border-color: var(--accent-gold); box-shadow: 0 0 6px rgba(201,169,97,0.3); }
+  .chip-item         { color: var(--text-secondary); border-color: var(--divider); background: var(--wash); font-size: 10px; padding: 3px 9px; }
+  .chip-item.active  { color: var(--accent-gold); border-color: var(--accent-gold); background: rgba(201,169,97,0.18); box-shadow: 0 0 5px rgba(201,169,97,0.25); }
   /* 주간 대시보드와 동일한 구조 — 선택되지 않은 필터 칩은 흐리게 표시 */
-  .chip-year:not(.active), .chip-month:not(.active), .chip-cat:not(.active), .chip-sub:not(.active) { opacity: 0.4; }
+  .chip-year:not(.active), .chip-month:not(.active), .chip-cat:not(.active), .chip-sub:not(.active), .chip-item:not(.active) { opacity: 0.4; }
   .chip-year:not(.active):hover, .chip-month:not(.active):hover,
-  .chip-cat:not(.active):hover, .chip-sub:not(.active):hover { opacity: 0.7; }
+  .chip-cat:not(.active):hover, .chip-sub:not(.active):hover, .chip-item:not(.active):hover { opacity: 0.7; }
   /* KPI 미니 카드 — 주간 대시보드와 동일한 좌측 강조 테두리 카드 구조 */
   .kpi-strip2 { display: flex; flex-direction: row; gap: 8px; }
   .kpi-cell2 {
@@ -408,23 +410,15 @@ document.addEventListener('fullscreenchange', () => {
     </div>
     <div class="filter-row">
       <span class="filter-label">품목 <span id="filterItemCount" style="font-weight:400;color:var(--text-muted);font-size:10px;">전체</span></span>
-      <div style="flex:1; display:flex; align-items:center; gap:6px;">
-        <input id="filterItemSearch" placeholder="🔍 품목 검색…" oninput="renderItemPicker()"
-          style="background:var(--wash); border:1px solid var(--border); color:var(--text-primary);
-                 border-radius:8px; padding:5px 10px; font-size:11px; width:240px; outline:none;">
-        <button onclick="document.getElementById('itemPickerPanel').style.display = document.getElementById('itemPickerPanel').style.display==='block'?'none':'block'"
-          class="chip chip-all" style="cursor:pointer;">▼ 품목 선택</button>
-      </div>
+      <div class="filter-grid" id="itemChips" style="max-height:80px;overflow-y:auto;"></div>
+      <input id="filterItemSearch" placeholder="🔍 검색" oninput="renderItemPicker()"
+        style="background:var(--wash); border:1px solid var(--border); color:var(--text-primary);
+               border-radius:8px; padding:5px 10px; font-size:11px; width:160px; outline:none;">
       <span class="chip chip-all" onclick="toggleAllFilter('items')">전체선택</span>
       <button onclick="resetFilters()" class="chip chip-all"
         style="background:rgba(201,169,97,0.10); border-color:var(--accent-gold); color:var(--accent-gold);">
         ⟳ 필터 초기화
       </button>
-    </div>
-    <!-- 품목 선택 드롭다운 (접힘) -->
-    <div id="itemPickerPanel" style="display:none; max-height:200px; overflow-y:auto; margin-top:6px;
-         padding:8px; background:var(--wash-3); border:1px solid var(--border); border-radius:8px;">
-      <div id="itemPickerList" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:4px;"></div>
     </div>
     <div class="filter-summary" id="filterSummary">—</div>
   </div>
@@ -1821,47 +1815,23 @@ function renderItemPicker() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
   const search = (document.getElementById('filterItemSearch')?.value || '').toLowerCase().trim();
-  const list = document.getElementById('itemPickerList');
+  const list = document.getElementById('itemChips');
   if (!list) return;
   const visible = data.items.filter(it =>
     (f.categories.size === 0 || f.categories.has(it.category)) &&
     (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory)) &&
     (!search || it.model.toLowerCase().includes(search) || (it.spec||'').toLowerCase().includes(search))
   );
-  // 세부품목(제조사) 그룹핑 — 커플링플로이드 하위는 텐텍/제이시스/비올/원텍/청우로 묶고,
-  // 그 외 품목군은 detectSubcategory가 항상 null이라 카테고리명으로 그대로 묶임
-  const groups = new Map(); // label -> items[]
-  visible.forEach(it => {
-    const label = detectSubcategory(it.category, it.model) || it.category;
-    if (!groups.has(label)) groups.set(label, []);
-    groups.get(label).push(it);
+  // 같은 모델이 여러 행에 걸쳐 있을 수 있어 칩은 모델 단위로 dedupe
+  const seenModels = new Set();
+  const deduped = visible.filter(it => {
+    if (seenModels.has(it.model)) return false;
+    seenModels.add(it.model); return true;
   });
-  const orderedLabels = [
-    ...SUB_ORDER.filter(s => groups.has(s)),
-    ...[...groups.keys()].filter(l => !SUB_ORDER.includes(l)),
-  ];
-  const itemRow = (it) => {
-    const sel = f.items.has(it.model);
+  list.innerHTML = deduped.map(it => {
     const sub = detectSubcategory(it.category, it.model);
-    return `<label style="display:flex;align-items:center;gap:6px;padding:3px 6px;cursor:pointer;
-              background:${sel?'rgba(201,169,97,0.12)':'transparent'};border-radius:4px;font-size:11px;">
-      <input type="checkbox" ${sel?'checked':''} onchange="toggleFilter('items','${escapeAttr(it.model)}')">
-      <span style="flex:1;color:${sel?'var(--accent-gold)':'var(--text-secondary)'};">${it.model}
-        <span style="color:var(--text-muted);font-size:10px;">${it.spec||''}</span></span>
-      <span style="color:var(--text-muted);font-size:9px;">${sub || it.category}</span>
-    </label>`;
-  };
-  list.innerHTML = orderedLabels.map(label => {
-    const items = groups.get(label);
-    const isBrand = SUB_ORDER.includes(label);
-    return `
-      <div style="grid-column:1/-1;font-size:10px;font-weight:700;letter-spacing:0.03em;
-                  color:var(--accent-gold);padding:6px 6px 2px;margin-top:2px;
-                  border-top:1px solid var(--divider);">
-        ${isBrand ? '🏭 ' : ''}${label}
-        <span style="color:var(--text-muted);font-weight:400;">(${items.length})</span>
-      </div>
-      ${items.map(itemRow).join('')}`;
+    return `<span class="chip chip-item ${f.items.has(it.model)?'active':''}" data-ftype="items" data-fval="${escapeAttr(it.model)}"
+      title="${escapeAttr(it.spec||'')} · ${escapeAttr(sub || it.category)}" onclick="toggleFilter('items','${escapeAttr(it.model)}')">${it.model}</span>`;
   }).join('');
 }
 function setFilterState(type, val, on) {
