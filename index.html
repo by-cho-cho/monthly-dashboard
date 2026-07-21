@@ -1194,6 +1194,9 @@ function renderTrendChart() {
   const activeCats = [...new Set(filteredItems.map(it => it.category))];
   // 카테고리별 / 전체 여부 — 2개 이상이면 카테고리별 분리 표시
   const showByCat = activeCats.length > 1 && activeCats.length < allCats.length;
+  // 품목군별 비교 모드에서 그릴 지표 — 상단 수주/생산/출고 토글 버튼을 그대로 반영
+  // (기존엔 '생산'으로 고정되어 있어 버튼을 눌러도 그래프가 바뀌지 않았음)
+  const catCompareMetric = ['수주','생산','출고'].find(m => APP_TREND_METRICS.has(m)) || '생산';
   // 선택된 연도 중 월별 데이터 없는 연도(2023·2024 등)가 있으면 → 연간 추이 모드
   const selYears = [...f.years].sort((a,b) => a - b);
   const annualMode = selYears.length > 0 && selYears.some(y => !yearHasMonthly(y));
@@ -1236,7 +1239,7 @@ function renderTrendChart() {
         const catItems = filteredItems.filter(it => it.category === cat);
         series.push({
           name: cat, type:'line', smooth:false, symbol:'circle', symbolSize:8,
-          data: selYears.map(y => yearTotal(catItems, y, '생산')),
+          data: selYears.map(y => yearTotal(catItems, y, catCompareMetric)),
           lineStyle:{color:col, width:2.5}, itemStyle:{color:col},
         });
         legendData.push(cat);
@@ -1322,7 +1325,7 @@ function renderTrendChart() {
       activeCats.forEach((cat, ci) => {
         const col = mapAccent(CAT_COLORS[ci % CAT_COLORS.length]);
         const catItems = filteredItems.filter(it => it.category === cat);
-        pushYearLine(cat, col, '생산', catItems, false, false);
+        pushYearLine(cat, col, catCompareMetric, catItems, false, false);
       });
     }
   }
@@ -1403,13 +1406,14 @@ function renderTrendChart() {
     : `${activeCats.length}개 품목군`;
   if (annualMode) {
     const yearLabel = selYears.join('·') + '년';
+    const annualMetricLabel = showByCat ? ` (${catCompareMetric} 기준)` : '';
     document.getElementById('trendSubtitle').textContent =
-      `${yearLabel} 연간 추이 — ${catLabel} | 연간 합계 기준 (월 필터 미적용)`;
+      `${yearLabel} 연간 추이${annualMetricLabel} — ${catLabel} | 연간 합계 기준 (월 필터 미적용)`;
   } else {
     const yearLabel = [...yearsToShow].sort((a,b)=>a-b).join('·') + '년';
     const yoyLabel = showYoY ? ` | 실선=${newestYr}년 점선=과거연도` : '';
     document.getElementById('trendSubtitle').textContent =
-      `${yearLabel} ${showByCat ? '품목군별 생산 비교' : '수주·생산·출고 추이'} — ${catLabel}${yoyLabel}`;
+      `${yearLabel} ${showByCat ? `품목군별 ${catCompareMetric} 비교` : '수주·생산·출고 추이'} — ${catLabel}${yoyLabel}`;
   }
   document.getElementById('trendYoYBtn').classList.toggle('active', showYoY);
 
