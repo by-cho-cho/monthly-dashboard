@@ -1734,6 +1734,19 @@ function renderFilters() {
     `연도 ${f.years.size}개 / 월 ${f.months.size}개 / 품목군 ${f.categories.size}개 / 적용 품목 ${f.items.size===0?totalItems:f.items.size}개`;
 }
 function escapeAttr(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+// 세부품목(제조사/브랜드) 분류 — 주간 대시보드와 동일한 로직
+// 커플링플로이드 하위 품목은 모델명에 제조사가 괄호로 포함되어 있어(예: "C/F(텐텍) 국내 30ml") 이를 감지
+const SUB_ORDER = ['텐텍','제이시스','비올','원텍','청우'];
+function detectSubcategory(cat, model) {
+  if (cat !== '커플링플로이드') return null;
+  const m = (model||'').toLowerCase();
+  if (m.includes('텐텍')) return '텐텍';
+  if (m.includes('j/s') || m.includes('제이시스')) return '제이시스';
+  if (m.includes('비올')) return '비올';
+  if (m.includes('원텍')) return '원텍';
+  if (m.includes('청우')) return '청우';
+  return null;
+}
 function renderItemPicker() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
@@ -1744,15 +1757,40 @@ function renderItemPicker() {
     f.categories.has(it.category) &&
     (!search || it.model.toLowerCase().includes(search) || (it.spec||'').toLowerCase().includes(search))
   );
-  list.innerHTML = visible.map(it => {
+  // 세부품목(제조사) 그룹핑 — 텐텍/제이시스/비올/원텍/청우 순으로 묶고,
+  // 세부분류가 없는 품목군은 기존처럼 품목군 이름으로 그룹핑
+  const groups = new Map(); // label -> items[]
+  visible.forEach(it => {
+    const label = detectSubcategory(it.category, it.model) || it.category;
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label).push(it);
+  });
+  const orderedLabels = [
+    ...SUB_ORDER.filter(s => groups.has(s)),
+    ...[...groups.keys()].filter(l => !SUB_ORDER.includes(l)),
+  ];
+  const itemRow = (it) => {
     const sel = f.items.has(it.model);
+    const sub = detectSubcategory(it.category, it.model);
     return `<label style="display:flex;align-items:center;gap:6px;padding:3px 6px;cursor:pointer;
               background:${sel?'rgba(201,169,97,0.12)':'transparent'};border-radius:4px;font-size:11px;">
       <input type="checkbox" ${sel?'checked':''} onchange="toggleFilter('items','${escapeAttr(it.model)}')">
       <span style="flex:1;color:${sel?'var(--accent-gold)':'var(--text-secondary)'};">${it.model}
         <span style="color:var(--text-muted);font-size:10px;">${it.spec||''}</span></span>
-      <span style="color:var(--text-muted);font-size:9px;">${it.category}</span>
+      <span style="color:var(--text-muted);font-size:9px;">${sub || it.category}</span>
     </label>`;
+  };
+  list.innerHTML = orderedLabels.map(label => {
+    const items = groups.get(label);
+    const isBrand = SUB_ORDER.includes(label);
+    return `
+      <div style="grid-column:1/-1;font-size:10px;font-weight:700;letter-spacing:0.03em;
+                  color:var(--accent-gold);padding:6px 6px 2px;margin-top:2px;
+                  border-top:1px solid var(--divider);">
+        ${isBrand ? '🏭 ' : ''}${label}
+        <span style="color:var(--text-muted);font-weight:400;">(${items.length})</span>
+      </div>
+      ${items.map(itemRow).join('')}`;
   }).join('');
 }
 function setFilterState(type, val, on) {
