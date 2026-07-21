@@ -1900,8 +1900,6 @@ document.addEventListener('mousedown', (e) => {
   const el = e.target.closest('[data-ftype]');
   if (!el) return;
   const type = el.dataset.ftype;
-  // 품목군은 배타적 단일 선택(클릭)으로만 동작 — 드래그 다중토글 비활성화
-  if (type === 'categories') return;
   let val = el.dataset.fval;
   if (type === 'years' || type === 'months') val = +val;
   const f = getCurFilters(); if (!f) return;
@@ -1938,21 +1936,15 @@ function toggleFilter(type, val) {
   if (!f) return;
   // val을 정수로 (연도/월)
   if (type === 'years' || type === 'months') val = +val;
-  // 품목군은 배타적 단일 선택 — 클릭한 품목군만 선택되고 나머지는 해제됨.
-  // (전체 선택 상태로 되돌리려면 '전체선택' 칩 사용)
-  if (type === 'categories') {
-    f.categories = new Set([val]);
-    f.subs = new Set();
-    const data = getCurrentData();
-    const validModels = new Set(data.items.filter(it => f.categories.has(it.category)).map(it => it.model));
-    f.items = new Set([...f.items].filter(m => validModels.has(m)));
-    renderFilters();
-    renderBody();
-    return;
-  }
   const set = f[type];
   if (set.has(val)) set.delete(val);
   else set.add(val);
+  // 카테고리 변경 시 품목 필터 영향 — 카테고리에서 빠진 품목은 자동 해제
+  if (type === 'categories') {
+    const data = getCurrentData();
+    const validModels = new Set(data.items.filter(it => f.categories.has(it.category)).map(it => it.model));
+    f.items = new Set([...f.items].filter(m => validModels.has(m)));
+  }
   // 세부품목(제조사) 변경 시 품목 필터 영향 — 세부품목에서 빠진 품목은 자동 해제
   if (type === 'subs') {
     const data = getCurrentData();
