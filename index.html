@@ -591,11 +591,10 @@ function toggleTheme() {
 const YEAR_OPTIONS = [2023, 2024, 2025, 2026];
 const MONTH_OPTIONS = [1,2,3,4,5,6,7,8,9,10,11,12];
 function makeDefaultFilter(items) {
-  const cats = [...new Set(items.map(it => it.category))];
   return {
     years: new Set([2026]),
     months: new Set(MONTH_OPTIONS), // 마감 여부 무관 — 전체 월 기본 선택
-    categories: new Set(cats),
+    categories: new Set(),  // empty = 전체 (품목·세부품목과 동일한 패턴 — 최초 로딩시 칩은 선택 안 된 것처럼 보이지만 전체 포함)
     subs: new Set(),    // 세부품목(제조사, 커플링플로이드 하위) — empty = 전체
     items: new Set(),  // empty = 전체 (필터 해제와 같음)
   };
@@ -606,7 +605,7 @@ function filterItems(items) {
   if (!f) return items;
   const itemAll = f.items.size === 0;
   return items.filter(it => {
-    if (!f.categories.has(it.category)) return false;
+    if (f.categories.size > 0 && !f.categories.has(it.category)) return false;
     if (f.subs && f.subs.size > 0 && it.subcategory && !f.subs.has(it.subcategory)) return false;
     if (!itemAll && !f.items.has(it.model)) return false;
     return true;
@@ -1767,11 +1766,11 @@ function renderFilters() {
   document.getElementById('filterCats').innerHTML = allCats.map(c =>
     `<span class="chip chip-cat ${f.categories.has(c)?'active':''}" data-ftype="categories" data-fval="${escapeAttr(c)}" onclick="toggleFilter('categories','${escapeAttr(c)}')">${c}</span>`
   ).join('');
-  // 세부품목(제조사) 칩 — 커플링플로이드가 선택된 경우에만 노출
+  // 세부품목(제조사) 칩 — 커플링플로이드가 선택된 경우(또는 미선택=전체)에만 노출
   renderSubFilterChips();
   // 품목 카운트 (세부품목 필터 반영)
   const totalItems = data.items.filter(it =>
-    f.categories.has(it.category) &&
+    (f.categories.size === 0 || f.categories.has(it.category)) &&
     (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory))
   ).length;
   document.getElementById('filterItemCount').textContent =
@@ -1780,7 +1779,7 @@ function renderFilters() {
   renderItemPicker();
   // 요약
   document.getElementById('filterSummary').textContent =
-    `연도 ${f.years.size}개 / 월 ${f.months.size}개 / 품목군 ${f.categories.size}개${f.subs.size?` / 세부 ${f.subs.size}개`:''} / 적용 품목 ${f.items.size===0?totalItems:f.items.size}개`;
+    `연도 ${f.years.size}개 / 월 ${f.months.size}개 / 품목군 ${f.categories.size === 0 ? '전체' : f.categories.size+'개'}${f.subs.size?` / 세부 ${f.subs.size}개`:''} / 적용 품목 ${f.items.size===0?totalItems:f.items.size}개`;
 }
 // 세부품목(제조사) 필터 칩 렌더링 — 커플링플로이드 하위 텐텍/제이시스/비올/원텍/청우
 function renderSubFilterChips() {
@@ -1788,7 +1787,8 @@ function renderSubFilterChips() {
   const data = getCurrentData(); if (!data) return;
   const row = document.getElementById('filterSubRow');
   if (!row) return;
-  if (!f.categories.has('커플링플로이드')) {
+  const cpIncluded = f.categories.size === 0 || f.categories.has('커플링플로이드');
+  if (!cpIncluded) {
     row.style.display = 'none';
     if (f.subs.size > 0) f.subs = new Set();
     return;
@@ -1824,7 +1824,7 @@ function renderItemPicker() {
   const list = document.getElementById('itemPickerList');
   if (!list) return;
   const visible = data.items.filter(it =>
-    f.categories.has(it.category) &&
+    (f.categories.size === 0 || f.categories.has(it.category)) &&
     (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory)) &&
     (!search || it.model.toLowerCase().includes(search) || (it.spec||'').toLowerCase().includes(search))
   );
@@ -1874,7 +1874,7 @@ function setFilterState(type, val, on) {
   else return false;
   if (type === 'categories') {
     const data = getCurrentData();
-    const validModels = new Set(data.items.filter(it => f.categories.has(it.category)).map(it => it.model));
+    const validModels = new Set(data.items.filter(it => (f.categories.size === 0 || f.categories.has(it.category))).map(it => it.model));
     f.items = new Set([...f.items].filter(m => validModels.has(m)));
   }
   return true;
@@ -1942,14 +1942,14 @@ function toggleFilter(type, val) {
   // 카테고리 변경 시 품목 필터 영향 — 카테고리에서 빠진 품목은 자동 해제
   if (type === 'categories') {
     const data = getCurrentData();
-    const validModels = new Set(data.items.filter(it => f.categories.has(it.category)).map(it => it.model));
+    const validModels = new Set(data.items.filter(it => (f.categories.size === 0 || f.categories.has(it.category))).map(it => it.model));
     f.items = new Set([...f.items].filter(m => validModels.has(m)));
   }
   // 세부품목(제조사) 변경 시 품목 필터 영향 — 세부품목에서 빠진 품목은 자동 해제
   if (type === 'subs') {
     const data = getCurrentData();
     const validModels = new Set(data.items.filter(it =>
-      f.categories.has(it.category) && (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory))
+      (f.categories.size === 0 || f.categories.has(it.category)) && (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory))
     ).map(it => it.model));
     f.items = new Set([...f.items].filter(m => validModels.has(m)));
   }
@@ -1974,7 +1974,7 @@ function toggleAllFilter(type) {
   else if (type === 'items') {
     // 품목은 토글이 의미 다름 — 모두 해제(=전체) 또는 모두 선택
     const valid = data.items.filter(it =>
-      f.categories.has(it.category) && (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory))
+      (f.categories.size === 0 || f.categories.has(it.category)) && (f.subs.size === 0 || !it.subcategory || f.subs.has(it.subcategory))
     ).map(it => it.model);
     if (f.items.size === valid.length) f.items.clear();
     else f.items = new Set(valid);
@@ -1985,7 +1985,7 @@ function toggleAllFilter(type) {
   else { set.clear(); all.forEach(v => set.add(v)); }
   if (type === 'categories') {
     f.subs = new Set();  // 품목군 전체선택/해제 시 세부품목 필터 초기화
-    const validModels = new Set(data.items.filter(it => f.categories.has(it.category)).map(it => it.model));
+    const validModels = new Set(data.items.filter(it => (f.categories.size === 0 || f.categories.has(it.category))).map(it => it.model));
     f.items = new Set([...f.items].filter(m => validModels.has(m)));
   }
   renderFilters();
