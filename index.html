@@ -1855,7 +1855,9 @@ function renderSubFilterChips() {
   const data = getCurrentData(); if (!data) return;
   const row = document.getElementById('filterSubRow');
   if (!row) return;
-  const cpIncluded = f.categories.size === 0 || f.categories.has('커플링플로이드');
+  // 품목군을 아무것도 선택하지 않은 상태(=전체 포함)에서도 세부(제조사) 행이 항상 보이던 것을
+  // 수정 — 커플링플로이드를 명시적으로 선택했을 때만 노출.
+  const cpIncluded = f.categories.has('커플링플로이드');
   if (!cpIncluded) {
     row.style.display = 'none';
     if (f.subs.size > 0) f.subs = new Set();
