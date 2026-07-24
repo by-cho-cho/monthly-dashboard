@@ -408,7 +408,7 @@ document.addEventListener('fullscreenchange', () => {
       <div class="filter-grid" id="filterSubs"></div>
       <span class="chip chip-all" onclick="toggleAllFilter('subs')">전체선택</span>
     </div>
-    <div class="filter-row">
+    <div class="filter-row" id="itemFilterRow">
       <span class="filter-label">품목 <span id="filterItemCount" style="font-weight:400;color:var(--text-muted);font-size:10px;">전체</span></span>
       <div class="filter-grid" id="itemChips" style="max-height:80px;overflow-y:auto;"></div>
       <input id="filterItemSearch" placeholder="🔍 검색" oninput="renderItemPicker()"
@@ -584,10 +584,10 @@ function toggleTheme() {
 })();
 const YEAR_OPTIONS = [2023, 2024, 2025, 2026];
 const MONTH_OPTIONS = [1,2,3,4,5,6,7,8,9,10,11,12];
-function makeDefaultFilter(items) {
+function makeDefaultFilter(items, dept) {
   return {
     years: new Set([2026]),
-    months: new Set(MONTH_OPTIONS), // 마감 여부 무관 — 전체 월 기본 선택
+    months: new Set(MONTH_OPTIONS.filter(m => m <= getSyncNowMonth(dept))), // 동기화 시점(현재월)까지만 기본 선택
     categories: new Set(),  // empty = 전체 (품목·세부품목과 동일한 패턴 — 최초 로딩시 칩은 선택 안 된 것처럼 보이지만 전체 포함)
     subs: new Set(),    // 세부품목(제조사, 커플링플로이드 하위) — empty = 전체
     items: new Set(),  // empty = 전체 (필터 해제와 같음)
@@ -785,6 +785,15 @@ function parse1Bu() {
       }
     }
   }
+  // Black Eye/Blue Eye: 같은 품목명에 SPEC(용량)만 다른 행이 여러 개 있어 필터에서
+  // 하나로 뭉쳐 합산되던 것을 방지 — 품목명에 SPEC을 포함해 별도 품목으로 구분.
+  // (25년 실측 매칭은 원본 model/spec 기준으로 이미 끝난 뒤라 영향 없음. 주간 대시보드와 동일 규칙)
+  for (const it of items) {
+    if ((it.category === 'Black Eye' || it.category === 'Blue Eye') && it.spec) {
+      it.model = `${it.model} ${it.spec}`;
+      it.spec = '';
+    }
+  }
   return { items, has2025: !!window.DATA_1BAN_2025 };
 }
 /* ============================================================
@@ -898,15 +907,21 @@ function parse2Ban() {
    RENDERING
    ============================================================ */
 function getCurrentData() { return APP.data[APP.currentDept]; }
-function getSyncDateStr() {
-  return APP.currentDept === '1반' ? window._CSV_1BAN_DATE : window._CSV_2BAN_DATE;
+function getSyncDateStr(dept) {
+  dept = dept || APP.currentDept;
+  return dept === '1반' ? window._CSV_1BAN_DATE : window._CSV_2BAN_DATE;
 }
+// 동기화 시점(데이터 로딩 시각) 기준 현재 연/월 — 그 이후 월은 아직 실적이 없어 선택 불가 처리
+function getSyncNow(dept) {
+  const ds = getSyncDateStr(dept);
+  const dt = ds ? new Date(ds.replace(' ','T')) : new Date();
+  return { y: dt.getFullYear(), m: dt.getMonth() + 1 };
+}
+function getSyncNowMonth(dept) { return getSyncNow(dept).m; }
 // 기준월 = 월 필터에서 선택한 마지막 월 (진행 중인 달 포함).
 // 단, 데이터가 없는 미래 월은 제외 — 현재월(동기화일 기준)을 넘지 않도록 캡.
 function getBaseMonth() {
-  const ds = getSyncDateStr();
-  const dt = ds ? new Date(ds.replace(' ','T')) : new Date();
-  const nowM = dt.getMonth() + 1; // 진행 중인 달 포함
+  const nowM = getSyncNowMonth(APP.currentDept);
   const f = getCurFilters();
   const selMax = f && f.months && f.months.size ? Math.max(...f.months) : nowM;
   return Math.max(1, Math.min(selMax, nowM));
@@ -1752,9 +1767,11 @@ function renderFilters() {
   // 월 칩 + 라벨에 monthlyYear 표기 (가장 최근 선택 연도)
   const latestYr = [...f.years].sort((a,b)=>b-a)[0] || 2026;
   document.getElementById('filterMonthYear').textContent = latestYr;
-  document.getElementById('filterMonths').innerHTML = MONTH_OPTIONS.map(m =>
-    `<span class="chip chip-month ${f.months.has(m)?'active':''}" data-ftype="months" data-fval="${m}" onclick="toggleFilter('months',${m})">${m}월</span>`
-  ).join('');
+  const syncNow = getSyncNow(APP.currentDept);
+  document.getElementById('filterMonths').innerHTML = MONTH_OPTIONS.map(m => {
+    const dis = latestYr === syncNow.y && m > syncNow.m;
+    return `<span class="chip chip-month ${f.months.has(m)?'active':''}" ${dis ? 'style="opacity:0.35;pointer-events:none;"' : ''} data-ftype="months" data-fval="${m}" onclick="toggleFilter('months',${m})">${m}월</span>`;
+  }).join('');
   // 카테고리 칩 (부서별)
   const allCats = [...new Set(data.items.map(it => it.category))];
   document.getElementById('filterCats').innerHTML = allCats.map(c =>
@@ -1814,6 +1831,15 @@ function detectSubcategory(cat, model) {
 function renderItemPicker() {
   const data = getCurrentData(); if (!data) return;
   const f = getCurFilters();
+  const row = document.getElementById('itemFilterRow');
+  // 품목군을 선택하지 않았을 때는 전체 품목이 나열돼 목록이 너무 길어지므로 행 자체를 숨김
+  // (주간 대시보드 renderItemChips와 동일한 규칙)
+  if (f.categories.size === 0) {
+    if (row) row.style.display = 'none';
+    if (f.items.size > 0) f.items = new Set();
+    return;
+  }
+  if (row) row.style.display = '';
   const search = (document.getElementById('filterItemSearch')?.value || '').toLowerCase().trim();
   const list = document.getElementById('itemChips');
   if (!list) return;
@@ -1931,7 +1957,11 @@ function toggleAllFilter(type) {
   const data = getCurrentData();
   let all = [];
   if (type === 'years') all = YEAR_OPTIONS;
-  else if (type === 'months') all = MONTH_OPTIONS;
+  else if (type === 'months') {
+    const latestYr = [...f.years].sort((a,b)=>b-a)[0] || 2026;
+    const syncNow = getSyncNow(APP.currentDept);
+    all = MONTH_OPTIONS.filter(m => !(latestYr === syncNow.y && m > syncNow.m));
+  }
   else if (type === 'categories') all = [...new Set(data.items.map(it => it.category))];
   else if (type === 'subs') {
     // 세부품목(제조사)도 토글 의미 다름 — 모두 해제(=전체 포함) 또는 모두 선택
@@ -1963,7 +1993,7 @@ function toggleAllFilter(type) {
 }
 function resetFilters() {
   const data = getCurrentData(); if (!data) return;
-  APP.filters[APP.currentDept] = makeDefaultFilter(data.items);
+  APP.filters[APP.currentDept] = makeDefaultFilter(data.items, APP.currentDept);
   renderFilters();
   renderBody();
 }
@@ -2099,8 +2129,8 @@ function init() {
     return;
   }
   // 부서별 필터 초기화
-  if (APP.data['1반']) APP.filters['1반'] = makeDefaultFilter(APP.data['1반'].items);
-  if (APP.data['2반']) APP.filters['2반'] = makeDefaultFilter(APP.data['2반'].items);
+  if (APP.data['1반']) APP.filters['1반'] = makeDefaultFilter(APP.data['1반'].items, '1반');
+  if (APP.data['2반']) APP.filters['2반'] = makeDefaultFilter(APP.data['2반'].items, '2반');
   // 기본 부서 선택 (둘 다 있으면 1반, 없으면 가능한 것)
   if (!APP.data['1반'] && APP.data['2반']) APP.currentDept = '2반';
   document.querySelectorAll('.toggle-btn[data-dept]').forEach(btn => {
