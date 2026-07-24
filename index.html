@@ -491,6 +491,19 @@ document.addEventListener('fullscreenchange', () => {
   </div>
 </section>
 <!-- ────────────────────────────────────────────────────── -->
+<!-- 4.5 TOP 성장/하락 품목 (수량 기준) -->
+<!-- ────────────────────────────────────────────────────── -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-4" style="padding: 24px 40px 0;">
+  <div class="card xl:col-span-6">
+    <div class="kpi-label">📈 TOP 5 성장 품목 (수량 기준)</div>
+    <div class="mt-3" id="topGrowthQty"></div>
+  </div>
+  <div class="card xl:col-span-6">
+    <div class="kpi-label">📉 TOP 5 하락 품목 (수량 기준)</div>
+    <div class="mt-3" id="topDeclineQty"></div>
+  </div>
+</section>
+<!-- ────────────────────────────────────────────────────── -->
 <!-- 5. 품목군별 성과 + 재고 알림 -->
 <!-- ────────────────────────────────────────────────────── -->
 <section class="grid grid-cols-1 xl:grid-cols-12 gap-4" style="padding: 24px 40px 40px;">
@@ -1698,6 +1711,50 @@ function renderTopMovers() {
     ? decline.map(m => rowHTML(m, 'var(--accent-red)')).join('')
     : '<div style="color:var(--text-muted);padding:14px;text-align:center;">데이터 없음</div>';
 }
+// TOP 성장/하락 (수량 기준) — %기준(renderTopMovers)은 저base 품목이 과장돼 보이는 문제가 있어,
+// 실제 물량 임팩트를 보려면 전년동기 대비 순증감 수량(diff) 자체로 정렬해서 별도로 보여준다.
+function renderTopMoversQty() {
+  const data = getCurrentData(); if (!data) return;
+  const items = filterItems(data.items);
+  const f = getCurFilters();
+  const curM = getBaseMonth();
+  const months = [...f.months].filter(m => m <= curM);
+  const yrs = [...f.years].sort();
+  const cur = yrs[yrs.length-1] || 2026;
+  const prev = cur - 1;
+  const moves = items.map(it => {
+    let p26 = 0, p25 = 0;
+    for (const m of months) {
+      if (cur === 2026) p26 += it.monthData?.[m]?.['생산']||0;
+      else p26 += (it.yearData?.[cur]?.['생산']||0) * (1/12);
+      if (prev === 2025) p25 += it.monthData2025?.[m]?.['생산'] || (it.yearData?.[2025]?.['생산']||0)/12;
+      else p25 += (it.yearData?.[prev]?.['생산']||0) * (1/12);
+    }
+    const diff = p26 - p25;
+    const rate = p25 > 0 ? diff/p25*100 : null;
+    return {model:it.model, spec:it.spec, cat:it.category, p26, p25, diff, rate};
+  });
+  const growth = [...moves].filter(m => m.diff > 0).sort((a,b) => b.diff - a.diff).slice(0, 5);
+  const decline = [...moves].filter(m => m.diff < 0).sort((a,b) => a.diff - b.diff).slice(0, 5);
+  const rowHTML = (m, color) => `
+    <div style="display:grid;grid-template-columns:1fr 80px 90px;align-items:center;padding:8px 0;border-bottom:1px solid var(--wash-4);">
+      <div>
+        <div style="font-weight:600;font-size:12px;">${m.model}</div>
+        <div style="font-size:9px;color:var(--text-muted);">${m.spec||''} · ${m.cat}</div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:var(--text-secondary);" class="num">${fmtN(m.p26)} ← ${fmtN(Math.round(m.p25))}</div>
+      <div style="text-align:right;">
+        <div style="font-weight:700;color:${color};font-size:14px;" class="num">${m.diff>=0?'▲ +':'▼ −'}${fmtN(Math.abs(m.diff))}</div>
+        <div style="font-size:9px;font-weight:600;color:var(--text-muted);">${m.rate!=null?`${m.rate>=0?'+':''}${m.rate.toFixed(1)}%`:'신규'}</div>
+      </div>
+    </div>`;
+  document.getElementById('topGrowthQty').innerHTML = growth.length
+    ? growth.map(m => rowHTML(m, 'var(--accent-mint)')).join('')
+    : '<div style="color:var(--text-muted);padding:14px;text-align:center;">데이터 없음</div>';
+  document.getElementById('topDeclineQty').innerHTML = decline.length
+    ? decline.map(m => rowHTML(m, 'var(--accent-red)')).join('')
+    : '<div style="color:var(--text-muted);padding:14px;text-align:center;">데이터 없음</div>';
+}
 function renderExecSummary() {
   const elOut = document.getElementById('execSummary');
   if (!elOut) return; // 표지·월간보고 페이지 제거로 요소 없음 — 안전 종료
@@ -2082,6 +2139,7 @@ function renderBody() {
   renderCatYoySummary();
   renderStockAlerts();
   renderTopMovers();
+  renderTopMoversQty();
   renderExecSummary();
   renderStockPanel();
 }
