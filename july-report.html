@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>생산기술팀 7월 실적 · 8월 계획</title>
+<style>
+  :root{
+    --bg:#F2F4F8; --bg-band:#FFFFFF; --card:#FFFFFF;
+    --border:#E3E8F0; --divider:#EDF0F5;
+    --text-1:#1A2333; --text-2:#4B5768; --text-3:#8892A0;
+    --gold:#A9791F; --cyan:#0B84C4; --mint:#0C9A73; --past:#5B7A99;
+    --gold-wash:rgba(169,121,31,.10); --cyan-wash:rgba(11,132,196,.09); --mint-wash:rgba(12,154,115,.10);
+    --ring-track: rgba(0,0,0,.08);
+    --shadow: 0 1px 2px rgba(20,30,50,.05), 0 10px 22px rgba(20,30,50,.07);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0A0E16; --bg-band:#0E141F; --card:#121927;
+      --border:rgba(255,255,255,.08); --divider:rgba(255,255,255,.07);
+      --text-1:#EAF0F8; --text-2:#B7C2D6; --text-3:#7C879C;
+      --gold:#D9B36C; --cyan:#5FCBFF; --mint:#3FE0B0; --past:#8FB2D9;
+      --gold-wash:rgba(217,179,108,.15); --cyan-wash:rgba(95,203,255,.12); --mint-wash:rgba(63,224,176,.14);
+      --ring-track: rgba(255,255,255,.10);
+      --shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 26px rgba(0,0,0,.4);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A0E16; --bg-band:#0E141F; --card:#121927;
+    --border:rgba(255,255,255,.08); --divider:rgba(255,255,255,.07);
+    --text-1:#EAF0F8; --text-2:#B7C2D6; --text-3:#7C879C;
+    --gold:#D9B36C; --cyan:#5FCBFF; --mint:#3FE0B0; --past:#8FB2D9;
+    --gold-wash:rgba(217,179,108,.15); --cyan-wash:rgba(95,203,255,.12); --mint-wash:rgba(63,224,176,.14);
+    --ring-track: rgba(255,255,255,.10);
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 26px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#F2F4F8; --bg-band:#FFFFFF; --card:#FFFFFF;
+    --border:#E3E8F0; --divider:#EDF0F5;
+    --text-1:#1A2333; --text-2:#4B5768; --text-3:#8892A0;
+    --gold:#A9791F; --cyan:#0B84C4; --mint:#0C9A73; --past:#5B7A99;
+    --gold-wash:rgba(169,121,31,.10); --cyan-wash:rgba(11,132,196,.09); --mint-wash:rgba(12,154,115,.10);
+    --ring-track: rgba(0,0,0,.08);
+    --shadow: 0 1px 2px rgba(20,30,50,.05), 0 10px 22px rgba(20,30,50,.07);
+    color-scheme: light;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text-1);
+    font-family:-apple-system,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{ font-variant-numeric:tabular-nums; font-family:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",monospace; }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:24px 22px 40px; }
+
+  .top-nav{ max-width:1180px; margin:0 auto; padding:14px 22px 0; }
+  .top-nav a{
+    display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700;
+    color:var(--cyan); text-decoration:none; border:1px solid var(--border); background:var(--card);
+    border-radius:8px; padding:4px 10px;
+  }
+  .top-nav a:hover{ border-color:var(--cyan); }
+
+  .band{
+    background:var(--bg-band); border:1px solid var(--border); border-radius:16px;
+    box-shadow:var(--shadow); padding:16px 26px; margin-bottom:16px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  }
+  .eyebrow{ font-size:10.5px; font-weight:800; letter-spacing:.16em; color:var(--gold); text-transform:uppercase; }
+  h1{ margin:3px 0 0; font-size:20px; font-weight:800; letter-spacing:-0.01em; text-wrap:balance; }
+  .meta{ font-size:11.5px; color:var(--text-3); margin-top:2px; }
+
+  /* ---- 편집 툴바 ---- */
+  .toolbar{ display:flex; gap:6px; flex:0 0 auto; }
+  .toolbar button{
+    font-family:inherit; font-size:11px; font-weight:700; padding:6px 11px; border-radius:8px;
+    border:1px solid var(--border); background:var(--bg); color:var(--text-2); cursor:pointer;
+  }
+  .toolbar button:hover{ border-color:var(--cyan); color:var(--cyan); }
+  .toolbar button:focus-visible{ outline:2px solid var(--cyan); outline-offset:1px; }
+  #editBtn.on{ background:var(--cyan); border-color:var(--cyan); color:#08131C; }
+  .edit-hint{
+    display:none; font-size:11px; color:var(--text-3); background:var(--card); border:1px solid var(--border);
+    border-radius:10px; padding:8px 14px; margin-bottom:14px;
+  }
+  body.edit-mode .edit-hint{ display:block; }
+  body.edit-mode [data-editable]:hover{ cursor:text; }
+  body.edit-mode [data-editable]:focus{ outline:none; }
+
+  .grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; }
+  @media (max-width:900px){ .grid{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:600px){ .grid{ grid-template-columns:1fr; } }
+
+  .card{
+    position:relative; overflow:hidden;
+    background:var(--card); border:1px solid var(--border); border-radius:18px;
+    box-shadow:var(--shadow); border-top:4px solid var(--accent);
+    padding:18px 18px 16px;
+  }
+  .bg-icon{ position:absolute; right:-14px; top:-14px; width:120px; height:120px; opacity:.05; color:var(--accent); pointer-events:none; }
+  .bg-icon svg{ width:100%; height:100%; }
+
+  .card-head{ display:flex; align-items:center; gap:12px; margin-bottom:12px; position:relative; z-index:1; }
+  .icon-badge{
+    width:50px; height:50px; border-radius:14px; flex:0 0 auto;
+    background:var(--accent-wash); color:var(--accent);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .icon-badge svg{ width:27px; height:27px; }
+  .card-title{ font-size:15px; font-weight:800; letter-spacing:-0.005em; line-height:1.25; }
+  .card-dept{ font-size:10px; color:var(--text-3); font-weight:700; }
+
+  .hero{ display:flex; align-items:baseline; gap:7px; margin:2px 0 14px; position:relative; z-index:1; }
+  .hero .big{ font-size:32px; font-weight:800; color:var(--accent); line-height:1; }
+  .hero .lbl{ font-size:11.5px; color:var(--text-2); font-weight:700; }
+  .no-hero{ margin-bottom:14px; }
+
+  .ring-hero{ display:flex; align-items:center; gap:12px; margin:2px 0 14px; position:relative; z-index:1; }
+  .ring-hero .ring{ width:58px; height:58px; position:relative; flex:0 0 auto; }
+  .ring-hero .ring svg{ width:58px; height:58px; transform:rotate(-90deg); }
+  .ring-hero .ring .pct{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:var(--mint); }
+  .ring-hero .lbl{ font-size:11.5px; color:var(--text-2); font-weight:700; line-height:1.4; }
+  .ring-hero .lbl b{ display:block; font-size:13px; color:var(--text-1); }
+
+  .split{ display:grid; grid-template-columns:1fr 1fr; gap:12px; position:relative; z-index:1; }
+  .split .side.aug{ border-left:1px solid var(--divider); padding-left:12px; }
+  .split .lab{ font-size:11.7px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; margin-bottom:5px; }
+  .split .jul .lab{ color:var(--past); }
+  .split .aug .lab{ color:var(--gold); }
+  .split ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px; }
+  .split li{ font-size:11.5px; font-weight:600; color:var(--text-2); line-height:1.4; }
+  .split li .sub{ display:block; font-size:10px; font-weight:600; color:var(--text-3); }
+
+  .kicker{ font-size:12px; font-weight:800; color:var(--accent); margin:2px 0 12px; position:relative; z-index:1; }
+
+  .steps li{ display:flex; align-items:flex-start; gap:6px; }
+  .stepnum{
+    flex:0 0 auto; width:15px; height:15px; border-radius:50%; margin-top:1px;
+    background:var(--accent-wash); color:var(--accent);
+    font-size:9px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  }
+
+  /* 7월↔8월 항목을 순서대로 줄 맞춰 대응시키는 표 */
+  .pairs{ display:flex; flex-direction:column; position:relative; z-index:1; }
+  .pairs-head{ display:grid; grid-template-columns:54px 1fr 1fr; gap:10px; margin-bottom:6px; }
+  .pairs-head .lab{ font-size:11.7px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
+  .pairs-head .jul{ color:var(--past); }
+  .pairs-head .aug{ color:var(--gold); }
+  .pair-row{
+    display:grid; grid-template-columns:54px 1fr 1fr; gap:10px; align-items:flex-start;
+    padding:6px 0; border-top:1px solid var(--divider);
+  }
+  .pair-row:first-of-type{ border-top:none; padding-top:0; }
+  .pair-row .p-jul, .pair-row .p-aug{ font-size:11.5px; font-weight:600; color:var(--text-2); line-height:1.4; }
+  .pair-row .p-aug{ border-left:1px solid var(--divider); padding-left:10px; color:var(--text-1); }
+  .pair-row .sub{ display:block; font-size:10px; font-weight:600; color:var(--text-3); }
+  .tracklab{
+    display:inline-flex; align-items:center; justify-content:center; text-align:center;
+    font-size:9.5px; font-weight:800; padding:3px 6px; border-radius:6px; margin-top:1px;
+    background:var(--accent-wash); color:var(--accent); white-space:nowrap;
+  }
+
+  .foot{ margin-top:18px; text-align:center; font-size:10.5px; color:var(--text-3); }
+
+  @media print{
+    @page{ size: A4 landscape; margin:8mm; }
+    body{ background:#fff; }
+    .wrap{ padding:0; max-width:none; }
+    .band, .card{ box-shadow:none; }
+    .toolbar, .edit-hint, .top-nav{ display:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-nav no-print"><a href="./index.html" title="월간 생산 종합 대시보드로 이동">← 월간 생산 종합 대시보드</a></div>
+
+<div class="wrap" id="reportRoot">
+
+  <div class="band">
+    <div>
+      <div class="eyebrow">Monthly Progress Report</div>
+      <h1 data-editable data-key="title">생산기술팀 7월 실적 · 8월 계획</h1>
+      <div class="meta" data-editable data-key="subtitle">대표이사 보고 · 6개 트랙 요약</div>
+    </div>
+    <div class="toolbar no-print">
+      <button id="editBtn" onclick="toggleEdit()">✏️ 편집 모드</button>
+      <button id="saveBtn" onclick="saveEdits()">💾 저장</button>
+      <button onclick="resetEdits()">↺ 원래대로</button>
+      <button onclick="exportHTML()">⬇ 파일로 저장</button>
+    </div>
+  </div>
+
+  <div class="edit-hint no-print">✏️ 편집 모드 — 원하는 텍스트를 클릭해서 바로 수정하세요. 다 고치면 <b>💾 저장</b>(이 브라우저에 자동 보관) 또는 <b>⬇ 파일로 저장</b>(새 html 파일로 다운로드)을 눌러주세요.</div>
+
+  <div class="grid">
+
+    <!-- 생산 고도화 -->
+    <div class="card" style="--accent:var(--cyan); --accent-wash:var(--cyan-wash);">
+      <div class="bg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 18a8 8 0 1 1 16 0"/><line x1="12" y1="18" x2="16" y2="10"/></svg></div>
+      <div class="card-head">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18a8 8 0 1 1 16 0"/><line x1="12" y1="18" x2="16" y2="10"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg></div>
+        <div><div class="card-dept" data-editable data-key="c1-dept">생산기술팀</div><div class="card-title" data-editable data-key="c1-title">생산 고도화</div></div>
+      </div>
+      <div class="kicker" data-editable data-key="c1-kicker">◆ 생산 고도화 프로젝트 시작</div>
+      <div class="pairs">
+        <div class="pairs-head"><span></span><span class="lab jul">7월</span><span class="lab aug">8월</span></div>
+        <div class="pair-row">
+          <span class="stepnum">1</span>
+          <div class="p-jul" data-editable data-key="c1-r1-jul">공정표준시간 최신화</div>
+          <div class="p-aug" data-editable data-key="c1-r1-aug">2반 표준시간 측정 완료</div>
+        </div>
+        <div class="pair-row">
+          <span class="stepnum">2</span>
+          <div class="p-jul" data-editable data-key="c1-r2-jul">자재 사용량 투명성 확보 <span class="sub">(작업지시수량만큼 불출)</span></div>
+          <div class="p-aug" data-editable data-key="c1-r2-aug">작업지시서 전면 실행</div>
+        </div>
+        <div class="pair-row">
+          <span class="stepnum">3</span>
+          <div class="p-jul" data-editable data-key="c1-r3-jul">품질개선 — 분업화·2반 시리얼번호 도입</div>
+          <div class="p-aug" data-editable data-key="c1-r3-aug">일부공정 우선진행</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 원가절감 -->
+    <div class="card" style="--accent:var(--mint); --accent-wash:var(--mint-wash);">
+      <div class="bg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><line x1="8" y1="16" x2="16" y2="8"/></svg></div>
+      <div class="card-head">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="8" y1="16" x2="16" y2="8"/><circle cx="9" cy="9" r="0.6" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="0.6" fill="currentColor" stroke="none"/></svg></div>
+        <div><div class="card-dept" data-editable data-key="c2-dept">구매팀</div><div class="card-title" data-editable data-key="c2-title">원가절감</div></div>
+      </div>
+      <div class="ring-hero">
+        <div class="ring">
+          <svg viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--ring-track)" stroke-width="3.4"/>
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--mint)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="65 100"/>
+          </svg>
+          <div class="pct num">65%</div>
+        </div>
+        <div class="lbl" data-editable data-key="c2-ringlbl"><b class="num">1.3억 절감</b>목표 2억 대비 65%</div>
+      </div>
+      <div class="split">
+        <div class="side jul"><div class="lab">7월</div><ul><li data-editable data-key="c2-jul1">매입비 10%↓</li></ul></div>
+        <div class="side aug"><div class="lab">8월</div><ul><li data-editable data-key="c2-aug1">AI를 이용한 구매 관리툴 마련하여 관리업체 선정<span class="sub">(리스크 분류)</span></li></ul></div>
+      </div>
+    </div>
+
+    <!-- RF+PF Ablation -->
+    <div class="card" style="--accent:var(--cyan); --accent-wash:var(--cyan-wash);">
+      <div class="bg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,12 8,12 10,6 14,18 16,12 21,12"/></svg></div>
+      <div class="card-head">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,12 8,12 10,6 14,18 16,12 21,12"/></svg></div>
+        <div><div class="card-dept" data-editable data-key="c3-dept">생산기술팀</div><div class="card-title" data-editable data-key="c3-title">RF+PF Ablation</div></div>
+      </div>
+      <div class="hero"><span class="big" data-editable data-key="c3-herobig">2</span><span class="lbl" data-editable data-key="c3-herolbl">Track 개발중 (내재화·외주화)</span></div>
+      <div class="pairs">
+        <div class="pairs-head"><span></span><span class="lab jul">7월</span><span class="lab aug">8월</span></div>
+        <div class="pair-row">
+          <span class="tracklab" data-editable data-key="c3-t1-lab">내재화</span>
+          <div class="p-jul" data-editable data-key="c3-t1-jul">생기원 협업 <span class="sub">10월까지 feasibility sample 확보, 내년 인증용 샘플 완성 목표</span></div>
+          <div class="p-aug" data-editable data-key="c3-t1-aug">멀티루멘 샤프트 압출 금형 준비, 격주 줌미팅 실시</div>
+        </div>
+        <div class="pair-row">
+          <span class="tracklab" data-editable data-key="c3-t2-lab">외주화</span>
+          <div class="p-jul" data-editable data-key="c3-t2-jul">EverPace 방문 <span class="sub">RF·PF·Cryo Ablation 라인업 구축·자체생산 협의, APHRS(10/21) 전까지 계약 요청받음</span></div>
+          <div class="p-aug" data-editable data-key="c3-t2-aug">EverPace 수입 모델 선정 및 인증 준비</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6Fr Deca 개선 -->
+    <div class="card" style="--accent:var(--gold); --accent-wash:var(--gold-wash);">
+      <div class="bg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="6" x2="4" y2="18"/><line x1="20" y1="6" x2="20" y2="18"/><line x1="4" y1="12" x2="20" y2="12"/></svg></div>
+      <div class="card-head">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="4" y2="18"/><line x1="20" y1="6" x2="20" y2="18"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="8" y1="9" x2="8" y2="15"/><line x1="16" y1="9" x2="16" y2="15"/></svg></div>
+        <div><div class="card-dept" data-editable data-key="c4-dept">생산기술팀</div><div class="card-title" data-editable data-key="c4-title">6Fr Deca 개선</div></div>
+      </div>
+      <div class="split no-hero" style="margin-top:2px;">
+        <div class="side jul"><div class="lab">7월</div><ul><li data-editable data-key="c4-jul1">다수의 설계 변경 포인트 반영한 작업표준서 개정완료</li><li data-editable data-key="c4-jul2">양산 자재 발주<span class="sub">(200개분)</span></li></ul></div>
+        <div class="side aug"><div class="lab">8월</div><ul><li data-editable data-key="c4-aug1">종합병원 샘플평가</li><li data-editable data-key="c4-aug2">포장 트레이 디자인 확정</li></ul></div>
+      </div>
+    </div>
+
+    <!-- EP Catheter 개선 -->
+    <div class="card" style="--accent:var(--cyan); --accent-wash:var(--cyan-wash);">
+      <div class="bg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 5 14h6l-2 8 9-13h-6l1-7z"/></svg></div>
+      <div class="card-head">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 14h6l-2 8 9-13h-6l1-7z"/></svg></div>
+        <div><div class="card-dept" data-editable data-key="c5-dept">생산기술팀</div><div class="card-title" data-editable data-key="c5-title">EP Catheter 개선</div></div>
+      </div>
+      <div class="hero"><span class="big num" data-editable data-key="c5-herobig">5×</span><span class="lbl" data-editable data-key="c5-herolbl">생산성 향상 기대</span></div>
+      <div class="split">
+        <div class="side jul"><div class="lab">7월</div><ul class="steps">
+          <li><span class="stepnum">1</span><span data-editable data-key="c5-jul1">팁 웰딩 → 저항용접 전환 <span class="sub">벤스톤 저항용접기 구매, 숙련자 불필요, 생산성 5배 향상 예상</span></span></li>
+          <li><span class="stepnum">2</span><span data-editable data-key="c5-jul2">대체 공법 2가지 확보 완료 <span class="sub">열경화 에폭시, 초음파접합</span></span></li>
+          <li><span class="stepnum">3</span><span data-editable data-key="c5-jul3">커넥터 반자동 납땜기 테스트 중 <span class="sub">현재 2인 작업 → 작업 단축 목적</span></span></li>
+        </ul></div>
+        <div class="side aug"><div class="lab">8월</div><ul class="steps">
+          <li><span class="stepnum">1</span><span data-editable data-key="c5-aug1">저항용접 조건 테스트 후 공정 도입</span></li>
+          <li><span class="stepnum">2</span><span data-editable data-key="c5-aug2">와이어 자동 탈피 검토 <span class="sub">반자동 탈피 가능 확인, 커팅 포함 전체자동화 탐색 중</span></span></li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- UZ 준비 -->
+    <div class="card" style="--accent:var(--mint); --accent-wash:var(--mint-wash);">
+      <div class="bg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20V10l5 3V10l5 3V10l5 3v7z"/><line x1="3" y1="20" x2="21" y2="20"/></svg></div>
+      <div class="card-head">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V10l5 3V10l5 3V10l5 3v7z"/><line x1="3" y1="20" x2="21" y2="20"/></svg></div>
+        <div><div class="card-dept" data-editable data-key="c6-dept">생산기술팀</div><div class="card-title" data-editable data-key="c6-title">UZ 준비</div></div>
+      </div>
+      <div class="split no-hero" style="margin-top:2px;">
+        <div class="side jul"><div class="lab">7월</div><ul><li data-editable data-key="c6-jul1">레이저 장비 설치 완료</li><li data-editable data-key="c6-jul2">1인 채용 완료</li></ul></div>
+        <div class="side aug"><div class="lab">8월</div><ul><li data-editable data-key="c6-aug1">자동드릴링 장비 세팅 완료 및 시험 가동</li><li data-editable data-key="c6-aug2">스웨징 장비 세팅 완료 및 시험 가동</li></ul></div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var KEY = 'ptReportContent_v2';
+  function rootEl(){ return document.getElementById('reportRoot'); }
+
+  function loadSaved(){
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var map = JSON.parse(raw);
+      var els = document.querySelectorAll('[data-editable]');
+      for (var i=0;i<els.length;i++){
+        var k = els[i].getAttribute('data-key');
+        if (k && Object.prototype.hasOwnProperty.call(map, k)) els[i].innerHTML = map[k];
+      }
+    } catch(e){}
+  }
+
+  window.toggleEdit = function(){
+    var on = document.body.classList.toggle('edit-mode');
+    var els = document.querySelectorAll('[data-editable]');
+    for (var i=0;i<els.length;i++){ els[i].contentEditable = on ? 'true' : 'false'; }
+    var btn = document.getElementById('editBtn');
+    btn.textContent = on ? '✅ 편집 완료' : '✏️ 편집 모드';
+    btn.classList.toggle('on', on);
+  };
+
+  window.saveEdits = function(){
+    try {
+      var map = {};
+      var els = document.querySelectorAll('[data-editable]');
+      for (var i=0;i<els.length;i++){
+        var k = els[i].getAttribute('data-key');
+        if (k) map[k] = els[i].innerHTML;
+      }
+      localStorage.setItem(KEY, JSON.stringify(map));
+      var btn = document.getElementById('saveBtn');
+      var old = btn.textContent;
+      btn.textContent = '✅ 저장됨';
+      setTimeout(function(){ btn.textContent = old; }, 1400);
+    } catch(e){
+      alert('저장에 실패했습니다.');
+    }
+  };
+
+  window.resetEdits = function(){
+    if (!window.confirm('편집한 내용을 지우고 원래 내용으로 되돌릴까요?')) return;
+    try { localStorage.removeItem(KEY); } catch(e){}
+    location.reload();
+  };
+
+  window.exportHTML = function(){
+    var styleTag = document.querySelector('style').outerHTML;
+    var titleTag = document.querySelector('title') ? document.querySelector('title').outerHTML : '';
+    var bodyHtml = rootEl().outerHTML;
+    var doc = '<meta charset="UTF-8">\n' + titleTag + '\n' + styleTag + '\n' + bodyHtml + '\n<script>' +
+      document.querySelector('script').textContent.replace(/<\/script>/g,'') + '<' + '/script>';
+    var blob = new Blob([doc], {type:'text/html;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var d = new Date();
+    var stamp = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+    a.href = url;
+    a.download = '생산기술팀_보고_' + stamp + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  loadSaved();
+})();
+</script>
+</body>
+</html>
