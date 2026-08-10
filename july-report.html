@@ -210,6 +210,13 @@
     70%{ box-shadow:0 0 0 8px transparent; }
     100%{ box-shadow:0 0 0 0 transparent; }
   }
+  .cover-link{
+    position:fixed; top:20px; left:22px; z-index:10000;
+    display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700;
+    color:var(--cyan); text-decoration:none; border:1px solid var(--border); background:var(--card);
+    border-radius:8px; padding:4px 10px;
+  }
+  .cover-link:hover{ border-color:var(--cyan); }
   .report-main{ transition:opacity .4s ease; }
   .report-main.hidden{ display:none; opacity:0; }
   .cover-btn{
@@ -234,6 +241,7 @@
 <body>
 
 <div class="cover" id="coverScreen" onclick="enterReport()">
+  <a class="cover-link no-print" href="https://by-cho-cho.github.io/weekly-dashboard/" title="더스탠다드 생산 현황으로 이동" onclick="event.stopPropagation()">← 더스탠다드 생산 현황</a>
   <div class="cover-inner">
     <div class="cover-eyebrow">Monthly Progress Report · 생산부</div>
     <h1 class="cover-title">생산부 <b>7월간</b> 보고</h1>
@@ -246,7 +254,7 @@
 <div class="report-main hidden" id="reportMain">
 <button class="cover-btn no-print" onclick="showCover()" title="표지로 돌아가기">⌂ 표지</button>
 
-<div class="top-nav no-print"><a href="./index.html" title="월간 생산 종합 대시보드로 이동">← 월간 생산 종합 대시보드</a></div>
+<div class="top-nav no-print"><a href="https://by-cho-cho.github.io/weekly-dashboard/" title="더스탠다드 생산 현황으로 이동">← 더스탠다드 생산 현황</a></div>
 
 <div class="wrap" id="reportRoot">
 
