@@ -167,16 +167,84 @@
 
   .foot{ margin-top:18px; text-align:center; font-size:10.5px; color:var(--text-3); }
 
+  /* ---- 겉표지 ---- */
+  .cover{
+    position:fixed; inset:0; z-index:9999; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(ellipse at 25% 20%, var(--gold-wash), transparent 55%),
+      radial-gradient(ellipse at 75% 80%, var(--cyan-wash), transparent 55%),
+      var(--bg);
+    transition:opacity .5s ease, visibility .5s ease;
+  }
+  .cover::before, .cover::after{
+    content:""; position:absolute; left:0; right:0; height:3px;
+  }
+  .cover::before{ top:0; background:linear-gradient(90deg, transparent, var(--gold) 50%, transparent); }
+  .cover::after{ bottom:0; background:linear-gradient(90deg, transparent, var(--cyan) 50%, transparent); }
+  .cover.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+  .cover-inner{ text-align:center; max-width:760px; padding:40px; }
+  .cover-eyebrow{ font-size:11px; font-weight:800; letter-spacing:.35em; color:var(--gold); text-transform:uppercase; }
+  .cover-title{
+    margin:18px 0 0; font-size:46px; font-weight:800; line-height:1.2;
+    color:var(--text-1); letter-spacing:-0.01em;
+  }
+  .cover-title b{ color:var(--gold); font-weight:800; }
+  .cover-rule{
+    width:110px; height:2px; margin:32px auto;
+    background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .cover-date{ font-size:13px; color:var(--text-2); letter-spacing:.06em; }
+  .cover-date b{ color:var(--text-1); font-weight:700; margin-left:6px; }
+  .cover-enter{
+    margin-top:56px; font-size:11px; color:var(--text-3); letter-spacing:.32em;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .cover-dot{
+    width:7px; height:7px; border-radius:50%; background:var(--mint);
+    box-shadow:0 0 0 0 var(--mint-wash);
+    animation:coverPulse 2s infinite;
+  }
+  @keyframes coverPulse{
+    0%{ box-shadow:0 0 0 0 var(--mint-wash); }
+    70%{ box-shadow:0 0 0 8px transparent; }
+    100%{ box-shadow:0 0 0 0 transparent; }
+  }
+  .report-main{ transition:opacity .4s ease; }
+  .report-main.hidden{ display:none; opacity:0; }
+  .cover-btn{
+    position:fixed; bottom:18px; right:18px; z-index:500;
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; font-weight:700; letter-spacing:.06em;
+    padding:8px 14px; border-radius:10px; cursor:pointer;
+    background:var(--gold-wash); color:var(--gold); border:1px solid var(--border);
+    box-shadow:var(--shadow);
+  }
+
   @media print{
     @page{ size: A4 landscape; margin:8mm; }
     body{ background:#fff; }
     .wrap{ padding:0; max-width:none; }
     .band, .card{ box-shadow:none; }
-    .toolbar, .edit-hint, .top-nav{ display:none !important; }
+    .toolbar, .edit-hint, .top-nav, .cover, .cover-btn{ display:none !important; }
+    .report-main.hidden{ display:block !important; opacity:1 !important; }
   }
 </style>
 </head>
 <body>
+
+<div class="cover" id="coverScreen" onclick="enterReport()">
+  <div class="cover-inner">
+    <div class="cover-eyebrow">Monthly Progress Report · 생산부</div>
+    <h1 class="cover-title">생산부 <b>7월간</b> 보고</h1>
+    <div class="cover-rule"></div>
+    <div class="cover-date">보고일 <b>2026년 8월 10일</b></div>
+    <div class="cover-enter"><span class="cover-dot"></span>CLICK TO ENTER</div>
+  </div>
+</div>
+
+<div class="report-main hidden" id="reportMain">
+<button class="cover-btn no-print" onclick="showCover()" title="표지로 돌아가기">⌂ 표지</button>
 
 <div class="top-nav no-print"><a href="./index.html" title="월간 생산 종합 대시보드로 이동">← 월간 생산 종합 대시보드</a></div>
 
@@ -325,9 +393,29 @@
 
 </div>
 
+</div>
+
 <script>
 (function(){
   var KEY = 'ptReportContent_v2';
+
+  window.enterReport = function(){
+    var cover = document.getElementById('coverScreen');
+    var main = document.getElementById('reportMain');
+    if (!cover || !main) return;
+    main.classList.remove('hidden');
+    void main.offsetWidth;
+    cover.classList.add('hide');
+  };
+
+  window.showCover = function(){
+    var cover = document.getElementById('coverScreen');
+    var main = document.getElementById('reportMain');
+    if (!cover || !main) return;
+    main.classList.add('hidden');
+    cover.classList.remove('hide');
+  };
+
   function rootEl(){ return document.getElementById('reportRoot'); }
 
   function loadSaved(){
